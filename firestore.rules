@@ -1,0 +1,82 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signed() { return request.auth != null; }
+    function admin() {
+      return signed()
+        && request.auth.token.email == 'willbrasilia@gmail.com'
+        && request.auth.token.email_verified == true;
+    }
+    function isServidor() {
+      return signed() && exists(/databases/$(database)/documents/servidores/$(request.auth.uid));
+    }
+
+    // Configuração da campanha (ano, data de entrega)
+    match /config/{d} {
+      allow read: if true;
+      allow write: if admin();
+    }
+
+    // Perfil público dos terceirizados (sem telefone/e-mail)
+    match /apadrinhados/{id} {
+      allow read: if true;
+      allow create, delete: if admin();
+      allow update: if admin() || (isServidor() && (
+        // servidor escolhe um afilhado livre
+        ( resource.data.apadrinhado == false
+          && request.resource.data.apadrinhado == true
+          && request.resource.data.padrinhoId == request.auth.uid
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['apadrinhado','padrinhoId'])
+          && existsAfter(/databases/$(database)/documents/apadrinhamentos/$(id))
+          && getAfter(/databases/$(database)/documents/apadrinhamentos/$(id)).data.padrinhoId == request.auth.uid )
+        ||
+        // servidor desiste do próprio afilhado
+        ( resource.data.apadrinhado == true
+          && resource.data.padrinhoId == request.auth.uid
+          && request.resource.data.apadrinhado == false
+          && request.resource.data.padrinhoId == null
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['apadrinhado','padrinhoId'])
+          && !existsAfter(/databases/$(database)/documents/apadrinhamentos/$(id)) )
+      ));
+    }
+
+    // Dados de contato dos terceirizados: somente administrador
+    match /apadrinhados_privado/{id} {
+      allow read, write: if admin();
+    }
+
+    // Um documento por afilhado (id = id do apadrinhado), garantindo 1 padrinho por afilhado
+    match /apadrinhamentos/{id} {
+      allow read: if admin() || (signed() && resource.data.padrinhoId == request.auth.uid);
+      allow create: if admin() || (isServidor()
+        && request.resource.data.padrinhoId == request.auth.uid
+        && exists(/databases/$(database)/documents/apadrinhados/$(id)));
+      allow update: if admin() || (signed() && resource.data.padrinhoId == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['presente','mensagem']));
+      allow delete: if admin() || (signed() && resource.data.padrinhoId == request.auth.uid);
+    }
+
+    // Servidores
+    match /servidores/{uid} {
+      allow read: if admin() || (signed() && request.auth.uid == uid);
+      allow create: if admin() || (signed() && request.auth.uid == uid
+        && exists(/databases/$(database)/documents/convites/$(request.resource.data.convite))
+        && (get(/databases/$(database)/documents/convites/$(request.resource.data.convite)).data.multi == true
+            || get(/databases/$(database)/documents/convites/$(request.resource.data.convite)).data.usado == false));
+      allow update: if admin() || (signed() && request.auth.uid == uid
+        && request.resource.data.convite == resource.data.convite);
+      allow delete: if admin();
+    }
+
+    // Convites: o link (id aleatório) permite ler só aquele convite
+    match /convites/{id} {
+      allow get: if true;
+      allow list, create, delete: if admin();
+      allow update: if admin() || (signed()
+        && resource.data.usado == false
+        && request.resource.data.usado == true
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['usado','usadoPor','usadoEm']));
+    }
+  }
+}
