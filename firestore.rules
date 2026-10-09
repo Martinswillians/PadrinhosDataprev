@@ -32,7 +32,11 @@ service cloud.firestore {
     // Administradores e permissões (apenas o administrador principal gerencia)
     match /admins/{email} {
       allow get: if superAdmin() || (signed() && request.auth.token.email == email);
-      allow list, write: if superAdmin();
+      allow list, create, delete: if superAdmin();
+      // cada administrador edita o próprio perfil (nunca as permissões)
+      allow update: if superAdmin() || (signed() && request.auth.token.email == email
+        && request.auth.token.email_verified == true
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['nome','area','lotacao','fone','foto','descricao']));
     }
 
     // Perfil público dos terceirizados (sem telefone/e-mail).
@@ -70,18 +74,19 @@ service cloud.firestore {
         && id == request.resource.data.apadrinhadoId + '_' + request.auth.uid
         && exists(/databases/$(database)/documents/apadrinhados/$(request.resource.data.apadrinhadoId)));
       allow update: if can('entregas') || can('terceirizados') || (signed() && resource.data.padrinhoId == request.auth.uid
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['presente','mensagem']));
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['presente','mensagem','padrinhoNome']));
       allow delete: if can('terceirizados') || can('entregas') || (signed() && resource.data.padrinhoId == request.auth.uid);
     }
 
     // Pedidos de acesso enviados por quem não recebeu convite (qualquer pessoa pode enviar; só admins leem)
     match /solicitacoes/{id} {
-      allow create: if request.resource.data.keys().hasOnly(['nome','email','area','lotacao','mensagem','status','criadoEm'])
+      allow create: if request.resource.data.keys().hasOnly(['nome','email','area','lotacao','fone','mensagem','status','criadoEm'])
         && request.resource.data.status == 'pendente'
         && request.resource.data.nome is string && request.resource.data.nome.size() > 0 && request.resource.data.nome.size() <= 120
         && request.resource.data.email is string && request.resource.data.email.size() > 3 && request.resource.data.email.size() <= 160
         && request.resource.data.area is string && request.resource.data.area.size() <= 120
         && request.resource.data.lotacao is string && request.resource.data.lotacao.size() <= 120
+        && request.resource.data.fone is string && request.resource.data.fone.size() <= 30
         && request.resource.data.mensagem is string && request.resource.data.mensagem.size() <= 800;
       allow read, update, delete: if can('convites');
     }
