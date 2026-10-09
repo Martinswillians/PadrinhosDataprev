@@ -153,7 +153,7 @@ const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmt=d=>d?d.split("-").reverse().join("/"):"";
 const ini=n=>(n||"?").split(" ").filter(Boolean).slice(0,2).map(x=>x[0]).join("").toUpperCase();
-const S={fa:{q:"",prof:"",lot:"",sit:""},fs:{q:"",area:"",lot:"",sit:""},aba:"esperam",user:null,admin:false,super:false,perms:{},perfil:null,cfg:{ano:new Date().getFullYear(),dataEntrega:new Date().getFullYear()+"-12-15"},ap:[],filtro:"Todos",busy:false,adm:null,my:[]};
+const S={busca:{q:"",lot:""},fa:{q:"",prof:"",lot:"",sit:""},fs:{q:"",area:"",lot:"",sit:""},aba:"esperam",user:null,admin:false,super:false,perms:{},perfil:null,cfg:{ano:new Date().getFullYear(),dataEntrega:new Date().getFullYear()+"-12-15"},ap:[],filtro:"Todos",busy:false,adm:null,my:[]};
 const toast=m=>{const t=$("#toast");t.textContent=m;t.style.display="block";clearTimeout(toast.h);toast.h=setTimeout(()=>t.style.display="none",4200)};
 const av=(a,c="")=>a?.foto?`<img class="av ${c}" src="${a.foto}" alt="Foto de ${esc(a.nome)}">`:`<div class="av ${c}" aria-hidden="true">${esc(ini(a?.nome))}</div>`;
 const g=async n=>(await getDocs(collection(db,n))).docs.map(d=>({id:d.id,...d.data()}));
@@ -225,6 +225,14 @@ async function render(keep){
 window.addEventListener("hashchange",()=>render());
 
 /* ===================== VIEWS ===================== */
+const norm=t=>String(t||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+const has=(txt,q)=>!q||norm(txt).includes(norm(q));
+function filtrarHome(){const b=S.busca;return S.ap.filter(a=>(S.aba==="tem"?tem(a):!tem(a))&&(S.filtro==="Todos"||a.profissao===S.filtro)&&has(a.nome,b.q)&&has(a.lotacao,b.lot))}
+function cntHome(){const n=filtrarHome().length;return n===1?"1 colega encontrado":n+" colegas encontrados"}
+function gridHome(){
+  const l=filtrarHome();if(l.length)return `<div class="grid">${l.map(tagCard).join("")}</div>`;
+  const filtrando=S.busca.q||S.busca.lot||S.filtro!=="Todos";
+  return `<div class="msg-${filtrando?"info":"ok"}">${filtrando?"Nenhum colega encontrado com esses filtros. Tente outro nome ou lotação.":!S.ap.length?"Os perfis serão publicados em breve.":S.aba==="tem"?"Ninguém foi apadrinhado ainda. Seja o primeiro!":"Todos os colegas desta lista já têm padrinho. Obrigado a cada um de vocês!"}</div>`}
 function tagCard(a){
   const n=a.padrinhos||0;
   return `<article class="tag">${av(a)}<h3>${esc(a.nome)}</h3><div class="role">${esc(a.profissao)}</div><div>${esc(a.lotacao)}${a.idade?`<br>${a.idade} anos`:""}</div>
@@ -233,8 +241,7 @@ function tagCard(a){
 }
 async function home(){
   const s=stats(),ano=S.cfg.ano,dias=diasRestantes();
-  const livres=S.ap.filter(a=>(S.aba==="tem"?tem(a):!tem(a))&&(S.filtro==="Todos"||a.profissao===S.filtro));
-  const prazo=dias>0?`Faltam ${dias} ${dias===1?"dia":"dias"} para a entrega, em ${fmt(S.cfg.dataEntrega)}.`:dias===0?"A entrega é hoje!":`Entrega realizada em ${fmt(S.cfg.dataEntrega)}.`;
+    const prazo=dias>0?`Faltam ${dias} ${dias===1?"dia":"dias"} para a entrega, em ${fmt(S.cfg.dataEntrega)}.`:dias===0?"A entrega é hoje!":`Entrega realizada em ${fmt(S.cfg.dataEntrega)}.`;
   return `
 <section class="hero"><div class="wrap"><div>
   <h1>Natal e Ano Novo Solidário Dataprev ${ano}</h1>
@@ -275,7 +282,11 @@ async function home(){
   <div class="seg" role="tablist"><button role="tab" aria-selected="${S.aba==="esperam"}" class="${S.aba==="esperam"?"on":""}" onclick="W.aba('esperam')">Quem espera um padrinho (${s.f})</button><button role="tab" aria-selected="${S.aba==="tem"}" class="${S.aba==="tem"?"on":""}" onclick="W.aba('tem')">Quem já tem padrinho (${s.d})</button></div>
   ${S.aba==="tem"?`<p class="msg-info">Estes colegas já foram escolhidos, mas você também pode apadrinhá-los: um afilhado pode ter mais de um padrinho.</p>`:""}
   <div class="chips">${["Todos",...PROFS].map(f=>`<button class="chip ${S.filtro===f?"on":""}" onclick="W.filtro('${f}')">${f}</button>`).join("")}</div>
-  ${livres.length?`<div class="grid">${livres.map(tagCard).join("")}</div>`:`<div class="msg-ok">${!s.t?"Os perfis serão publicados em breve.":S.aba==="tem"?"Ninguém foi apadrinhado ainda. Seja o primeiro!":"Todos os colegas desta lista já têm padrinho. Obrigado a cada um de vocês!"}</div>`}
+  <div class="filtros"><input type="search" placeholder="Buscar por nome" aria-label="Buscar por nome" value="${esc(S.busca.q)}" oninput="W.buscar('q',this.value)">
+  <input type="search" placeholder="Buscar por lotação" aria-label="Buscar por lotação" value="${esc(S.busca.lot)}" oninput="W.buscar('lot',this.value)">
+  <button class="btn sm ghost" onclick="W.limparBusca()">Limpar busca</button></div>
+  <p class="cnt" id="cntH" aria-live="polite">${cntHome()}</p>
+  <div id="gridH">${gridHome()}</div>
 </div></section>`;
 }
 
@@ -449,6 +460,8 @@ const W={
   filtrar(k,campo,val){S[k][campo]=val;const r=S.rows[k]();$(k==="fa"?"#tbA":"#tbS").innerHTML=r.h;$(k==="fa"?"#cntA":"#cntS").textContent=r.txt},
   limpar(k){S[k]=k==="fa"?{q:"",prof:"",lot:"",sit:""}:{q:"",area:"",lot:"",sit:""};render(true)},
   csvServ(){csv([["Nome","Área","Lotação","Telefone","E-mail","Afilhados"],...S.adm.serv.map(x=>[x.nome,x.area,x.lotacao,x.fone,x.email,S.adm.aps.filter(a=>a.padrinhoId===x.id).map(a=>a.apadrinhadoNome).join(", ")])],"servidores.csv")},
+  buscar(c,v){S.busca[c]=v;$("#gridH").innerHTML=gridHome();$("#cntH").textContent=cntHome()},
+  limparBusca(){S.busca={q:"",lot:""};S.filtro="Todos";render(true)},
   aba(v){S.aba=v;render(true)},
   async solicitar(e){e.preventDefault();const f=e.target;if(f.site.value)return;e.submitter.disabled=true;
     try{await setDoc(doc(collection(db,"solicitacoes")),{nome:f.nome.value.trim(),email:f.email.value.trim(),area:f.area.value.trim(),lotacao:f.lotacao.value.trim(),fone:f.fone.value.trim(),mensagem:f.mensagem.value.trim(),status:"pendente",criadoEm:serverTimestamp()});
