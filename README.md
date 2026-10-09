@@ -47,6 +47,9 @@ Painel > **Administradores** (visível só ao administrador principal): informe 
 - O pedido de acesso tem telefone opcional; o administrador vê o número e pode chamar no WhatsApp. O telefone segue para o convite e pré-preenche o cadastro.
 - Republique `firestore.rules` e envie o novo `index.html`.
 
+## 8. Listas com busca
+No painel, as abas **Terceirizados** e **Servidores** listam em ordem alfabética e têm filtros combináveis (nome, profissão ou área, lotação e situação), sem diferenciar acentos ou maiúsculas. Campos obrigatórios aparecem com asterisco (*).
+
 ## Segurança
 - A `apiKey` do Firebase é pública por natureza; quem protege os dados são as regras do Firestore.
 - Telefone e e-mail dos terceirizados ficam em coleção separada, legível só pelo administrador.

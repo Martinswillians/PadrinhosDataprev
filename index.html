@@ -108,6 +108,10 @@ footer{background:var(--pine);color:#a9c2b5;padding:28px 0;text-align:center;fon
 .seg button{border:0;background:none;padding:10px 16px;font:600 1rem var(--sans);cursor:pointer;border-radius:8px 8px 0 0;color:var(--ink)}
 .seg button.on{background:var(--pine);color:#fff}
 .tag .pill{align-self:center}
+.req{color:var(--berry);font-weight:700}
+.nota{color:var(--mute);font-size:.88rem;margin:12px 0 0}
+.filtros{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:14px 0 6px;align-items:center}
+.cnt{color:var(--mute);margin:4px 0 0;font-size:.92rem}
 @media(max-width:820px){.deco:before{opacity:.09;width:180px}}
 @media(max-width:820px){.hero .wrap,.perfil,.two{grid-template-columns:1fr}.bigtag{display:none}.perfil .av.lg{margin:auto}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
@@ -149,7 +153,7 @@ const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmt=d=>d?d.split("-").reverse().join("/"):"";
 const ini=n=>(n||"?").split(" ").filter(Boolean).slice(0,2).map(x=>x[0]).join("").toUpperCase();
-const S={aba:"esperam",user:null,admin:false,super:false,perms:{},perfil:null,cfg:{ano:new Date().getFullYear(),dataEntrega:new Date().getFullYear()+"-12-15"},ap:[],filtro:"Todos",busy:false,adm:null,my:[]};
+const S={fa:{q:"",prof:"",lot:"",sit:""},fs:{q:"",area:"",lot:"",sit:""},aba:"esperam",user:null,admin:false,super:false,perms:{},perfil:null,cfg:{ano:new Date().getFullYear(),dataEntrega:new Date().getFullYear()+"-12-15"},ap:[],filtro:"Todos",busy:false,adm:null,my:[]};
 const toast=m=>{const t=$("#toast");t.textContent=m;t.style.display="block";clearTimeout(toast.h);toast.h=setTimeout(()=>t.style.display="none",4200)};
 const av=(a,c="")=>a?.foto?`<img class="av ${c}" src="${a.foto}" alt="Foto de ${esc(a.nome)}">`:`<div class="av ${c}" aria-hidden="true">${esc(ini(a?.nome))}</div>`;
 const g=async n=>(await getDocs(collection(db,n))).docs.map(d=>({id:d.id,...d.data()}));
@@ -162,16 +166,16 @@ const FP=[{k:"nome",l:"Nome completo",req:1},{k:"area",l:"Área"},{k:"lotacao",l
 const FS=[{k:"nome",l:"Nome completo",req:1},{k:"area",l:"Área",req:1},{k:"lotacao",l:"Lotação",req:1},{k:"fone",l:"Telefone",t:"tel"},{k:"email",l:"E-mail",t:"email",req:1},{k:"foto",l:"Foto",t:"foto"},{k:"descricao",l:"Fale um pouco sobre você",t:"textarea"}];
 function fld(f,v=""){
   const id="f_"+f.k,r=f.req?"required":"";
-  if(f.t==="foto")return `<label>${f.l}</label><div class="fotobox"><img data-foto data-v="${esc(v)}" src="${v||"data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="}" alt=""><input type="file" accept="image/*" onchange="W.foto(this)"></div>`;
-  if(f.t==="select")return `<label for="${id}">${f.l}</label><select id="${id}" name="${f.k}" ${r}>${f.o.map(o=>`<option ${o===v?"selected":""}>${o}</option>`).join("")}</select>`;
-  if(f.t==="textarea")return `<label for="${id}">${f.l}</label><textarea id="${id}" name="${f.k}">${esc(v)}</textarea>`;
-  return `<label for="${id}">${f.l}</label><input id="${id}" name="${f.k}" type="${f.t||"text"}" value="${esc(v)}" ${r} ${f.t==="password"?'minlength="6" autocomplete="new-password"':""}>`;
+  if(f.t==="foto")return `<label>${f.l}${f.req?` <span class="req" aria-hidden="true">*</span>`:""}</label><div class="fotobox"><img data-foto data-v="${esc(v)}" src="${v||"data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="}" alt=""><input type="file" accept="image/*" onchange="W.foto(this)"></div>`;
+  if(f.t==="select")return `<label for="${id}">${f.l}${f.req?` <span class="req" aria-hidden="true">*</span>`:""}</label><select id="${id}" name="${f.k}" ${r}>${f.o.map(o=>`<option ${o===v?"selected":""}>${o}</option>`).join("")}</select>`;
+  if(f.t==="textarea")return `<label for="${id}">${f.l}${f.req?` <span class="req" aria-hidden="true">*</span>`:""}</label><textarea id="${id}" name="${f.k}">${esc(v)}</textarea>`;
+  return `<label for="${id}">${f.l}${f.req?` <span class="req" aria-hidden="true">*</span>`:""}</label><input id="${id}" name="${f.k}" type="${f.t||"text"}" value="${esc(v)}" ${r} ${f.t==="password"?'minlength="6" autocomplete="new-password"':""}>`;
 }
 function read(form,fields){const v={};fields.forEach(f=>{if(f.t==="foto")v.foto=form.querySelector("[data-foto]").dataset.v||"";else{v[f.k]=form.elements[f.k].value.trim();if(f.t==="number")v[f.k]=v[f.k]?+v[f.k]:null}});return v}
 function resize(file,max=480){return new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>{const i=new Image();i.onload=()=>{const s=Math.min(1,max/Math.max(i.width,i.height)),c=document.createElement("canvas");c.width=i.width*s;c.height=i.height*s;c.getContext("2d").drawImage(i,0,0,c.width,c.height);ok(c.toDataURL("image/jpeg",.72))};i.onerror=no;i.src=r.result};r.readAsDataURL(file)})}
 function modal(title,fields,vals,save){
   const d=$("#dlg");
-  d.innerHTML=`<form id="mf"><h2>${title}</h2>${fields.map(f=>fld(f,vals[f.k]??"")).join("")}<div class="row"><button type="button" class="btn ghost" onclick="dlg.close()">Cancelar</button><button class="btn">Salvar</button></div></form>`;
+  d.innerHTML=`<form id="mf"><h2>${title}</h2>${fields.map(f=>fld(f,vals[f.k]??"")).join("")}<p class="nota"><span class="req">*</span> Campos obrigatórios</p><div class="row"><button type="button" class="btn ghost" onclick="dlg.close()">Cancelar</button><button class="btn">Salvar</button></div></form>`;
   $("#mf").onsubmit=async e=>{e.preventDefault();const b=e.submitter;b.disabled=true;try{await save(read(e.target,fields));d.close();toast("Salvo com sucesso");render(true)}catch(x){toast("Erro: "+x.message);b.disabled=false}};
   d.showModal();
 }
@@ -181,7 +185,7 @@ async function loadPublic(){
   const c=await getDoc(doc(db,"config","campanha"));
   if(c.exists())S.cfg={...S.cfg,...c.data()};
   const q=await getDocs(query(collection(db,"apadrinhados"),where("ano","==",S.cfg.ano)));
-  S.ap=q.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.nome.localeCompare(b.nome));
+  S.ap=q.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR",{sensitivity:"base"}));
 }
 async function refreshProfile(){
   const u=auth.currentUser;S.user=u;S.admin=false;S.super=false;S.perms={};S.perfil=null;
@@ -196,7 +200,7 @@ async function refreshProfile(){
 async function loadAdmin(){
   const sg=n=>g(n).catch(()=>[]);
   const [serv,conv,aps,priv,admins,sol]=await Promise.all([sg("servidores"),sg("convites"),sg("apadrinhamentos"),sg("apadrinhados_privado"),S.super?sg("admins"):[],sg("solicitacoes")]);
-  S.adm={serv:serv.sort((a,b)=>a.nome.localeCompare(b.nome)),conv,admins:admins.filter(a=>a.id!==ADMIN_EMAIL),sol,aps:aps.filter(x=>x.ano===S.cfg.ano),priv:Object.fromEntries(priv.map(p=>[p.id,p]))};
+  S.adm={serv:serv.sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR",{sensitivity:"base"})),conv,admins:admins.filter(a=>a.id!==ADMIN_EMAIL),sol,aps:aps.filter(x=>x.ano===S.cfg.ano),priv:Object.fromEntries(priv.map(p=>[p.id,p]))};
 }
 const tem=a=>(a.padrinhos||0)>0;
 const stats=()=>{const t=S.ap.length,d=S.ap.filter(tem).length;return{t,d,f:t-d,pct:t?Math.round(d/t*100):0}};
@@ -292,18 +296,19 @@ async function cadastro(p,q){
   if(cv.usado&&!cv.multi)return `<div class="box"><h2>Convite já utilizado</h2><p>Este convite já foi usado para criar um cadastro. <a href="#/entrar">Entre com seu e-mail e senha.</a></p></div>`;
   const f=FS.concat([{k:"senha",l:"Crie uma senha (mínimo 6 caracteres)",t:"password",req:1}]);
   return `<div class="box wide"><h2>Cadastro de servidor${cv.nome?`: olá, ${esc(cv.nome.split(" ")[0])}!`:""}</h2><p>Preencha seus dados para participar da campanha como padrinho.</p>
-  <form onsubmit="W.cadastrar(event,'${id}',${cv.multi?1:0})">${f.map(x=>fld(x,x.k==="nome"?cv.nome:x.k==="email"?cv.email:(cv[x.k]||""))).join("")}<div class="row"><button class="btn">Concluir cadastro</button></div></form></div>`;
+  <form onsubmit="W.cadastrar(event,'${id}',${cv.multi?1:0})">${f.map(x=>fld(x,x.k==="nome"?cv.nome:x.k==="email"?cv.email:(cv[x.k]||""))).join("")}<p class="nota"><span class="req">*</span> Campos obrigatórios</p><div class="row"><button class="btn">Concluir cadastro</button></div></form></div>`;
 }
 
 async function acesso(){
+  const R='<span class="req" aria-hidden="true">*</span>';
   return `<div class="box"><h2>Peça seu acesso</h2><p>Se você é servidor da Dataprev e não recebeu o convite, ou seu e-mail não está na lista, envie uma mensagem ao administrador. Ele vai responder com o link de cadastro.</p>
-  <form onsubmit="W.solicitar(event)"><label for="sn">Nome completo</label><input id="sn" name="nome" required maxlength="120" value="${esc(S.perfil?.nome||S.user?.displayName||"")}">
-  <label for="se">E-mail para receber o convite</label><input id="se" name="email" type="email" required maxlength="160" value="${esc(S.user?.email||"")}">
-  <label for="sa">Área</label><input id="sa" name="area" required maxlength="120"><label for="sl">Lotação</label><input id="sl" name="lotacao" maxlength="120">
-  <label for="sf">Telefone para contato (opcional)</label><input id="sf" name="fone" type="tel" maxlength="30" placeholder="(61) 90000-0000">
-  <label for="sm">Mensagem (opcional)</label><textarea id="sm" name="mensagem" maxlength="800"></textarea>
+  <form onsubmit="W.solicitar(event)"><label for="sn">Nome completo ${R}</label><input id="sn" name="nome" required maxlength="120" value="${esc(S.perfil?.nome||S.user?.displayName||"")}">
+  <label for="se">E-mail para receber o convite ${R}</label><input id="se" name="email" type="email" required maxlength="160" value="${esc(S.user?.email||"")}">
+  <label for="sa">Área ${R}</label><input id="sa" name="area" required maxlength="120"><label for="sl">Lotação ${R}</label><input id="sl" name="lotacao" required maxlength="120">
+  <label for="sf">Telefone para contato</label><input id="sf" name="fone" type="tel" maxlength="30" placeholder="(61) 90000-0000">
+  <label for="sm">Mensagem</label><textarea id="sm" name="mensagem" maxlength="800"></textarea>
   <input name="site" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px">
-  <div class="row"><button class="btn">Enviar solicitação</button></div></form></div>`;
+  <p class="nota">${R} Campos obrigatórios</p><div class="row"><button class="btn">Enviar solicitação</button></div></form></div>`;
 }
 
 async function apadrinhado(p){
@@ -316,8 +321,8 @@ async function apadrinhado(p){
   else if(S.admin&&!S.perfil)acao=`<div class="msg-info">Como administrador, vincule um padrinho pelo <a href="#/admin/apadrinhados">painel</a>.</div>`;
   else if(!S.perfil)acao=`<div class="msg-info">Sua conta ainda não tem cadastro de servidor. Use o link de convite enviado pela coordenação ou <a href="#/acesso">peça acesso ao administrador</a>.</div>`;
   else acao=(n?`<div class="msg-info">${nome1} já tem ${n} ${n===1?"padrinho":"padrinhos"}. Você pode apadrinhar também: mais de um padrinho é bem-vindo.</div>`:"")+`<form onsubmit="W.apadrinhar(event,'${a.id}')"><h3>Seu presente e sua mensagem</h3>
-   <label for="pr">O que você vai presentear?</label><input id="pr" required placeholder="Ex.: cesta de Natal e um tênis">
-   <label for="ms">Mensagem de Natal e Ano Novo (opcional)</label><textarea id="ms" placeholder="Será impressa ou enviada a ${nome1} no dia ${fmt(S.cfg.dataEntrega)}."></textarea>
+   <label for="pr">O que você vai presentear? <span class="req" aria-hidden="true">*</span></label><input id="pr" required placeholder="Ex.: cesta de Natal e um tênis">
+   <label for="ms">Mensagem de Natal e Ano Novo</label><textarea id="ms" placeholder="Será impressa ou enviada a ${nome1} no dia ${fmt(S.cfg.dataEntrega)}."></textarea>
    <p class="msg-info">Combine-se para entregar o presente até ${fmt(S.cfg.dataEntrega)}.</p><button class="btn">Confirmar apadrinhamento</button></form>`;
   return `<div class="box wide"><a href="#/">← Voltar</a><div class="perfil" style="margin-top:18px">${av(a,"lg")}<div><h1 style="font-size:2.2rem">${esc(a.nome)}</h1>
    <p><b style="color:var(--berry)">${esc(a.profissao)}</b><br>Lotação: ${esc(a.lotacao)}${a.idade?`<br>${a.idade} anos`:""}</p>${n?`<span class="pill ok">${n} ${n===1?"padrinho":"padrinhos"}</span>`:`<span class="pill no">Espera um padrinho</span>`}
@@ -330,7 +335,7 @@ async function perfil(){
   let v=S.perfil,f=FS;
   if(!v){f=FP;try{v=(await getDoc(doc(db,"admins",S.user.email.toLowerCase()))).data()||{}}catch{v={}}}
   return `<div class="box wide"><h2>Meu perfil</h2><p>Conta de acesso: <b>${esc(S.user.email)}</b>. Aqui você atualiza foto, nome, área, lotação, contato e descrição.</p>
-  <form onsubmit="W.salvarPerfil(event)">${f.map(x=>fld(x,v[x.k]||"")).join("")}<div class="row"><button class="btn">Salvar alterações</button></div></form></div>`;
+  <form onsubmit="W.salvarPerfil(event)">${f.map(x=>fld(x,v[x.k]||"")).join("")}<p class="nota"><span class="req">*</span> Campos obrigatórios</p><div class="row"><button class="btn">Salvar alterações</button></div></form></div>`;
 }
 
 async function meus(){
@@ -358,6 +363,20 @@ async function admin(p){
   const tabs=[["resumo","Resumo",1],["apadrinhados","Terceirizados",S.perms.terceirizados],["servidores","Servidores",S.perms.servidores],["convites","Convites"+(solP.length?" ("+solP.length+")":""),S.perms.convites],["entregas","Presentes e mensagens",S.perms.entregas],["campanha","Campanha",S.perms.campanha],["admins","Administradores",S.super]].filter(t=>t[2]);
   const tab=tabs.some(t=>t[0]===(p[1]||"resumo"))?(p[1]||"resumo"):"resumo";
   const solHtml=`<h3>Solicitações de acesso (${solP.length})</h3><div class="tw"><table><tr><th>Nome</th><th>E-mail / Telefone</th><th>Área / Lotação</th><th>Mensagem</th><th>Ações</th></tr>${solP.map(x=>`<tr><td>${esc(x.nome)}</td><td>${esc(x.email)}<br><small>${esc(x.fone||"sem telefone")}</small></td><td>${esc(x.area)}<br><small>${esc(x.lotacao||"")}</small></td><td>${esc(x.mensagem||"")}</td><td><button class="btn sm" onclick="W.atender('${x.id}')">Gerar convite</button>${x.fone?`<a class="btn sm ghost" target="_blank" rel="noopener" href="https://wa.me/${waNum(x.fone)}">WhatsApp</a>`:""}<button class="btn sm danger" onclick="W.descartarSol('${x.id}')">Descartar</button></td></tr>`).join("")||'<tr><td colspan="5">Nenhuma solicitação pendente.</td></tr>'}</table></div>`;
+  const norm=t=>String(t||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+  const has=(txt,q)=>!q||norm(txt).includes(norm(q));
+  const cmp=(a,b)=>a.nome.localeCompare(b.nome,"pt-BR",{sensitivity:"base"});
+  const rowAp=a=>{const pv=A.priv[a.id]||{},aps=A.aps.filter(x=>x.apadrinhadoId===a.id),livresS=A.serv.filter(x=>!aps.some(y=>y.padrinhoId===x.id));
+    return `<tr><td>${av(a,"sm")}</td><td>${esc(a.nome)}<br><small>${a.idade?a.idade+" anos":""}</small></td><td>${esc(a.profissao)}<br><small>${esc(a.lotacao)}</small></td><td>${esc(pv.fone||"")}<br><small>${esc(pv.email||"")}</small></td>
+     <td>${aps.length?aps.map(x=>`<div><span class="pill ok">${esc(x.padrinhoNome)}</span> <button class="btn sm danger" aria-label="Remover padrinho ${esc(x.padrinhoNome)}" onclick="W.desistir('${x.id}')">×</button></div>`).join(""):`<span class="pill no">Sem padrinho</span>`}</td>
+     <td><button class="btn sm ghost" onclick="W.editAp('${a.id}')">Editar</button><button class="btn sm danger" onclick="W.delAp('${a.id}')">Excluir</button>
+     <br><select id="as_${a.id}" style="width:150px;padding:5px" aria-label="Servidor"><option value="">Servidor…</option>${livresS.map(x=>`<option value="${x.id}">${esc(x.nome)}</option>`).join("")}</select><button class="btn sm" onclick="W.assign('${a.id}')">Vincular</button></td></tr>`};
+  const listAp=()=>{const f=S.fa,l=S.ap.filter(a=>has(a.nome,f.q)&&(!f.prof||a.profissao===f.prof)&&has(a.lotacao,f.lot)&&(!f.sit||(f.sit==="com"?tem(a):!tem(a)))).sort(cmp);
+    return {txt:`${l.length} de ${S.ap.length} terceirizados`,h:l.map(rowAp).join("")||'<tr><td colspan="6">Nenhum terceirizado encontrado.</td></tr>'}};
+  const rowServ=x=>`<tr><td>${av(x,"sm")}</td><td>${esc(x.nome)}</td><td>${esc(x.area)}<br><small>${esc(x.lotacao)}</small></td><td>${esc(x.fone||"")}<br><small>${esc(x.email||"")}</small></td><td>${afil(x.id).map(a=>esc(a.apadrinhadoNome)).join(", ")||"-"}</td><td><button class="btn sm ghost" onclick="W.editServ('${x.id}')">Editar</button><button class="btn sm danger" onclick="W.delServ('${x.id}')">Excluir</button></td></tr>`;
+  const listServ=()=>{const f=S.fs,l=A.serv.filter(x=>has(x.nome,f.q)&&has(x.area,f.area)&&has(x.lotacao,f.lot)&&(!f.sit||(f.sit==="pad"?afil(x.id).length>0:afil(x.id).length===0))).sort(cmp);
+    return {txt:`${l.length} de ${A.serv.length} servidores`,h:l.map(rowServ).join("")||'<tr><td colspan="6">Nenhum servidor encontrado.</td></tr>'}};
+  S.rows={fa:listAp,fs:listServ};
   let body="";
   if(tab==="resumo")body=`<div class="dash">
     <div class="stat"><b>${s.t}</b><span>terceirizados cadastrados</span></div><div class="stat ok"><b>${s.d}</b><span>apadrinhados</span></div><div class="stat falta"><b>${s.f}</b><span>sem padrinho</span></div>
@@ -365,19 +384,20 @@ async function admin(p){
     <div class="bar"><i style="width:${s.pct}%"></i></div><p>${s.pct}% dos terceirizados já têm padrinho. Entrega em ${fmt(S.cfg.dataEntrega)} (${diasRestantes()} dias).</p>
     <div class="two"><div><h3>Sem padrinho (${s.f})</h3>${S.ap.filter(a=>!tem(a)).map(a=>`<div>${esc(a.nome)} <small>(${esc(a.profissao)}, ${esc(a.lotacao)})</small></div>`).join("")||"<p>Todos apadrinhados.</p>"}</div>
     <div><h3>Convidados sem cadastro (${pend.length})</h3>${pend.map(c=>`<div>${esc(c.nome)} <small>${esc(c.email||"")}</small></div>`).join("")||"<p>Nenhum pendente.</p>"}</div></div>`;
-  if(tab==="apadrinhados")body=`<div class="row"><button class="btn" onclick="W.editAp()">+ Cadastrar terceirizado</button><button class="btn ghost" onclick="W.csvAp()">Baixar lista (CSV)</button></div>
-    <div class="tw"><table><tr><th>Foto</th><th>Nome</th><th>Profissão / Lotação</th><th>Contato</th><th>Situação</th><th>Ações</th></tr>${S.ap.map(a=>{const pv=A.priv[a.id]||{},aps=A.aps.filter(x=>x.apadrinhadoId===a.id),livresS=A.serv.filter(x=>!aps.some(y=>y.padrinhoId===x.id));return `<tr><td>${av(a,"sm")}</td><td>${esc(a.nome)}<br><small>${a.idade?a.idade+" anos":""}</small></td><td>${esc(a.profissao)}<br><small>${esc(a.lotacao)}</small></td><td>${esc(pv.fone||"")}<br><small>${esc(pv.email||"")}</small></td>
-     <td>${aps.length?aps.map(x=>`<div><span class="pill ok">${esc(x.padrinhoNome)}</span> <button class="btn sm danger" aria-label="Remover padrinho ${esc(x.padrinhoNome)}" onclick="W.desistir('${x.id}')">×</button></div>`).join(""):`<span class="pill no">Sem padrinho</span>`}</td>
-     <td><button class="btn sm ghost" onclick="W.editAp('${a.id}')">Editar</button><button class="btn sm danger" onclick="W.delAp('${a.id}')">Excluir</button>
-     <br><select id="as_${a.id}" style="width:150px;padding:5px" aria-label="Servidor"><option value="">Servidor…</option>${livresS.map(x=>`<option value="${x.id}">${esc(x.nome)}</option>`).join("")}</select><button class="btn sm" onclick="W.assign('${a.id}')">Vincular</button></td></tr>`}).join("")||'<tr><td colspan="6">Nenhum terceirizado cadastrado.</td></tr>'}</table></div>`;
-  if(tab==="servidores"){
-    const row=x=>`<tr><td>${av(x,"sm")}</td><td>${esc(x.nome)}</td><td>${esc(x.area)}<br><small>${esc(x.lotacao)}</small></td><td>${esc(x.fone||"")}<br><small>${esc(x.email||"")}</small></td><td>${afil(x.id).map(a=>esc(a.apadrinhadoNome)).join(", ")||"-"}</td><td><button class="btn sm ghost" onclick="W.editServ('${x.id}')">Editar</button><button class="btn sm danger" onclick="W.delServ('${x.id}')">Excluir</button></td></tr>`;
-    const head="<tr><th>Foto</th><th>Nome</th><th>Área / Lotação</th><th>Contato</th><th>Afilhados</th><th>Ações</th></tr>";
-    const pad=A.serv.filter(x=>afil(x.id).length),sem=A.serv.filter(x=>!afil(x.id).length);
-    body=`<div class="row"><button class="btn" onclick="W.editServ()">+ Cadastrar servidor</button><a class="btn ghost" href="#/admin/convites">Enviar convites</a></div>
-    <h3>Servidores padrinhos (${pad.length})</h3><div class="tw"><table>${head}${pad.map(row).join("")||'<tr><td colspan="6">Nenhum ainda.</td></tr>'}</table></div>
-    <h3>Cadastrados sem afilhado (${sem.length})</h3><div class="tw"><table>${head}${sem.map(row).join("")||'<tr><td colspan="6">Nenhum.</td></tr>'}</table></div>`;
-  }
+  if(tab==="apadrinhados"){const r=listAp(),f=S.fa;body=`<div class="row"><button class="btn" onclick="W.editAp()">+ Cadastrar terceirizado</button><button class="btn ghost" onclick="W.csvAp()">Baixar lista (CSV)</button></div>
+    <div class="filtros"><input type="search" placeholder="Buscar por nome" aria-label="Buscar por nome" value="${esc(f.q)}" oninput="W.filtrar('fa','q',this.value)">
+    <select aria-label="Profissão" onchange="W.filtrar('fa','prof',this.value)"><option value="">Todas as profissões</option>${PROFS.map(x=>`<option ${f.prof===x?"selected":""}>${x}</option>`).join("")}</select>
+    <input type="search" placeholder="Buscar por lotação" aria-label="Buscar por lotação" value="${esc(f.lot)}" oninput="W.filtrar('fa','lot',this.value)">
+    <select aria-label="Situação" onchange="W.filtrar('fa','sit',this.value)"><option value="">Todas as situações</option><option value="sem" ${f.sit==="sem"?"selected":""}>Sem padrinho</option><option value="com" ${f.sit==="com"?"selected":""}>Com padrinho</option></select>
+    <button class="btn sm ghost" onclick="W.limpar('fa')">Limpar filtros</button></div><p class="cnt" id="cntA" aria-live="polite">${r.txt}</p>
+    <div class="tw"><table><thead><tr><th>Foto</th><th>Nome</th><th>Profissão / Lotação</th><th>Contato</th><th>Situação</th><th>Ações</th></tr></thead><tbody id="tbA">${r.h}</tbody></table></div>`}
+  if(tab==="servidores"){const r=listServ(),f=S.fs;body=`<div class="row"><button class="btn" onclick="W.editServ()">+ Cadastrar servidor</button><a class="btn ghost" href="#/admin/convites">Enviar convites</a><button class="btn ghost" onclick="W.csvServ()">Baixar lista (CSV)</button></div>
+    <div class="filtros"><input type="search" placeholder="Buscar por nome" aria-label="Buscar por nome" value="${esc(f.q)}" oninput="W.filtrar('fs','q',this.value)">
+    <input type="search" placeholder="Buscar por área" aria-label="Buscar por área" value="${esc(f.area)}" oninput="W.filtrar('fs','area',this.value)">
+    <input type="search" placeholder="Buscar por lotação" aria-label="Buscar por lotação" value="${esc(f.lot)}" oninput="W.filtrar('fs','lot',this.value)">
+    <select aria-label="Situação" onchange="W.filtrar('fs','sit',this.value)"><option value="">Todos os servidores</option><option value="pad" ${f.sit==="pad"?"selected":""}>Padrinhos</option><option value="sem" ${f.sit==="sem"?"selected":""}>Sem afilhado</option></select>
+    <button class="btn sm ghost" onclick="W.limpar('fs')">Limpar filtros</button></div><p class="cnt" id="cntS" aria-live="polite">${r.txt}</p>
+    <div class="tw"><table><thead><tr><th>Foto</th><th>Nome</th><th>Área / Lotação</th><th>Contato</th><th>Afilhados</th><th>Ações</th></tr></thead><tbody id="tbS">${r.h}</tbody></table></div>`}
   if(tab==="convites")body=solHtml+`<div class="two"><div class="box" style="margin:0;max-width:none"><h3>Convidar um servidor</h3><form onsubmit="W.convidar(event)"><label>Nome</label><input name="nome" required><label>E-mail</label><input name="email" type="email"><div class="row"><button class="btn">Gerar link</button></div></form>
     <hr style="border:0;border-top:1px solid var(--line);margin:18px 0"><h3>Link aberto (qualquer servidor)</h3><p>Um único link reutilizável, para enviar por e-mail geral ou mural.</p><button class="btn ghost" onclick="W.convidarAberto()">Gerar link aberto</button></div>
     <div class="box" style="margin:0;max-width:none"><h3>Convidar em lote</h3><p>Uma pessoa por linha, no formato <code>Nome;email</code>.</p><form onsubmit="W.lote(event)"><textarea name="lote" style="min-height:150px" placeholder="Maria Silva;maria@dataprev.gov.br"></textarea><div class="row"><button class="btn">Gerar convites</button></div></form></div></div>
@@ -426,6 +446,9 @@ const W={
       else await setDoc(doc(db,"admins",S.user.email.toLowerCase()),v,{merge:true});
       await refreshProfile();toast("Perfil atualizado!");render(true)}
     catch(x){toast("Erro: "+x.message)}b.disabled=false},
+  filtrar(k,campo,val){S[k][campo]=val;const r=S.rows[k]();$(k==="fa"?"#tbA":"#tbS").innerHTML=r.h;$(k==="fa"?"#cntA":"#cntS").textContent=r.txt},
+  limpar(k){S[k]=k==="fa"?{q:"",prof:"",lot:"",sit:""}:{q:"",area:"",lot:"",sit:""};render(true)},
+  csvServ(){csv([["Nome","Área","Lotação","Telefone","E-mail","Afilhados"],...S.adm.serv.map(x=>[x.nome,x.area,x.lotacao,x.fone,x.email,S.adm.aps.filter(a=>a.padrinhoId===x.id).map(a=>a.apadrinhadoNome).join(", ")])],"servidores.csv")},
   aba(v){S.aba=v;render(true)},
   async solicitar(e){e.preventDefault();const f=e.target;if(f.site.value)return;e.submitter.disabled=true;
     try{await setDoc(doc(collection(db,"solicitacoes")),{nome:f.nome.value.trim(),email:f.email.value.trim(),area:f.area.value.trim(),lotacao:f.lotacao.value.trim(),fone:f.fone.value.trim(),mensagem:f.mensagem.value.trim(),status:"pendente",criadoEm:serverTimestamp()});
@@ -458,7 +481,7 @@ const W={
   copiar:async l=>{try{await navigator.clipboard.writeText(l);toast("Link copiado!")}catch{prompt("Copie o link:",l)}},
   async entregue(id,v){await updateDoc(doc(db,"apadrinhamentos",id),{entregue:v})},
   async salvarCfg(e){e.preventDefault();const f=e.target;await setDoc(doc(db,"config","campanha"),{ano:+f.ano.value,dataEntrega:f.dataEntrega.value});toast("Campanha atualizada.");render(true)},
-  csvAp(){csv([["Nome","Profissão","Lotação","Idade","Telefone","E-mail","Situação","Padrinho"],...S.ap.map(a=>{const p=S.adm.priv[a.id]||{},x=S.adm.aps.filter(y=>y.apadrinhadoId===a.id);return [a.nome,a.profissao,a.lotacao,a.idade,p.fone,p.email,tem(a)?"Apadrinhado":"Sem padrinho",x.map(z=>z.padrinhoNome).join(", ")]})],"terceirizados.csv")},
+  csvAp(){csv([["Nome","Profissão","Lotação","Idade","Telefone","E-mail","Situação","Padrinho"],...[...S.ap].sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR",{sensitivity:"base"})).map(a=>{const p=S.adm.priv[a.id]||{},x=S.adm.aps.filter(y=>y.apadrinhadoId===a.id);return [a.nome,a.profissao,a.lotacao,a.idade,p.fone,p.email,tem(a)?"Apadrinhado":"Sem padrinho",x.map(z=>z.padrinhoNome).join(", ")]})],"terceirizados.csv")},
   csvEnt(){csv([["Apadrinhado","Padrinho","Presente","Mensagem","Entregue"],...S.adm.aps.map(x=>[x.apadrinhadoNome,x.padrinhoNome,x.presente,x.mensagem,x.entregue?"Sim":"Não"])],"presentes.csv")},
   async enviarEmails(){if(!confirm("Enviar a mensagem de Natal por e-mail para todos os afilhados que têm e-mail cadastrado?"))return;
     const tok=await auth.currentUser.getIdToken();let ok=0,fail=0,sem=0;

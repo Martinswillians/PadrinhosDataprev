@@ -84,8 +84,8 @@ service cloud.firestore {
         && request.resource.data.status == 'pendente'
         && request.resource.data.nome is string && request.resource.data.nome.size() > 0 && request.resource.data.nome.size() <= 120
         && request.resource.data.email is string && request.resource.data.email.size() > 3 && request.resource.data.email.size() <= 160
-        && request.resource.data.area is string && request.resource.data.area.size() <= 120
-        && request.resource.data.lotacao is string && request.resource.data.lotacao.size() <= 120
+        && request.resource.data.area is string && request.resource.data.area.size() > 0 && request.resource.data.area.size() <= 120
+        && request.resource.data.lotacao is string && request.resource.data.lotacao.size() > 0 && request.resource.data.lotacao.size() <= 120
         && request.resource.data.fone is string && request.resource.data.fone.size() <= 30
         && request.resource.data.mensagem is string && request.resource.data.mensagem.size() <= 800;
       allow read, update, delete: if can('convites');
