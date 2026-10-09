@@ -3,10 +3,21 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     function signed() { return request.auth != null; }
-    function admin() {
+    // Administrador principal
+    function superAdmin() {
       return signed()
         && request.auth.token.email == 'willbrasilia@gmail.com'
         && request.auth.token.email_verified == true;
+    }
+    // Administrador cadastrado na coleção "admins" (id = e-mail em minúsculas)
+    function adminDoc() {
+      return signed() && request.auth.token.email_verified == true
+        && exists(/databases/$(database)/documents/admins/$(request.auth.token.email));
+    }
+    function isStaff() { return superAdmin() || adminDoc(); }
+    function can(p) {
+      return superAdmin() || (adminDoc()
+        && get(/databases/$(database)/documents/admins/$(request.auth.token.email)).data.perms.get(p, false) == true);
     }
     function isServidor() {
       return signed() && exists(/databases/$(database)/documents/servidores/$(request.auth.uid));
@@ -15,65 +26,84 @@ service cloud.firestore {
     // Configuração da campanha (ano, data de entrega)
     match /config/{d} {
       allow read: if true;
-      allow write: if admin();
+      allow write: if can('campanha');
     }
 
-    // Perfil público dos terceirizados (sem telefone/e-mail)
+    // Administradores e permissões (apenas o administrador principal gerencia)
+    match /admins/{email} {
+      allow get: if superAdmin() || (signed() && request.auth.token.email == email);
+      allow list, write: if superAdmin();
+    }
+
+    // Perfil público dos terceirizados (sem telefone/e-mail).
+    // "padrinhos" = quantos servidores já apadrinharam (0 = ainda espera um padrinho).
     match /apadrinhados/{id} {
       allow read: if true;
-      allow create, delete: if admin();
-      allow update: if admin() || (isServidor() && (
-        // servidor escolhe um afilhado livre
-        ( resource.data.apadrinhado == false
-          && request.resource.data.apadrinhado == true
-          && request.resource.data.padrinhoId == request.auth.uid
-          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['apadrinhado','padrinhoId'])
-          && existsAfter(/databases/$(database)/documents/apadrinhamentos/$(id))
-          && getAfter(/databases/$(database)/documents/apadrinhamentos/$(id)).data.padrinhoId == request.auth.uid )
-        ||
-        // servidor desiste do próprio afilhado
-        ( resource.data.apadrinhado == true
-          && resource.data.padrinhoId == request.auth.uid
-          && request.resource.data.apadrinhado == false
-          && request.resource.data.padrinhoId == null
-          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['apadrinhado','padrinhoId'])
-          && !existsAfter(/databases/$(database)/documents/apadrinhamentos/$(id)) )
-      ));
+      allow create, delete: if can('terceirizados');
+      allow update: if can('terceirizados') || (isServidor()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['padrinhos'])
+        && (
+          // servidor apadrinha (inclusive quem já tem outros padrinhos)
+          ( request.resource.data.padrinhos == resource.data.padrinhos + 1
+            && !exists(/databases/$(database)/documents/apadrinhamentos/$(id + '_' + request.auth.uid))
+            && existsAfter(/databases/$(database)/documents/apadrinhamentos/$(id + '_' + request.auth.uid)) )
+          ||
+          // servidor desiste do próprio apadrinhamento
+          ( request.resource.data.padrinhos == resource.data.padrinhos - 1
+            && request.resource.data.padrinhos >= 0
+            && exists(/databases/$(database)/documents/apadrinhamentos/$(id + '_' + request.auth.uid))
+            && !existsAfter(/databases/$(database)/documents/apadrinhamentos/$(id + '_' + request.auth.uid)) )
+        ));
     }
 
-    // Dados de contato dos terceirizados: somente administrador
+    // Dados de contato dos terceirizados: somente administradores autorizados
     match /apadrinhados_privado/{id} {
-      allow read, write: if admin();
+      allow read: if can('terceirizados') || can('entregas');
+      allow write: if can('terceirizados');
     }
 
-    // Um documento por afilhado (id = id do apadrinhado), garantindo 1 padrinho por afilhado
+    // Um documento por padrinho e afilhado (id = idAfilhado_idPadrinho): um afilhado pode ter vários padrinhos
     match /apadrinhamentos/{id} {
-      allow read: if admin() || (signed() && resource.data.padrinhoId == request.auth.uid);
-      allow create: if admin() || (isServidor()
+      allow read: if isStaff() || (signed() && resource.data.padrinhoId == request.auth.uid);
+      allow create: if can('terceirizados') || can('entregas') || (isServidor()
         && request.resource.data.padrinhoId == request.auth.uid
-        && exists(/databases/$(database)/documents/apadrinhados/$(id)));
-      allow update: if admin() || (signed() && resource.data.padrinhoId == request.auth.uid
+        && id == request.resource.data.apadrinhadoId + '_' + request.auth.uid
+        && exists(/databases/$(database)/documents/apadrinhados/$(request.resource.data.apadrinhadoId)));
+      allow update: if can('entregas') || can('terceirizados') || (signed() && resource.data.padrinhoId == request.auth.uid
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['presente','mensagem']));
-      allow delete: if admin() || (signed() && resource.data.padrinhoId == request.auth.uid);
+      allow delete: if can('terceirizados') || can('entregas') || (signed() && resource.data.padrinhoId == request.auth.uid);
+    }
+
+    // Pedidos de acesso enviados por quem não recebeu convite (qualquer pessoa pode enviar; só admins leem)
+    match /solicitacoes/{id} {
+      allow create: if request.resource.data.keys().hasOnly(['nome','email','area','lotacao','mensagem','status','criadoEm'])
+        && request.resource.data.status == 'pendente'
+        && request.resource.data.nome is string && request.resource.data.nome.size() > 0 && request.resource.data.nome.size() <= 120
+        && request.resource.data.email is string && request.resource.data.email.size() > 3 && request.resource.data.email.size() <= 160
+        && request.resource.data.area is string && request.resource.data.area.size() <= 120
+        && request.resource.data.lotacao is string && request.resource.data.lotacao.size() <= 120
+        && request.resource.data.mensagem is string && request.resource.data.mensagem.size() <= 800;
+      allow read, update, delete: if can('convites');
     }
 
     // Servidores
     match /servidores/{uid} {
-      allow read: if admin() || (signed() && request.auth.uid == uid);
-      allow create: if admin() || (signed() && request.auth.uid == uid
+      allow read: if isStaff() || (signed() && request.auth.uid == uid);
+      allow create: if can('servidores') || (signed() && request.auth.uid == uid
         && exists(/databases/$(database)/documents/convites/$(request.resource.data.convite))
         && (get(/databases/$(database)/documents/convites/$(request.resource.data.convite)).data.multi == true
             || get(/databases/$(database)/documents/convites/$(request.resource.data.convite)).data.usado == false));
-      allow update: if admin() || (signed() && request.auth.uid == uid
+      allow update: if can('servidores') || (signed() && request.auth.uid == uid
         && request.resource.data.convite == resource.data.convite);
-      allow delete: if admin();
+      allow delete: if can('servidores');
     }
 
     // Convites: o link (id aleatório) permite ler só aquele convite
     match /convites/{id} {
       allow get: if true;
-      allow list, create, delete: if admin();
-      allow update: if admin() || (signed()
+      allow list: if isStaff();
+      allow create, delete: if can('convites');
+      allow update: if can('convites') || (signed()
         && resource.data.usado == false
         && request.resource.data.usado == true
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['usado','usadoPor','usadoEm']));

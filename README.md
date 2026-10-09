@@ -33,6 +33,15 @@ Se não quiser e-mail, deixe `WORKER_URL=""` no `index.html`: os cartões contin
 2. Painel > **Campanha**: confirme ano e data de entrega e salve.
 3. **Terceirizados**: cadastre os empregados. **Convites**: gere links para os servidores.
 
+## 5. Administradores adicionais
+Painel > **Administradores** (visível só ao administrador principal): informe nome e e-mail Google da pessoa e marque as permissões (Terceirizados, Servidores, Convites, Presentes, Campanha). A pessoa entra por **Sou administrador: entrar com Google**. Republique as regras do Firestore e o código do Worker (nova variável `FIREBASE_PROJECT_ID` = `padrinhosdataprev`).
+
+## 6. Novidades desta versão
+- Imagens natalinas e de Ano Novo sutis (flocos de neve, galho de pinheiro, fogos), embutidas no código: não dependem de arquivos externos.
+- Na página inicial há duas abas: **Quem espera um padrinho** e **Quem já tem padrinho**. Quem já tem padrinho também pode ser apadrinhado por outros servidores.
+- Quem não tem convite, ou cujo e-mail não está na lista, usa **Peça acesso ao administrador**. O pedido aparece em Painel > Convites, com o botão **Gerar convite**.
+- Dados criados na versão anterior (campo `apadrinhado`) não são compatíveis: se já cadastrou terceirizados com a versão anterior, exclua-os e cadastre de novo (no Firestore, a coleção `apadrinhados` precisa do campo numérico `padrinhos`).
+
 ## Segurança
 - A `apiKey` do Firebase é pública por natureza; quem protege os dados são as regras do Firestore.
 - Telefone e e-mail dos terceirizados ficam em coleção separada, legível só pelo administrador.

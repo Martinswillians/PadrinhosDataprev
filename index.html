@@ -98,6 +98,17 @@ dialog::backdrop{background:rgba(10,30,22,.6)}
 footer{background:var(--pine);color:#a9c2b5;padding:28px 0;text-align:center;font-size:.9rem}
 .load{text-align:center;padding:80px 0;color:var(--mute)}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.hero,footer{background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22220%22%20height%3D%22220%22%20opacity%3D%22.13%22%3E%3Cg%20transform%3D%22translate%2830%2040%29%22%20stroke%3D%22%23fff%22%20stroke-width%3D%221.4%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%3E%3Cline%20x1%3D%22-9.0%22%20y1%3D%22-0.0%22%20x2%3D%229.0%22%20y2%3D%220.0%22%2F%3E%3Cline%20x1%3D%22-4.5%22%20y1%3D%22-7.8%22%20x2%3D%224.5%22%20y2%3D%227.8%22%2F%3E%3Cline%20x1%3D%224.5%22%20y1%3D%22-7.8%22%20x2%3D%22-4.5%22%20y2%3D%227.8%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate%28150%2025%29%22%20stroke%3D%22%23fff%22%20stroke-width%3D%221.4%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%3E%3Cline%20x1%3D%22-6.0%22%20y1%3D%22-0.0%22%20x2%3D%226.0%22%20y2%3D%220.0%22%2F%3E%3Cline%20x1%3D%22-3.0%22%20y1%3D%22-5.2%22%20x2%3D%223.0%22%20y2%3D%225.2%22%2F%3E%3Cline%20x1%3D%223.0%22%20y1%3D%22-5.2%22%20x2%3D%22-3.0%22%20y2%3D%225.2%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate%28110%20110%29%22%20stroke%3D%22%23fff%22%20stroke-width%3D%221.4%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%3E%3Cline%20x1%3D%22-11.0%22%20y1%3D%22-0.0%22%20x2%3D%2211.0%22%20y2%3D%220.0%22%2F%3E%3Cline%20x1%3D%22-5.5%22%20y1%3D%22-9.5%22%20x2%3D%225.5%22%20y2%3D%229.5%22%2F%3E%3Cline%20x1%3D%225.5%22%20y1%3D%22-9.5%22%20x2%3D%22-5.5%22%20y2%3D%229.5%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate%2836%20170%29%22%20stroke%3D%22%23fff%22%20stroke-width%3D%221.4%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%3E%3Cline%20x1%3D%22-6.0%22%20y1%3D%22-0.0%22%20x2%3D%226.0%22%20y2%3D%220.0%22%2F%3E%3Cline%20x1%3D%22-3.0%22%20y1%3D%22-5.2%22%20x2%3D%223.0%22%20y2%3D%225.2%22%2F%3E%3Cline%20x1%3D%223.0%22%20y1%3D%22-5.2%22%20x2%3D%22-3.0%22%20y2%3D%225.2%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate%28190%20180%29%22%20stroke%3D%22%23fff%22%20stroke-width%3D%221.4%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%3E%3Cline%20x1%3D%22-8.0%22%20y1%3D%22-0.0%22%20x2%3D%228.0%22%20y2%3D%220.0%22%2F%3E%3Cline%20x1%3D%22-4.0%22%20y1%3D%22-6.9%22%20x2%3D%224.0%22%20y2%3D%226.9%22%2F%3E%3Cline%20x1%3D%224.0%22%20y1%3D%22-6.9%22%20x2%3D%22-4.0%22%20y2%3D%226.9%22%2F%3E%3C%2Fg%3E%3Ccircle%20cx%3D%2280%22%20cy%3D%2260%22%20r%3D%222%22%20fill%3D%22%23fff%22%2F%3E%3Ccircle%20cx%3D%22190%22%20cy%3D%2290%22%20r%3D%222.4%22%20fill%3D%22%23fff%22%2F%3E%3Ccircle%20cx%3D%2270%22%20cy%3D%22200%22%20r%3D%222%22%20fill%3D%22%23fff%22%2F%3E%3Ccircle%20cx%3D%22130%22%20cy%3D%22170%22%20r%3D%221.6%22%20fill%3D%22%23fff%22%2F%3E%3C%2Fsvg%3E")}
+.deco{position:relative;overflow:hidden}
+.deco>.wrap{position:relative;z-index:1}
+.deco:before{content:"";position:absolute;pointer-events:none;background-repeat:no-repeat;background-size:contain}
+.deco.branch:before{top:8px;right:-24px;width:340px;height:230px;background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20340%20230%22%3E%3Cg%20stroke%3D%22%231d4d3a%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M10%20120%20Q170%20100%20335%20150%22%2F%3E%3Cpath%20d%3D%22M30%20116%20l12%20-34%20M30%20116%20l14%2032%20M30%20116%20l-4%20-30%20M30%20116%20l-2%2030%22%20stroke-width%3D%222.4%22%2F%3E%3Cpath%20d%3D%22M52%20115%20l12%20-34%20M52%20115%20l14%2032%20M52%20115%20l-4%20-30%20M52%20115%20l-2%2030%22%20stroke-width%3D%222.4%22%2F%3E%3Cpath%20d%3D%22M74%20113%20l12%20-34%20M74%20113%20l14%2032%20M74%20113%20l-4%20-30%20M74%20113%20l-2%2030%22%20stroke-width%3D%222.4%22%2F%3E%3Cpath%20d%3D%22M96%20112%20l12%20-34%20M96%20112%20l14%2032%20M96%20112%20l-4%20-30%20M96%20112%20l-2%2030%22%20stroke-width%3D%222.4%22%2F%3E%3Cpath%20d%3D%22M118%20112%20l12%20-34%20M118%20112%20l14%2032%20M118%20112%20l-4%20-30%20M118%20112%20l-2%2030%22%20stroke-width%3D%222.4%22%2F%3E%3Cpath%20d%3D%22M140%20112%20l12%20-34%20M140%20112%20l14%2032%20M140%20112%20l-4%20-30%20M140%20112%20l-2%2030%22%20stroke-width%3D%222.4%22%2F%3E%3Cpath%20d%3D%22M162%20113%20l12%20-34%20M162%20113%20l14%2032%20M162%20113%20l-4%20-30%20M162%20113%20l-2%2030%22%20stroke-width%3D%222.4%22%2F%3E%3Cpath%20d%3D%22M184%20115%20l12%20-34%20M184%20115%20l14%2032%20M184%20115%20l-4%20-30%20M184%20115%20l-2%2030%22%20stroke-width%3D%222.4%22%2F%3E%3Cpath%20d%3D%22M206%20118%20l12%20-34%20M206%20118%20l14%2032%20M206%20118%20l-4%20-30%20M206%20118%20l-2%2030%22%20stroke-width%3D%222.4%22%2F%3E%3Cpath%20d%3D%22M228%20121%20l12%20-34%20M228%20121%20l14%2032%20M228%20121%20l-4%20-30%20M228%20121%20l-2%2030%22%20stroke-width%3D%222.4%22%2F%3E%3Cpath%20d%3D%22M250%20125%20l12%20-34%20M250%20125%20l14%2032%20M250%20125%20l-4%20-30%20M250%20125%20l-2%2030%22%20stroke-width%3D%222.4%22%2F%3E%3Cpath%20d%3D%22M272%20130%20l12%20-34%20M272%20130%20l14%2032%20M272%20130%20l-4%20-30%20M272%20130%20l-2%2030%22%20stroke-width%3D%222.4%22%2F%3E%3Cpath%20d%3D%22M294%20136%20l12%20-34%20M294%20136%20l14%2032%20M294%20136%20l-4%20-30%20M294%20136%20l-2%2030%22%20stroke-width%3D%222.4%22%2F%3E%3Cpath%20d%3D%22M316%20141%20l12%20-34%20M316%20141%20l14%2032%20M316%20141%20l-4%20-30%20M316%20141%20l-2%2030%22%20stroke-width%3D%222.4%22%2F%3E%3C%2Fg%3E%3Ccircle%20cx%3D%22106%22%20cy%3D%22142%22%20r%3D%229%22%20fill%3D%22%23a3202f%22%2F%3E%3Crect%20x%3D%22103%22%20y%3D%22129%22%20width%3D%226%22%20height%3D%225%22%20fill%3D%22%23d6a24a%22%2F%3E%3Ccircle%20cx%3D%22172%22%20cy%3D%22143%22%20r%3D%229%22%20fill%3D%22%23d6a24a%22%2F%3E%3Crect%20x%3D%22169%22%20y%3D%22130%22%20width%3D%226%22%20height%3D%225%22%20fill%3D%22%23d6a24a%22%2F%3E%3Ccircle%20cx%3D%22238%22%20cy%3D%22151%22%20r%3D%229%22%20fill%3D%22%23a3202f%22%2F%3E%3Crect%20x%3D%22235%22%20y%3D%22138%22%20width%3D%226%22%20height%3D%225%22%20fill%3D%22%23d6a24a%22%2F%3E%3Ccircle%20cx%3D%22304%22%20cy%3D%22166%22%20r%3D%229%22%20fill%3D%22%23d6a24a%22%2F%3E%3Crect%20x%3D%22301%22%20y%3D%22153%22%20width%3D%226%22%20height%3D%225%22%20fill%3D%22%23d6a24a%22%2F%3E%3C%2Fsvg%3E");opacity:.17}
+.deco.fw:before{top:12px;right:28px;width:230px;height:230px;background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20240%20240%22%3E%3Cg%20stroke%3D%22%23d6a24a%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%3E%3Cline%20x1%3D%22146.0%22%20y1%3D%22120.0%22%20x2%3D%22190.0%22%20y2%3D%22120.0%22%2F%3E%3Ccircle%20cx%3D%22200.0%22%20cy%3D%22120.0%22%20r%3D%223%22%20fill%3D%22%23d6a24a%22%20stroke%3D%22none%22%2F%3E%3Cline%20x1%3D%22143.4%22%20y1%3D%22131.3%22%20x2%3D%22170.5%22%20y2%3D%22144.3%22%2F%3E%3Ccircle%20cx%3D%22179.5%22%20cy%3D%22148.6%22%20r%3D%223%22%20fill%3D%22%23d6a24a%22%20stroke%3D%22none%22%2F%3E%3Cline%20x1%3D%22136.2%22%20y1%3D%22140.3%22%20x2%3D%22163.6%22%20y2%3D%22174.7%22%2F%3E%3Ccircle%20cx%3D%22169.9%22%20cy%3D%22182.5%22%20r%3D%223%22%20fill%3D%22%23d6a24a%22%20stroke%3D%22none%22%2F%3E%3Cline%20x1%3D%22125.8%22%20y1%3D%22145.3%22%20x2%3D%22132.5%22%20y2%3D%22174.6%22%2F%3E%3Ccircle%20cx%3D%22134.7%22%20cy%3D%22184.3%22%20r%3D%223%22%20fill%3D%22%23d6a24a%22%20stroke%3D%22none%22%2F%3E%3Cline%20x1%3D%22114.2%22%20y1%3D%22145.3%22%20x2%3D%22104.4%22%20y2%3D%22188.2%22%2F%3E%3Ccircle%20cx%3D%22102.2%22%20cy%3D%22198.0%22%20r%3D%223%22%20fill%3D%22%23d6a24a%22%20stroke%3D%22none%22%2F%3E%3Cline%20x1%3D%22103.8%22%20y1%3D%22140.3%22%20x2%3D%2285.1%22%20y2%3D%22163.8%22%2F%3E%3Ccircle%20cx%3D%2278.8%22%20cy%3D%22171.6%22%20r%3D%223%22%20fill%3D%22%23d6a24a%22%20stroke%3D%22none%22%2F%3E%3Cline%20x1%3D%2296.6%22%20y1%3D%22131.3%22%20x2%3D%2256.9%22%20y2%3D%22150.4%22%2F%3E%3Ccircle%20cx%3D%2247.9%22%20cy%3D%22154.7%22%20r%3D%223%22%20fill%3D%22%23d6a24a%22%20stroke%3D%22none%22%2F%3E%3Cline%20x1%3D%2294.0%22%20y1%3D%22120.0%22%20x2%3D%2264.0%22%20y2%3D%22120.0%22%2F%3E%3Ccircle%20cx%3D%2254.0%22%20cy%3D%22120.0%22%20r%3D%223%22%20fill%3D%22%23d6a24a%22%20stroke%3D%22none%22%2F%3E%3Cline%20x1%3D%2296.6%22%20y1%3D%22108.7%22%20x2%3D%2256.9%22%20y2%3D%2289.6%22%2F%3E%3Ccircle%20cx%3D%2247.9%22%20cy%3D%2285.3%22%20r%3D%223%22%20fill%3D%22%23d6a24a%22%20stroke%3D%22none%22%2F%3E%3Cline%20x1%3D%22103.8%22%20y1%3D%2299.7%22%20x2%3D%2285.1%22%20y2%3D%2276.2%22%2F%3E%3Ccircle%20cx%3D%2278.8%22%20cy%3D%2268.4%22%20r%3D%223%22%20fill%3D%22%23d6a24a%22%20stroke%3D%22none%22%2F%3E%3Cline%20x1%3D%22114.2%22%20y1%3D%2294.7%22%20x2%3D%22104.4%22%20y2%3D%2251.8%22%2F%3E%3Ccircle%20cx%3D%22102.2%22%20cy%3D%2242.0%22%20r%3D%223%22%20fill%3D%22%23d6a24a%22%20stroke%3D%22none%22%2F%3E%3Cline%20x1%3D%22125.8%22%20y1%3D%2294.7%22%20x2%3D%22132.5%22%20y2%3D%2265.4%22%2F%3E%3Ccircle%20cx%3D%22134.7%22%20cy%3D%2255.7%22%20r%3D%223%22%20fill%3D%22%23d6a24a%22%20stroke%3D%22none%22%2F%3E%3Cline%20x1%3D%22136.2%22%20y1%3D%2299.7%22%20x2%3D%22163.6%22%20y2%3D%2265.3%22%2F%3E%3Ccircle%20cx%3D%22169.9%22%20cy%3D%2257.5%22%20r%3D%223%22%20fill%3D%22%23d6a24a%22%20stroke%3D%22none%22%2F%3E%3Cline%20x1%3D%22143.4%22%20y1%3D%22108.7%22%20x2%3D%22170.5%22%20y2%3D%2295.7%22%2F%3E%3Ccircle%20cx%3D%22179.5%22%20cy%3D%2291.4%22%20r%3D%223%22%20fill%3D%22%23d6a24a%22%20stroke%3D%22none%22%2F%3E%3C%2Fg%3E%3Ccircle%20cx%3D%22120%22%20cy%3D%22120%22%20r%3D%227%22%20fill%3D%22%23a3202f%22%2F%3E%3C%2Fsvg%3E");opacity:.22}
+.seg{display:flex;gap:6px;flex-wrap:wrap;border-bottom:2px solid var(--line);margin:8px 0 18px}
+.seg button{border:0;background:none;padding:10px 16px;font:600 1rem var(--sans);cursor:pointer;border-radius:8px 8px 0 0;color:var(--ink)}
+.seg button.on{background:var(--pine);color:#fff}
+.tag .pill{align-self:center}
+@media(max-width:820px){.deco:before{opacity:.09;width:180px}}
 @media(max-width:820px){.hero .wrap,.perfil,.two{grid-template-columns:1fr}.bigtag{display:none}.perfil .av.lg{margin:auto}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 </style>
@@ -115,7 +126,7 @@ footer{background:var(--pine);color:#a9c2b5;padding:28px 0;text-align:center;fon
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signInWithPopup,GoogleAuthProvider,signOut,sendPasswordResetEmail} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {getFirestore,collection,doc,getDoc,getDocs,setDoc,updateDoc,deleteDoc,query,where,writeBatch,serverTimestamp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {getFirestore,collection,doc,getDoc,getDocs,setDoc,updateDoc,deleteDoc,query,where,writeBatch,serverTimestamp,increment} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 /* ===================== CONFIGURAÇÃO ===================== */
 const firebaseConfig={
@@ -128,7 +139,9 @@ const firebaseConfig={
 };
 const ADMIN_EMAIL="willbrasilia@gmail.com";
 const WORKER_URL="https://pushpadrinhosdataprev.willbrasilia.workers.dev"; // Cloudflare Worker (envio de e-mails). Deixe "" para desativar.
-const PROFS=["Recepção","Segurança","Brigadista","Estagiário"];
+const PROFS=["Recepção","Segurança","Brigadista","Serviços","Estagiário"];
+const PERMS={terceirizados:"Terceirizados (cadastrar, editar e vincular padrinhos)",servidores:"Servidores (cadastrar, editar e excluir)",convites:"Convites de cadastro",entregas:"Presentes, mensagens, impressão e e-mails",campanha:"Dados da campanha (ano e data de entrega)"};
+const PERMS_SHORT={terceirizados:"Terceirizados",servidores:"Servidores",convites:"Convites",entregas:"Presentes",campanha:"Campanha"};
 /* ======================================================== */
 
 const fb=initializeApp(firebaseConfig),auth=getAuth(fb),db=getFirestore(fb);
@@ -136,7 +149,7 @@ const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmt=d=>d?d.split("-").reverse().join("/"):"";
 const ini=n=>(n||"?").split(" ").filter(Boolean).slice(0,2).map(x=>x[0]).join("").toUpperCase();
-const S={user:null,admin:false,perfil:null,cfg:{ano:new Date().getFullYear(),dataEntrega:new Date().getFullYear()+"-12-15"},ap:[],filtro:"Todos",busy:false,adm:null,my:[]};
+const S={aba:"esperam",user:null,admin:false,super:false,perms:{},perfil:null,cfg:{ano:new Date().getFullYear(),dataEntrega:new Date().getFullYear()+"-12-15"},ap:[],filtro:"Todos",busy:false,adm:null,my:[]};
 const toast=m=>{const t=$("#toast");t.textContent=m;t.style.display="block";clearTimeout(toast.h);toast.h=setTimeout(()=>t.style.display="none",4200)};
 const av=(a,c="")=>a?.foto?`<img class="av ${c}" src="${a.foto}" alt="Foto de ${esc(a.nome)}">`:`<div class="av ${c}" aria-hidden="true">${esc(ini(a?.nome))}</div>`;
 const g=async n=>(await getDocs(collection(db,n))).docs.map(d=>({id:d.id,...d.data()}));
@@ -169,30 +182,36 @@ async function loadPublic(){
   S.ap=q.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.nome.localeCompare(b.nome));
 }
 async function refreshProfile(){
-  const u=auth.currentUser;S.user=u;S.admin=!!u&&u.email===ADMIN_EMAIL&&u.emailVerified;S.perfil=null;
-  if(u&&!S.admin){const s=await getDoc(doc(db,"servidores",u.uid));S.perfil=s.exists()?{id:s.id,...s.data()}:null}
+  const u=auth.currentUser;S.user=u;S.admin=false;S.super=false;S.perms={};S.perfil=null;
+  if(u){
+    const em=(u.email||"").toLowerCase();
+    if(u.emailVerified&&em===ADMIN_EMAIL){S.admin=S.super=true;Object.keys(PERMS).forEach(k=>S.perms[k]=true)}
+    else if(u.emailVerified){try{const a=await getDoc(doc(db,"admins",em));if(a.exists()){S.admin=true;S.perms=a.data().perms||{}}}catch{}}
+    try{const p=await getDoc(doc(db,"servidores",u.uid));if(p.exists())S.perfil={id:p.id,...p.data()}}catch{}
+  }
   renderNav();
 }
 async function loadAdmin(){
-  const [serv,conv,aps,priv]=await Promise.all([g("servidores"),g("convites"),g("apadrinhamentos"),g("apadrinhados_privado")]);
-  S.adm={serv:serv.sort((a,b)=>a.nome.localeCompare(b.nome)),conv,aps:aps.filter(x=>x.ano===S.cfg.ano),priv:Object.fromEntries(priv.map(p=>[p.id,p]))};
+  const sg=n=>g(n).catch(()=>[]);
+  const [serv,conv,aps,priv,admins,sol]=await Promise.all([sg("servidores"),sg("convites"),sg("apadrinhamentos"),sg("apadrinhados_privado"),S.super?sg("admins"):[],sg("solicitacoes")]);
+  S.adm={serv:serv.sort((a,b)=>a.nome.localeCompare(b.nome)),conv,admins,sol,aps:aps.filter(x=>x.ano===S.cfg.ano),priv:Object.fromEntries(priv.map(p=>[p.id,p]))};
 }
-const stats=()=>{const t=S.ap.length,d=S.ap.filter(a=>a.apadrinhado).length;return{t,d,f:t-d,pct:t?Math.round(d/t*100):0}};
+const tem=a=>(a.padrinhos||0)>0;
+const stats=()=>{const t=S.ap.length,d=S.ap.filter(tem).length;return{t,d,f:t-d,pct:t?Math.round(d/t*100):0}};
 const diasRestantes=()=>Math.ceil((new Date(S.cfg.dataEntrega+"T23:59:59")-new Date())/864e5);
 
 /* ---------- navegação ---------- */
 function renderNav(){
   const n=$("#nav");
-  n.innerHTML=`<a href="#/">Campanha</a><a href="#/#apadrinhar">Quem espera um padrinho</a>`+
-   (S.admin?`<a href="#/admin">Painel</a><button onclick="W.sair()">Sair</button>`:
-    S.user?`<a href="#/meus">Meus afilhados</a><button onclick="W.sair()">Sair</button>`:`<a href="#/entrar">Entrar</a>`);
+  n.innerHTML=`<a href="#/">Campanha</a><a href="#/#apadrinhar">Escolher afilhado</a>`+
+   (S.admin?`<a href="#/admin">Painel</a>`:"")+(S.perfil?`<a href="#/meus">Meus afilhados</a>`:"")+(S.user?`<button onclick="W.sair()">Sair</button>`:`<a href="#/entrar">Entrar</a>`);
 }
 async function render(keep){
   const [path,qs]=location.hash.slice(1).split("?"),p=(path||"/").split("/").filter(Boolean),q=new URLSearchParams(qs||"");
   if(!keep)$("#app").innerHTML='<p class="load">Carregando…</p>';
   try{
     await loadPublic();
-    const views={home,entrar,cadastro,apadrinhado,meus,admin};
+    const views={home,entrar,cadastro,acesso,apadrinhado,meus,admin};
     $("#app").innerHTML=await (views[p[0]||"home"]||home)(p,q);
     if(p[0]==="#apadrinhar")document.getElementById("apadrinhar")?.scrollIntoView();else if(!keep)window.scrollTo(0,0);
   }catch(e){console.error(e);$("#app").innerHTML=`<div class="box"><h2>Não foi possível carregar</h2><p>${esc(e.message)}</p><p>Verifique se o Firestore foi criado e se as regras de segurança foram publicadas (veja o README).</p></div>`}
@@ -201,12 +220,14 @@ window.addEventListener("hashchange",()=>render());
 
 /* ===================== VIEWS ===================== */
 function tagCard(a){
+  const n=a.padrinhos||0;
   return `<article class="tag">${av(a)}<h3>${esc(a.nome)}</h3><div class="role">${esc(a.profissao)}</div><div>${esc(a.lotacao)}${a.idade?`<br>${a.idade} anos`:""}</div>
-  <p class="desc">${esc((a.descricao||"").length>150?a.descricao.slice(0,150)+"…":a.descricao)}</p><a class="btn" href="#/apadrinhado/${a.id}">Quero apadrinhar</a></article>`;
+  ${n?`<span class="pill ok">${n} ${n===1?"padrinho":"padrinhos"}</span>`:""}
+  <p class="desc">${esc((a.descricao||"").length>150?a.descricao.slice(0,150)+"…":a.descricao)}</p><a class="btn ${n?"gold":""}" href="#/apadrinhado/${a.id}">${n?"Apadrinhar também":"Quero apadrinhar"}</a></article>`;
 }
 async function home(){
   const s=stats(),ano=S.cfg.ano,dias=diasRestantes();
-  const livres=S.ap.filter(a=>!a.apadrinhado&&(S.filtro==="Todos"||a.profissao===S.filtro));
+  const livres=S.ap.filter(a=>(S.aba==="tem"?tem(a):!tem(a))&&(S.filtro==="Todos"||a.profissao===S.filtro));
   const prazo=dias>0?`Faltam ${dias} ${dias===1?"dia":"dias"} para a entrega, em ${fmt(S.cfg.dataEntrega)}.`:dias===0?"A entrega é hoje!":`Entrega realizada em ${fmt(S.cfg.dataEntrega)}.`;
   return `
 <section class="hero"><div class="wrap"><div>
@@ -217,7 +238,7 @@ async function home(){
   <div class="bigtag"><small>Para:</small><div class="para">alguém que cuida de você</div><small>De:</small><div class="para" style="font-size:1.3rem">um colega Dataprev</div><div class="msg">Obrigado por estar aqui todos os dias.</div></div>
 </div></section>
 
-<section class="s"><div class="wrap">
+<section class="s deco branch"><div class="wrap">
   <h2>Hora de retribuir</h2>
   <div class="prose">
    <p>Eles abrem a porta antes de a gente chegar. Sorriem na recepção mesmo nos dias pesados, vigiam o prédio enquanto dormimos e estão prontos para agir quando uma emergência aparece. Quase sempre em silêncio, quase sempre sem agradecimento.</p>
@@ -231,7 +252,7 @@ async function home(){
   </div>
 </div></section>
 
-<section class="s alt"><div class="wrap">
+<section class="s alt deco fw"><div class="wrap">
   <h2>Como está a campanha</h2>
   <div class="dash">
     <div class="stat"><b>${s.t}</b><span>colegas participam</span></div>
@@ -240,14 +261,15 @@ async function home(){
     <div class="stat"><b>${s.pct}%</b><span>da meta alcançada</span></div>
   </div>
   <div class="bar" role="progressbar" aria-valuenow="${s.pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${s.pct}%"></i></div>
-  <div class="prof">${PROFS.map(pf=>{const t=S.ap.filter(a=>a.profissao===pf),d=t.filter(a=>a.apadrinhado).length;return `<div><b>${pf}</b><br><small>${d} de ${t.length} apadrinhados</small><div class="bar"><i style="width:${t.length?d/t.length*100:0}%"></i></div></div>`}).join("")}</div>
+  <div class="prof">${PROFS.map(pf=>{const t=S.ap.filter(a=>a.profissao===pf),d=t.filter(tem).length;return `<div><b>${pf}</b><br><small>${d} de ${t.length} apadrinhados</small><div class="bar"><i style="width:${t.length?d/t.length*100:0}%"></i></div></div>`}).join("")}</div>
 </div></section>
 
 <section class="s" id="apadrinhar"><div class="wrap">
-  <h2>Quem ainda espera um padrinho</h2>
+  <h2>Escolha quem você vai apadrinhar</h2>
+  <div class="seg" role="tablist"><button role="tab" aria-selected="${S.aba==="esperam"}" class="${S.aba==="esperam"?"on":""}" onclick="W.aba('esperam')">Quem espera um padrinho (${s.f})</button><button role="tab" aria-selected="${S.aba==="tem"}" class="${S.aba==="tem"?"on":""}" onclick="W.aba('tem')">Quem já tem padrinho (${s.d})</button></div>
+  ${S.aba==="tem"?`<p class="msg-info">Estes colegas já foram escolhidos, mas você também pode apadrinhá-los: um afilhado pode ter mais de um padrinho.</p>`:""}
   <div class="chips">${["Todos",...PROFS].map(f=>`<button class="chip ${S.filtro===f?"on":""}" onclick="W.filtro('${f}')">${f}</button>`).join("")}</div>
-  ${livres.length?`<div class="grid">${livres.map(tagCard).join("")}</div>`:`<div class="msg-ok">${s.t?"Todos os colegas desta lista já têm padrinho. Obrigado a cada um de vocês!":"Os perfis serão publicados em breve."}</div>`}
-  ${s.d?`<h3 style="margin-top:50px">Já apadrinhados</h3><div class="done">${S.ap.filter(a=>a.apadrinhado).map(a=>`<span title="${esc(a.nome)}">${av(a,"sm")}</span>`).join("")}</div>`:""}
+  ${livres.length?`<div class="grid">${livres.map(tagCard).join("")}</div>`:`<div class="msg-ok">${!s.t?"Os perfis serão publicados em breve.":S.aba==="tem"?"Ninguém foi apadrinhado ainda. Seja o primeiro!":"Todos os colegas desta lista já têm padrinho. Obrigado a cada um de vocês!"}</div>`}
 </div></section>`;
 }
 
@@ -256,14 +278,14 @@ async function entrar(p,q){
   <form onsubmit="W.login(event)"><label for="le">E-mail</label><input id="le" type="email" required autocomplete="username">
   <label for="ls">Senha</label><input id="ls" type="password" required autocomplete="current-password">
   <div class="row"><button class="btn">Entrar</button><button type="button" class="btn ghost" onclick="W.reset()">Esqueci a senha</button></div></form>
-  <p style="margin-top:22px">Ainda não tem cadastro? O cadastro de servidores é feito pelo link de convite enviado pela coordenação da campanha.</p>
+  <p style="margin-top:22px">Ainda não tem cadastro? O cadastro de servidores é feito pelo link de convite enviado pela coordenação. Não recebeu o convite ou seu e-mail não está na lista? <a href="#/acesso">Peça acesso ao administrador</a>.</p>
   <hr style="border:0;border-top:1px solid var(--line);margin:22px 0"><button class="btn ghost" onclick="W.google()">Sou administrador: entrar com Google</button></div>`;
 }
 
 async function cadastro(p,q){
-  const id=q.get("convite");if(!id)return `<div class="box"><h2>Convite necessário</h2><p>Use o link de convite que a coordenação enviou para você.</p></div>`;
+  const id=q.get("convite");if(!id)return `<div class="box"><h2>Convite necessário</h2><p>Use o link de convite que a coordenação enviou para você. Não recebeu? <a href="#/acesso">Peça acesso ao administrador</a>.</p></div>`;
   const c=await getDoc(doc(db,"convites",id));
-  if(!c.exists())return `<div class="box"><h2>Convite inválido</h2><p>Confira o link recebido ou peça um novo à coordenação.</p></div>`;
+  if(!c.exists())return `<div class="box"><h2>Convite inválido</h2><p>Confira o link recebido ou <a href="#/acesso">peça um novo convite ao administrador</a>.</p></div>`;
   const cv=c.data();
   if(cv.usado&&!cv.multi)return `<div class="box"><h2>Convite já utilizado</h2><p>Este convite já foi usado para criar um cadastro. <a href="#/entrar">Entre com seu e-mail e senha.</a></p></div>`;
   const f=FS.concat([{k:"senha",l:"Crie uma senha (mínimo 6 caracteres)",t:"password",req:1}]);
@@ -271,31 +293,42 @@ async function cadastro(p,q){
   <form onsubmit="W.cadastrar(event,'${id}',${cv.multi?1:0})">${f.map(x=>fld(x,x.k==="nome"?cv.nome:x.k==="email"?cv.email:"")).join("")}<div class="row"><button class="btn">Concluir cadastro</button></div></form></div>`;
 }
 
+async function acesso(){
+  return `<div class="box"><h2>Peça seu acesso</h2><p>Se você é servidor da Dataprev e não recebeu o convite, ou seu e-mail não está na lista, envie uma mensagem ao administrador. Ele vai responder com o link de cadastro.</p>
+  <form onsubmit="W.solicitar(event)"><label for="sn">Nome completo</label><input id="sn" name="nome" required maxlength="120" value="${esc(S.perfil?.nome||S.user?.displayName||"")}">
+  <label for="se">E-mail para receber o convite</label><input id="se" name="email" type="email" required maxlength="160" value="${esc(S.user?.email||"")}">
+  <label for="sa">Área</label><input id="sa" name="area" required maxlength="120"><label for="sl">Lotação</label><input id="sl" name="lotacao" maxlength="120">
+  <label for="sm">Mensagem (opcional)</label><textarea id="sm" name="mensagem" maxlength="800"></textarea>
+  <input name="site" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px">
+  <div class="row"><button class="btn">Enviar solicitação</button></div></form></div>`;
+}
+
 async function apadrinhado(p){
   const a=S.ap.find(x=>x.id===p[1]);
   if(!a)return `<div class="box"><h2>Perfil não encontrado</h2><a href="#/">Voltar à campanha</a></div>`;
-  let acao="";
-  if(a.apadrinhado)acao=a.padrinhoId&&S.user&&a.padrinhoId===S.user.uid?`<div class="msg-ok">Você é o padrinho de ${esc(a.nome)}. <a href="#/meus">Ver meus afilhados</a></div>`:`<div class="msg-info">${esc(a.nome)} já encontrou um padrinho. <a href="#/">Veja quem ainda espera</a>.</div>`;
-  else if(!S.user){sessionStorage.next="#/apadrinhado/"+a.id;acao=`<div class="msg-info">Para apadrinhar, entre com sua conta de servidor.</div><a class="btn" href="#/entrar">Entrar para apadrinhar</a>`}
-  else if(S.admin)acao=`<div class="msg-info">Como administrador, vincule um padrinho pelo <a href="#/admin/apadrinhados">painel</a>.</div>`;
-  else if(!S.perfil)acao=`<div class="msg-info">Sua conta ainda não tem cadastro de servidor. Use o link de convite enviado pela coordenação.</div>`;
-  else acao=`<form onsubmit="W.apadrinhar(event,'${a.id}')"><h3>Seu presente e sua mensagem</h3>
+  const n=a.padrinhos||0,nome1=esc(a.nome.split(" ")[0]);let acao="",mine=false;
+  if(S.user&&S.perfil){try{mine=(await getDoc(doc(db,"apadrinhamentos",a.id+"_"+S.user.uid))).exists()}catch{}}
+  if(mine)acao=`<div class="msg-ok">Você é padrinho de ${esc(a.nome)}. <a href="#/meus">Ver meus afilhados</a></div>`;
+  else if(!S.user){sessionStorage.next="#/apadrinhado/"+a.id;acao=`<div class="msg-info">Para apadrinhar, entre com sua conta de servidor. Ainda sem cadastro? <a href="#/acesso">Peça acesso ao administrador</a>.</div><a class="btn" href="#/entrar">Entrar para apadrinhar</a>`}
+  else if(S.admin&&!S.perfil)acao=`<div class="msg-info">Como administrador, vincule um padrinho pelo <a href="#/admin/apadrinhados">painel</a>.</div>`;
+  else if(!S.perfil)acao=`<div class="msg-info">Sua conta ainda não tem cadastro de servidor. Use o link de convite enviado pela coordenação ou <a href="#/acesso">peça acesso ao administrador</a>.</div>`;
+  else acao=(n?`<div class="msg-info">${nome1} já tem ${n} ${n===1?"padrinho":"padrinhos"}. Você pode apadrinhar também: mais de um padrinho é bem-vindo.</div>`:"")+`<form onsubmit="W.apadrinhar(event,'${a.id}')"><h3>Seu presente e sua mensagem</h3>
    <label for="pr">O que você vai presentear?</label><input id="pr" required placeholder="Ex.: cesta de Natal e um tênis">
-   <label for="ms">Mensagem de Natal e Ano Novo (opcional)</label><textarea id="ms" placeholder="Será impressa ou enviada a ${esc(a.nome.split(" ")[0])} no dia ${fmt(S.cfg.dataEntrega)}."></textarea>
+   <label for="ms">Mensagem de Natal e Ano Novo (opcional)</label><textarea id="ms" placeholder="Será impressa ou enviada a ${nome1} no dia ${fmt(S.cfg.dataEntrega)}."></textarea>
    <p class="msg-info">Combine-se para entregar o presente até ${fmt(S.cfg.dataEntrega)}.</p><button class="btn">Confirmar apadrinhamento</button></form>`;
   return `<div class="box wide"><a href="#/">← Voltar</a><div class="perfil" style="margin-top:18px">${av(a,"lg")}<div><h1 style="font-size:2.2rem">${esc(a.nome)}</h1>
-   <p><b style="color:var(--berry)">${esc(a.profissao)}</b><br>Lotação: ${esc(a.lotacao)}${a.idade?`<br>${a.idade} anos`:""}</p>
+   <p><b style="color:var(--berry)">${esc(a.profissao)}</b><br>Lotação: ${esc(a.lotacao)}${a.idade?`<br>${a.idade} anos`:""}</p>${n?`<span class="pill ok">${n} ${n===1?"padrinho":"padrinhos"}</span>`:`<span class="pill no">Espera um padrinho</span>`}
    <p class="prose" style="font-size:1.05rem;white-space:pre-line">${esc(a.descricao)}</p></div></div><hr style="border:0;border-top:1px solid var(--line);margin:24px 0">${acao}</div>`;
 }
 
 async function meus(){
   if(!S.user){location.hash="#/entrar";return ""}
-  if(S.admin){location.hash="#/admin";return ""}
-  if(!S.perfil)return `<div class="box"><h2>Cadastro pendente</h2><p>Sua conta ainda não tem cadastro de servidor. Use o link de convite da coordenação.</p></div>`;
+  if(S.admin&&!S.perfil){location.hash="#/admin";return ""}
+  if(!S.perfil)return `<div class="box"><h2>Cadastro pendente</h2><p>Sua conta ainda não tem cadastro de servidor. Use o link de convite da coordenação ou <a href="#/acesso">peça acesso ao administrador</a>.</p></div>`;
   S.my=(await getDocs(query(collection(db,"apadrinhamentos"),where("padrinhoId","==",S.user.uid)))).docs.map(d=>({id:d.id,...d.data()}));
   return `<div class="wrap" style="padding-top:36px;padding-bottom:50px"><h2>Olá, ${esc(S.perfil.nome.split(" ")[0])}! Seus afilhados</h2>
   <p>Entregue os presentes até <b>${fmt(S.cfg.dataEntrega)}</b>. Você pode alterar o presente e a mensagem quando quiser.</p>
-  ${S.my.length?S.my.map(x=>{const a=S.ap.find(y=>y.id===x.id);return `<div class="box wide" style="margin:18px 0"><div class="perfil" style="grid-template-columns:110px 1fr"><div>${av(a)}</div><div><h3>${esc(x.apadrinhadoNome)}</h3><p>${esc(a?.profissao||"")}<br>${esc(a?.lotacao||"")}</p></div></div>
+  ${S.my.length?S.my.map(x=>{const a=S.ap.find(y=>y.id===x.apadrinhadoId);return `<div class="box wide" style="margin:18px 0"><div class="perfil" style="grid-template-columns:110px 1fr"><div>${av(a)}</div><div><h3>${esc(x.apadrinhadoNome)}</h3><p>${esc(a?.profissao||"")}<br>${esc(a?.lotacao||"")}</p></div></div>
    <form onsubmit="W.salvarPresente(event,'${x.id}')"><label>Presente</label><input name="presente" value="${esc(x.presente)}" required><label>Mensagem de Natal e Ano Novo</label><textarea name="mensagem">${esc(x.mensagem)}</textarea>
    <div class="row"><button class="btn">Salvar</button><button type="button" class="btn ghost" onclick="W.imprimir('${x.id}')">Imprimir cartão</button><button type="button" class="btn danger" onclick="W.desistir('${x.id}')">Desistir</button></div></form></div>`}).join(""):`<div class="msg-info">Você ainda não apadrinhou ninguém.</div>`}
   <a class="btn gold" href="#/#apadrinhar">Apadrinhar ${S.my.length?"mais alguém":"um colega"}</a></div>`;
@@ -305,24 +338,26 @@ async function meus(){
 async function admin(p){
   if(!S.admin){location.hash="#/entrar";return ""}
   await loadAdmin();
-  const tab=p[1]||"resumo",A=S.adm,s=stats();
+  const A=S.adm,s=stats();
   const nomeS=id=>A.serv.find(x=>x.id===id)?.nome||"?";
   const afil=id=>A.aps.filter(x=>x.padrinhoId===id);
-  const pend=A.conv.filter(c=>!c.multi&&!c.usado);
+  const pend=A.conv.filter(c=>!c.multi&&!c.usado),solP=(A.sol||[]).filter(x=>x.status==="pendente");
   const padrinhosIds=[...new Set(A.aps.map(x=>x.padrinhoId))];
-  const tabs=[["resumo","Resumo"],["apadrinhados","Terceirizados"],["servidores","Servidores"],["convites","Convites"],["entregas","Presentes e mensagens"],["campanha","Campanha"]];
+  const tabs=[["resumo","Resumo",1],["apadrinhados","Terceirizados",S.perms.terceirizados],["servidores","Servidores",S.perms.servidores],["convites","Convites"+(solP.length?" ("+solP.length+")":""),S.perms.convites],["entregas","Presentes e mensagens",S.perms.entregas],["campanha","Campanha",S.perms.campanha],["admins","Administradores",S.super]].filter(t=>t[2]);
+  const tab=tabs.some(t=>t[0]===(p[1]||"resumo"))?(p[1]||"resumo"):"resumo";
+  const solHtml=`<h3>Solicitações de acesso (${solP.length})</h3><div class="tw"><table><tr><th>Nome</th><th>E-mail</th><th>Área / Lotação</th><th>Mensagem</th><th>Ações</th></tr>${solP.map(x=>`<tr><td>${esc(x.nome)}</td><td>${esc(x.email)}</td><td>${esc(x.area)}<br><small>${esc(x.lotacao||"")}</small></td><td>${esc(x.mensagem||"")}</td><td><button class="btn sm" onclick="W.atender('${x.id}')">Gerar convite</button><button class="btn sm danger" onclick="W.descartarSol('${x.id}')">Descartar</button></td></tr>`).join("")||'<tr><td colspan="5">Nenhuma solicitação pendente.</td></tr>'}</table></div>`;
   let body="";
   if(tab==="resumo")body=`<div class="dash">
     <div class="stat"><b>${s.t}</b><span>terceirizados cadastrados</span></div><div class="stat ok"><b>${s.d}</b><span>apadrinhados</span></div><div class="stat falta"><b>${s.f}</b><span>sem padrinho</span></div>
-    <div class="stat"><b>${A.serv.length}</b><span>servidores cadastrados</span></div><div class="stat ok"><b>${padrinhosIds.length}</b><span>servidores padrinhos</span></div><div class="stat falta"><b>${pend.length}</b><span>convidados que não se cadastraram</span></div></div>
+    <div class="stat"><b>${A.serv.length}</b><span>servidores cadastrados</span></div><div class="stat ok"><b>${padrinhosIds.length}</b><span>servidores padrinhos</span></div><div class="stat falta"><b>${pend.length}</b><span>convidados que não se cadastraram</span></div><div class="stat falta"><b>${solP.length}</b><span>pedidos de acesso pendentes</span></div></div>
     <div class="bar"><i style="width:${s.pct}%"></i></div><p>${s.pct}% dos terceirizados já têm padrinho. Entrega em ${fmt(S.cfg.dataEntrega)} (${diasRestantes()} dias).</p>
-    <div class="two"><div><h3>Sem padrinho (${s.f})</h3>${S.ap.filter(a=>!a.apadrinhado).map(a=>`<div>${esc(a.nome)} <small>(${esc(a.profissao)}, ${esc(a.lotacao)})</small></div>`).join("")||"<p>Todos apadrinhados.</p>"}</div>
+    <div class="two"><div><h3>Sem padrinho (${s.f})</h3>${S.ap.filter(a=>!tem(a)).map(a=>`<div>${esc(a.nome)} <small>(${esc(a.profissao)}, ${esc(a.lotacao)})</small></div>`).join("")||"<p>Todos apadrinhados.</p>"}</div>
     <div><h3>Convidados sem cadastro (${pend.length})</h3>${pend.map(c=>`<div>${esc(c.nome)} <small>${esc(c.email||"")}</small></div>`).join("")||"<p>Nenhum pendente.</p>"}</div></div>`;
   if(tab==="apadrinhados")body=`<div class="row"><button class="btn" onclick="W.editAp()">+ Cadastrar terceirizado</button><button class="btn ghost" onclick="W.csvAp()">Baixar lista (CSV)</button></div>
-    <div class="tw"><table><tr><th>Foto</th><th>Nome</th><th>Profissão / Lotação</th><th>Contato</th><th>Situação</th><th>Ações</th></tr>${S.ap.map(a=>{const pv=A.priv[a.id]||{},ap=A.aps.find(x=>x.id===a.id);return `<tr><td>${av(a,"sm")}</td><td>${esc(a.nome)}<br><small>${a.idade?a.idade+" anos":""}</small></td><td>${esc(a.profissao)}<br><small>${esc(a.lotacao)}</small></td><td>${esc(pv.fone||"")}<br><small>${esc(pv.email||"")}</small></td>
-     <td>${a.apadrinhado?`<span class="pill ok">Padrinho: ${esc(ap?.padrinhoNome||"?")}</span>`:`<span class="pill no">Sem padrinho</span>`}</td>
+    <div class="tw"><table><tr><th>Foto</th><th>Nome</th><th>Profissão / Lotação</th><th>Contato</th><th>Situação</th><th>Ações</th></tr>${S.ap.map(a=>{const pv=A.priv[a.id]||{},aps=A.aps.filter(x=>x.apadrinhadoId===a.id),livresS=A.serv.filter(x=>!aps.some(y=>y.padrinhoId===x.id));return `<tr><td>${av(a,"sm")}</td><td>${esc(a.nome)}<br><small>${a.idade?a.idade+" anos":""}</small></td><td>${esc(a.profissao)}<br><small>${esc(a.lotacao)}</small></td><td>${esc(pv.fone||"")}<br><small>${esc(pv.email||"")}</small></td>
+     <td>${aps.length?aps.map(x=>`<div><span class="pill ok">${esc(x.padrinhoNome)}</span> <button class="btn sm danger" aria-label="Remover padrinho ${esc(x.padrinhoNome)}" onclick="W.desistir('${x.id}')">×</button></div>`).join(""):`<span class="pill no">Sem padrinho</span>`}</td>
      <td><button class="btn sm ghost" onclick="W.editAp('${a.id}')">Editar</button><button class="btn sm danger" onclick="W.delAp('${a.id}')">Excluir</button>
-     ${a.apadrinhado?`<button class="btn sm ghost" onclick="W.desistir('${a.id}')">Remover padrinho</button>`:`<br><select id="as_${a.id}" style="width:150px;padding:5px"><option value="">Servidor…</option>${A.serv.map(x=>`<option value="${x.id}">${esc(x.nome)}</option>`).join("")}</select><button class="btn sm" onclick="W.assign('${a.id}')">Vincular</button>`}</td></tr>`}).join("")||'<tr><td colspan="6">Nenhum terceirizado cadastrado.</td></tr>'}</table></div>`;
+     <br><select id="as_${a.id}" style="width:150px;padding:5px" aria-label="Servidor"><option value="">Servidor…</option>${livresS.map(x=>`<option value="${x.id}">${esc(x.nome)}</option>`).join("")}</select><button class="btn sm" onclick="W.assign('${a.id}')">Vincular</button></td></tr>`}).join("")||'<tr><td colspan="6">Nenhum terceirizado cadastrado.</td></tr>'}</table></div>`;
   if(tab==="servidores"){
     const row=x=>`<tr><td>${av(x,"sm")}</td><td>${esc(x.nome)}</td><td>${esc(x.area)}<br><small>${esc(x.lotacao)}</small></td><td>${esc(x.fone||"")}<br><small>${esc(x.email||"")}</small></td><td>${afil(x.id).map(a=>esc(a.apadrinhadoNome)).join(", ")||"-"}</td><td><button class="btn sm ghost" onclick="W.editServ('${x.id}')">Editar</button><button class="btn sm danger" onclick="W.delServ('${x.id}')">Excluir</button></td></tr>`;
     const head="<tr><th>Foto</th><th>Nome</th><th>Área / Lotação</th><th>Contato</th><th>Afilhados</th><th>Ações</th></tr>";
@@ -331,7 +366,7 @@ async function admin(p){
     <h3>Servidores padrinhos (${pad.length})</h3><div class="tw"><table>${head}${pad.map(row).join("")||'<tr><td colspan="6">Nenhum ainda.</td></tr>'}</table></div>
     <h3>Cadastrados sem afilhado (${sem.length})</h3><div class="tw"><table>${head}${sem.map(row).join("")||'<tr><td colspan="6">Nenhum.</td></tr>'}</table></div>`;
   }
-  if(tab==="convites")body=`<div class="two"><div class="box" style="margin:0;max-width:none"><h3>Convidar um servidor</h3><form onsubmit="W.convidar(event)"><label>Nome</label><input name="nome" required><label>E-mail</label><input name="email" type="email"><div class="row"><button class="btn">Gerar link</button></div></form>
+  if(tab==="convites")body=solHtml+`<div class="two"><div class="box" style="margin:0;max-width:none"><h3>Convidar um servidor</h3><form onsubmit="W.convidar(event)"><label>Nome</label><input name="nome" required><label>E-mail</label><input name="email" type="email"><div class="row"><button class="btn">Gerar link</button></div></form>
     <hr style="border:0;border-top:1px solid var(--line);margin:18px 0"><h3>Link aberto (qualquer servidor)</h3><p>Um único link reutilizável, para enviar por e-mail geral ou mural.</p><button class="btn ghost" onclick="W.convidarAberto()">Gerar link aberto</button></div>
     <div class="box" style="margin:0;max-width:none"><h3>Convidar em lote</h3><p>Uma pessoa por linha, no formato <code>Nome;email</code>.</p><form onsubmit="W.lote(event)"><textarea name="lote" style="min-height:150px" placeholder="Maria Silva;maria@dataprev.gov.br"></textarea><div class="row"><button class="btn">Gerar convites</button></div></form></div></div>
     <h3 style="margin-top:30px">Aguardando cadastro (${pend.length})</h3><div class="tw"><table><tr><th>Nome</th><th>E-mail</th><th>Enviar</th></tr>${pend.map(c=>{const l=linkConvite(c.id),t=`Olá ${c.nome.split(" ")[0]}! Participe da campanha Padrinhos Dataprev: ${l}`;return `<tr><td>${esc(c.nome)}</td><td>${esc(c.email||"")}</td><td><button class="btn sm ghost" onclick="W.copiar('${l}')">Copiar link</button><a class="btn sm ghost" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(t)}">WhatsApp</a><a class="btn sm ghost" href="mailto:${esc(c.email||"")}?subject=${encodeURIComponent("Padrinhos Dataprev: seu convite")}&body=${encodeURIComponent(t)}">E-mail</a><button class="btn sm danger" onclick="W.delConv('${c.id}')">Excluir</button></td></tr>`}).join("")||'<tr><td colspan="3">Nenhum convite pendente.</td></tr>'}</table></div>
@@ -340,6 +375,10 @@ async function admin(p){
     <div class="tw"><table><tr><th>Apadrinhado</th><th>Padrinho</th><th>Presente</th><th>Mensagem</th><th>Entregue</th></tr>${A.aps.map(x=>`<tr><td>${esc(x.apadrinhadoNome)}</td><td>${esc(x.padrinhoNome)}</td><td>${esc(x.presente)}</td><td>${esc(x.mensagem)}</td><td><input type="checkbox" style="width:auto" ${x.entregue?"checked":""} onchange="W.entregue('${x.id}',this.checked)" aria-label="Entregue"></td></tr>`).join("")||'<tr><td colspan="5">Nenhum apadrinhamento ainda.</td></tr>'}</table></div>`;
   if(tab==="campanha")body=`<div class="box" style="margin:0"><h3>Dados da campanha</h3><form onsubmit="W.salvarCfg(event)"><label>Ano da campanha</label><input name="ano" type="number" value="${S.cfg.ano}" required><label>Data limite de entrega</label><input name="dataEntrega" type="date" value="${S.cfg.dataEntrega}" required><div class="row"><button class="btn">Salvar</button></div></form>
     <p class="msg-info">Para iniciar uma nova campanha, altere o ano. Os dados do ano anterior ficam guardados e a lista de terceirizados começa vazia.</p></div>`;
+  if(tab==="admins")body=`<div class="two"><div class="box" style="margin:0;max-width:none"><h3>Novo administrador</h3><p>Informe o e-mail da conta Google da pessoa. Ela entra pelo botão "Sou administrador: entrar com Google".</p>
+    <form onsubmit="W.addAdmin(event)"><label>Nome</label><input name="nome" required><label>E-mail Google</label><input name="email" type="email" required><label>Permissões</label>${Object.entries(PERMS).map(([k,l])=>`<label style="font-weight:400"><input type="checkbox" name="p_${k}" style="width:auto" checked> ${l}</label>`).join("")}<div class="row"><button class="btn">Adicionar administrador</button></div></form></div>
+    <div class="msg-info" style="align-self:start">O administrador principal (${ADMIN_EMAIL}) tem todas as permissões e é o único que gerencia administradores. Todo administrador vê o Resumo.</div></div>
+    <h3 style="margin-top:30px">Administradores (${A.admins.length})</h3><div class="tw"><table><tr><th>Nome / e-mail</th>${Object.keys(PERMS).map(k=>`<th>${PERMS_SHORT[k]}</th>`).join("")}<th></th></tr>${A.admins.map(a=>`<tr><td>${esc(a.nome)}<br><small>${esc(a.email)}</small></td>${Object.keys(PERMS).map(k=>`<td><input type="checkbox" style="width:auto" aria-label="${PERMS_SHORT[k]}" ${a.perms?.[k]?"checked":""} onchange="W.perm('${a.id}','${k}',this.checked)"></td>`).join("")}<td><button class="btn sm danger" onclick="W.delAdmin('${a.id}')">Remover</button></td></tr>`).join("")||'<tr><td colspan="7">Nenhum administrador adicional.</td></tr>'}</table></div>`;
   return `<div class="wrap" style="padding:30px 20px 60px"><h2>Painel da campanha ${S.cfg.ano}</h2><div class="tabs">${tabs.map(([k,l])=>`<a href="#/admin/${k}" class="${k===tab?"on":""}">${l}</a>`).join("")}</div>${body}</div>`;
 }
 
@@ -347,13 +386,13 @@ async function admin(p){
 function cartao(x){return `<div class="c"><h1>Feliz Natal e um Próspero Ano Novo!</h1><p class="p">Para <b>${esc(x.apadrinhadoNome)}</b></p><p class="m">${esc(x.mensagem||"Que o novo ano traga paz, saúde e alegria. Obrigado por tudo!").replace(/\n/g,"<br>")}</p><p>Com carinho,<br><b>${esc(x.padrinhoNome)}</b><br>Dataprev</p></div>`}
 const cardCss='<style>body{font-family:Georgia,serif;margin:0}.c{page-break-after:always;border:6px double #a3202f;margin:30px;padding:50px 40px;text-align:center;min-height:360px}h1{color:#123628;font-size:28px}.p{font-size:20px}.m{font-size:19px;font-style:italic;margin:30px 0}</style>';
 const csv=(rows,name)=>{const t=rows.map(r=>r.map(c=>`"${String(c??"").replace(/"/g,'""')}"`).join(";")).join("\n"),a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+t],{type:"text/csv"}));a.download=name;a.click()};
-async function liberar(id){const b=writeBatch(db);b.delete(doc(db,"apadrinhamentos",id));b.update(doc(db,"apadrinhados",id),{apadrinhado:false,padrinhoId:null});await b.commit()}
+async function liberar(id,afId){const b=writeBatch(db);b.delete(doc(db,"apadrinhamentos",id));b.update(doc(db,"apadrinhados",afId),{padrinhos:increment(-1)});await b.commit()}
 
 const W={
   filtro(f){S.filtro=f;render(true)},
   sair:async()=>{await signOut(auth);S.admin=false;S.perfil=null;await refreshProfile();location.hash="#/";render()},
   async login(e){e.preventDefault();try{await signInWithEmailAndPassword(auth,$("#le").value,$("#ls").value);await refreshProfile();const n=sessionStorage.next;sessionStorage.removeItem("next");location.hash=S.admin?"#/admin":(n||"#/meus");if(!S.admin&&!S.perfil)toast("Conta sem cadastro de servidor: use o link de convite.")}catch(x){toast("E-mail ou senha incorretos.")}},
-  async google(){try{const r=await signInWithPopup(auth,new GoogleAuthProvider());if(r.user.email!==ADMIN_EMAIL){await signOut(auth);await refreshProfile();return toast("Esta conta Google não é de administrador.")}await refreshProfile();location.hash="#/admin"}catch(x){toast("Não foi possível entrar: "+x.message)}},
+  async google(){try{const r=await signInWithPopup(auth,new GoogleAuthProvider());await refreshProfile();if(!S.admin){await signOut(auth);await refreshProfile();return toast("Esta conta Google não tem acesso de administrador.")}location.hash="#/admin"}catch(x){toast("Não foi possível entrar: "+x.message)}},
   async reset(){const m=$("#le").value;if(!m)return toast("Digite seu e-mail no campo acima.");try{await sendPasswordResetEmail(auth,m);toast("Enviamos um e-mail para redefinir a senha.")}catch(x){toast("Erro: "+x.message)}},
   foto:async i=>{const f=i.files[0];if(!f)return;const d=await resize(f),im=i.parentElement.querySelector("img");im.src=d;im.dataset.v=d},
   async cadastrar(e,conv,multi){e.preventDefault();const b=e.submitter;b.disabled=true;S.busy=true;
@@ -363,22 +402,29 @@ const W={
       if(!multi)bt.update(doc(db,"convites",conv),{usado:true,usadoPor:c.user.uid,usadoEm:serverTimestamp()});
       await bt.commit();S.busy=false;await refreshProfile();toast("Cadastro concluído! Escolha seu afilhado.");location.hash="#/"+(sessionStorage.next?.slice(2)||"");render()
     }catch(x){S.busy=false;b.disabled=false;toast(x.code==="auth/email-already-in-use"?"Este e-mail já tem cadastro. Faça login.":"Erro: "+x.message)}},
-  async apadrinhar(e,id){e.preventDefault();const a=S.ap.find(x=>x.id===id),b=writeBatch(db);e.submitter.disabled=true;
-    b.set(doc(db,"apadrinhamentos",id),{apadrinhadoId:id,apadrinhadoNome:a.nome,padrinhoId:S.user.uid,padrinhoNome:S.perfil.nome,ano:S.cfg.ano,presente:$("#pr").value.trim(),mensagem:$("#ms").value.trim(),entregue:false,criadoEm:serverTimestamp()});
-    b.update(doc(db,"apadrinhados",id),{apadrinhado:true,padrinhoId:S.user.uid});
-    try{await b.commit();toast("Obrigado! Você é o padrinho de "+a.nome.split(" ")[0]+".");location.hash="#/meus"}catch(x){toast("Não foi possível apadrinhar: talvez alguém tenha escolhido esse colega agora há pouco.");render()}},
+  async apadrinhar(e,id){e.preventDefault();const a=S.ap.find(x=>x.id===id),b=writeBatch(db),aid=id+"_"+S.user.uid;e.submitter.disabled=true;
+    b.set(doc(db,"apadrinhamentos",aid),{apadrinhadoId:id,apadrinhadoNome:a.nome,padrinhoId:S.user.uid,padrinhoNome:S.perfil.nome,ano:S.cfg.ano,presente:$("#pr").value.trim(),mensagem:$("#ms").value.trim(),entregue:false,criadoEm:serverTimestamp()});
+    b.update(doc(db,"apadrinhados",id),{padrinhos:increment(1)});
+    try{await b.commit();toast("Obrigado! Você é padrinho de "+a.nome.split(" ")[0]+".");location.hash="#/meus"}catch(x){toast("Não foi possível apadrinhar. Você já apadrinhou este colega?");render()}},
+  aba(v){S.aba=v;render(true)},
+  async solicitar(e){e.preventDefault();const f=e.target;if(f.site.value)return;e.submitter.disabled=true;
+    try{await setDoc(doc(collection(db,"solicitacoes")),{nome:f.nome.value.trim(),email:f.email.value.trim(),area:f.area.value.trim(),lotacao:f.lotacao.value.trim(),mensagem:f.mensagem.value.trim(),status:"pendente",criadoEm:serverTimestamp()});
+      $("#app").innerHTML=`<div class="box"><h2>Solicitação enviada</h2><p>O administrador recebeu sua mensagem. Assim que o convite for gerado, você receberá o link de cadastro no e-mail informado.</p><a class="btn" href="#/">Voltar à campanha</a></div>`}
+    catch(x){toast("Não foi possível enviar: "+x.message);e.submitter.disabled=false}},
+  async atender(id){const x=S.adm.sol.find(z=>z.id===id),r=doc(collection(db,"convites")),b=writeBatch(db);b.set(r,{nome:x.nome,email:x.email,usado:false,multi:false,criadoEm:serverTimestamp()});b.update(doc(db,"solicitacoes",id),{status:"atendida",conviteId:r.id});await b.commit();await W.copiar(linkConvite(r.id));toast("Convite gerado e link copiado. Envie-o pela lista abaixo.");render(true)},
+  async descartarSol(id){if(!confirm("Descartar esta solicitação?"))return;await deleteDoc(doc(db,"solicitacoes",id));render(true)},
   async salvarPresente(e,id){e.preventDefault();const f=e.target;await updateDoc(doc(db,"apadrinhamentos",id),{presente:f.presente.value.trim(),mensagem:f.mensagem.value.trim()});toast("Salvo!")},
-  async desistir(id){if(!confirm("Remover este apadrinhamento? O colega voltará para a lista de quem espera um padrinho."))return;await liberar(id);toast("Apadrinhamento removido.");render(true)},
+  async desistir(id){if(!confirm("Remover este apadrinhamento? Se o colega não tiver outro padrinho, voltará para a lista de quem espera."))return;const x=[...S.my,...(S.adm?.aps||[])].find(z=>z.id===id);await liberar(id,x.apadrinhadoId);toast("Apadrinhamento removido.");render(true)},
   imprimir(id){const l=id==="all"?S.adm.aps:[...S.my,...(S.adm?.aps||[])].filter(x=>x.id===id).slice(0,1);if(!l.length)return toast("Nada para imprimir.");const w=window.open("","_blank");w.document.write(`<!DOCTYPE html><meta charset="utf-8"><title>Cartões</title>${cardCss}${l.map(cartao).join("")}`);w.document.close();w.focus();setTimeout(()=>w.print(),400)},
   /* admin */
   editAp(id){const a=S.ap.find(x=>x.id===id)||{},pv=id?S.adm.priv[id]||{}:{};
     modal(id?"Editar terceirizado":"Cadastrar terceirizado",FA,{...a,...pv},async v=>{const {fone,email,...pub}=v,b=writeBatch(db);
-      if(id){b.update(doc(db,"apadrinhados",id),pub)}else{const r=doc(collection(db,"apadrinhados"));id=r.id;b.set(r,{...pub,ano:S.cfg.ano,apadrinhado:false,padrinhoId:null,criadoEm:serverTimestamp()})}
+      if(id){b.update(doc(db,"apadrinhados",id),pub)}else{const r=doc(collection(db,"apadrinhados"));id=r.id;b.set(r,{...pub,ano:S.cfg.ano,padrinhos:0,criadoEm:serverTimestamp()})}
       b.set(doc(db,"apadrinhados_privado",id),{fone,email});await b.commit()})},
-  async delAp(id){if(!confirm("Excluir este terceirizado?"))return;const b=writeBatch(db);b.delete(doc(db,"apadrinhados",id));b.delete(doc(db,"apadrinhados_privado",id));b.delete(doc(db,"apadrinhamentos",id));await b.commit();render(true)},
+  async delAp(id){if(!confirm("Excluir este terceirizado?"))return;const b=writeBatch(db);b.delete(doc(db,"apadrinhados",id));b.delete(doc(db,"apadrinhados_privado",id));S.adm.aps.filter(x=>x.apadrinhadoId===id).forEach(x=>b.delete(doc(db,"apadrinhamentos",x.id)));await b.commit();render(true)},
   async assign(id){const sid=$("#as_"+id).value;if(!sid)return toast("Escolha um servidor.");const s=S.adm.serv.find(x=>x.id===sid),a=S.ap.find(x=>x.id===id),b=writeBatch(db);
-    b.set(doc(db,"apadrinhamentos",id),{apadrinhadoId:id,apadrinhadoNome:a.nome,padrinhoId:sid,padrinhoNome:s.nome,ano:S.cfg.ano,presente:"",mensagem:"",entregue:false,criadoEm:serverTimestamp()});
-    b.update(doc(db,"apadrinhados",id),{apadrinhado:true,padrinhoId:sid});await b.commit();toast("Padrinho vinculado.");render(true)},
+    b.set(doc(db,"apadrinhamentos",id+"_"+sid),{apadrinhadoId:id,apadrinhadoNome:a.nome,padrinhoId:sid,padrinhoNome:s.nome,ano:S.cfg.ano,presente:"",mensagem:"",entregue:false,criadoEm:serverTimestamp()});
+    b.update(doc(db,"apadrinhados",id),{padrinhos:increment(1)});await b.commit();toast("Padrinho vinculado.");render(true)},
   editServ(id){const s=S.adm.serv.find(x=>x.id===id)||{};
     modal(id?"Editar servidor":"Cadastrar servidor",FS,s,async v=>{if(id)await updateDoc(doc(db,"servidores",id),v);else await setDoc(doc(collection(db,"servidores")),{...v,convite:"admin",criadoEm:serverTimestamp()})})},
   async delServ(id){if(!confirm("Excluir este servidor? (A conta de login dele continua existindo, mas sem acesso.)"))return;await deleteDoc(doc(db,"servidores",id));render(true)},
@@ -386,10 +432,13 @@ const W={
   async convidarAberto(){const r=doc(collection(db,"convites"));await setDoc(r,{nome:"",email:"",usado:false,multi:true,criadoEm:serverTimestamp()});toast("Link aberto criado.");render(true)},
   async lote(e){e.preventDefault();const ls=e.target.lote.value.split("\n").map(l=>l.trim()).filter(Boolean);const b=writeBatch(db);ls.forEach(l=>{const [n,m=""]=l.split(/[;,\t]/);b.set(doc(collection(db,"convites")),{nome:n.trim(),email:m.trim(),usado:false,multi:false,criadoEm:serverTimestamp()})});await b.commit();toast(ls.length+" convites criados.");render(true)},
   async delConv(id){await deleteDoc(doc(db,"convites",id));render(true)},
+  async addAdmin(e){e.preventDefault();const f=e.target,em=f.email.value.trim().toLowerCase(),perms={};Object.keys(PERMS).forEach(k=>perms[k]=f["p_"+k].checked);await setDoc(doc(db,"admins",em),{nome:f.nome.value.trim(),email:em,perms,criadoEm:serverTimestamp()});toast("Administrador adicionado.");render(true)},
+  async perm(id,k,v){try{await updateDoc(doc(db,"admins",id),{["perms."+k]:v});toast("Permissão atualizada.")}catch(x){toast("Erro: "+x.message)}},
+  async delAdmin(id){if(!confirm("Remover este administrador?"))return;await deleteDoc(doc(db,"admins",id));render(true)},
   copiar:async l=>{try{await navigator.clipboard.writeText(l);toast("Link copiado!")}catch{prompt("Copie o link:",l)}},
   async entregue(id,v){await updateDoc(doc(db,"apadrinhamentos",id),{entregue:v})},
   async salvarCfg(e){e.preventDefault();const f=e.target;await setDoc(doc(db,"config","campanha"),{ano:+f.ano.value,dataEntrega:f.dataEntrega.value});toast("Campanha atualizada.");render(true)},
-  csvAp(){csv([["Nome","Profissão","Lotação","Idade","Telefone","E-mail","Situação","Padrinho"],...S.ap.map(a=>{const p=S.adm.priv[a.id]||{},x=S.adm.aps.find(y=>y.id===a.id);return [a.nome,a.profissao,a.lotacao,a.idade,p.fone,p.email,a.apadrinhado?"Apadrinhado":"Sem padrinho",x?.padrinhoNome]})],"terceirizados.csv")},
+  csvAp(){csv([["Nome","Profissão","Lotação","Idade","Telefone","E-mail","Situação","Padrinho"],...S.ap.map(a=>{const p=S.adm.priv[a.id]||{},x=S.adm.aps.filter(y=>y.apadrinhadoId===a.id);return [a.nome,a.profissao,a.lotacao,a.idade,p.fone,p.email,tem(a)?"Apadrinhado":"Sem padrinho",x.map(z=>z.padrinhoNome).join(", ")]})],"terceirizados.csv")},
   csvEnt(){csv([["Apadrinhado","Padrinho","Presente","Mensagem","Entregue"],...S.adm.aps.map(x=>[x.apadrinhadoNome,x.padrinhoNome,x.presente,x.mensagem,x.entregue?"Sim":"Não"])],"presentes.csv")},
   async enviarEmails(){if(!confirm("Enviar a mensagem de Natal por e-mail para todos os afilhados que têm e-mail cadastrado?"))return;
     const tok=await auth.currentUser.getIdToken();let ok=0,fail=0,sem=0;
