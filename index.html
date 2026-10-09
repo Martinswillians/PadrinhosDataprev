@@ -161,9 +161,9 @@ const waNum=t=>{const d=(t||"").replace(/\D/g,"");return d.length<=11?"55"+d:d};
 const linkConvite=id=>location.origin+location.pathname+"#/cadastro?convite="+id;
 
 /* ---------- campos de formulário ---------- */
-const FA=[{k:"nome",l:"Nome completo",req:1},{k:"profissao",l:"Profissão",t:"select",o:PROFS,req:1},{k:"lotacao",l:"Lotação",req:1},{k:"idade",l:"Idade",t:"number"},{k:"fone",l:"Telefone",t:"tel"},{k:"email",l:"E-mail",t:"email"},{k:"foto",l:"Foto",t:"foto"},{k:"descricao",l:"Descrição do perfil (história, gostos, tamanhos, sonhos)",t:"textarea"}];
-const FP=[{k:"nome",l:"Nome completo",req:1},{k:"area",l:"Área"},{k:"lotacao",l:"Lotação"},{k:"fone",l:"Telefone",t:"tel"},{k:"foto",l:"Foto",t:"foto"},{k:"descricao",l:"Descrição",t:"textarea"}];
-const FS=[{k:"nome",l:"Nome completo",req:1},{k:"area",l:"Área",req:1},{k:"lotacao",l:"Lotação",req:1},{k:"fone",l:"Telefone",t:"tel"},{k:"email",l:"E-mail",t:"email",req:1},{k:"foto",l:"Foto",t:"foto"},{k:"descricao",l:"Fale um pouco sobre você",t:"textarea"}];
+const FA=[{k:"nome",l:"Nome",req:1},{k:"profissao",l:"Profissão",t:"select",o:PROFS,req:1},{k:"lotacao",l:"Lotação",req:1},{k:"idade",l:"Idade",t:"number"},{k:"email",l:"E-mail",t:"email"},{k:"foto",l:"Foto",t:"foto"},{k:"descricao",l:"Descrição do perfil (história, gostos, tamanhos, sonhos)",t:"textarea"}];
+const FP=[{k:"nome",l:"Nome",req:1},{k:"area",l:"Área"},{k:"lotacao",l:"Lotação"},{k:"foto",l:"Foto",t:"foto"},{k:"descricao",l:"Descrição",t:"textarea"}];
+const FS=[{k:"nome",l:"Nome",req:1},{k:"area",l:"Área",req:1},{k:"lotacao",l:"Lotação",req:1},{k:"email",l:"E-mail",t:"email",req:1},{k:"foto",l:"Foto",t:"foto"},{k:"descricao",l:"Fale um pouco sobre você",t:"textarea"}];
 function fld(f,v=""){
   const id="f_"+f.k,r=f.req?"required":"";
   if(f.t==="foto")return `<label>${f.l}${f.req?` <span class="req" aria-hidden="true">*</span>`:""}</label><div class="fotobox"><img data-foto data-v="${esc(v)}" src="${v||"data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="}" alt=""><input type="file" accept="image/*" onchange="W.foto(this)"></div>`;
@@ -378,13 +378,13 @@ async function admin(p){
   const has=(txt,q)=>!q||norm(txt).includes(norm(q));
   const cmp=(a,b)=>a.nome.localeCompare(b.nome,"pt-BR",{sensitivity:"base"});
   const rowAp=a=>{const pv=A.priv[a.id]||{},aps=A.aps.filter(x=>x.apadrinhadoId===a.id),livresS=A.serv.filter(x=>!aps.some(y=>y.padrinhoId===x.id));
-    return `<tr><td>${av(a,"sm")}</td><td>${esc(a.nome)}<br><small>${a.idade?a.idade+" anos":""}</small></td><td>${esc(a.profissao)}<br><small>${esc(a.lotacao)}</small></td><td>${esc(pv.fone||"")}<br><small>${esc(pv.email||"")}</small></td>
+    return `<tr><td>${av(a,"sm")}</td><td>${esc(a.nome)}<br><small>${a.idade?a.idade+" anos":""}</small></td><td>${esc(a.profissao)}<br><small>${esc(a.lotacao)}</small></td><td>${esc(pv.email||"")}</td>
      <td>${aps.length?aps.map(x=>`<div><span class="pill ok">${esc(x.padrinhoNome)}</span> <button class="btn sm danger" aria-label="Remover padrinho ${esc(x.padrinhoNome)}" onclick="W.desistir('${x.id}')">×</button></div>`).join(""):`<span class="pill no">Sem padrinho</span>`}</td>
      <td><button class="btn sm ghost" onclick="W.editAp('${a.id}')">Editar</button><button class="btn sm danger" onclick="W.delAp('${a.id}')">Excluir</button>
      <br><select id="as_${a.id}" style="width:150px;padding:5px" aria-label="Servidor"><option value="">Servidor…</option>${livresS.map(x=>`<option value="${x.id}">${esc(x.nome)}</option>`).join("")}</select><button class="btn sm" onclick="W.assign('${a.id}')">Vincular</button></td></tr>`};
   const listAp=()=>{const f=S.fa,l=S.ap.filter(a=>has(a.nome,f.q)&&(!f.prof||a.profissao===f.prof)&&has(a.lotacao,f.lot)&&(!f.sit||(f.sit==="com"?tem(a):!tem(a)))).sort(cmp);
     return {txt:`${l.length} de ${S.ap.length} terceirizados`,h:l.map(rowAp).join("")||'<tr><td colspan="6">Nenhum terceirizado encontrado.</td></tr>'}};
-  const rowServ=x=>`<tr><td>${av(x,"sm")}</td><td>${esc(x.nome)}</td><td>${esc(x.area)}<br><small>${esc(x.lotacao)}</small></td><td>${esc(x.fone||"")}<br><small>${esc(x.email||"")}</small></td><td>${afil(x.id).map(a=>esc(a.apadrinhadoNome)).join(", ")||"-"}</td><td><button class="btn sm ghost" onclick="W.editServ('${x.id}')">Editar</button><button class="btn sm danger" onclick="W.delServ('${x.id}')">Excluir</button></td></tr>`;
+  const rowServ=x=>`<tr><td>${av(x,"sm")}</td><td>${esc(x.nome)}</td><td>${esc(x.area)}<br><small>${esc(x.lotacao)}</small></td><td>${esc(x.email||"")}</td><td>${afil(x.id).map(a=>esc(a.apadrinhadoNome)).join(", ")||"-"}</td><td><button class="btn sm ghost" onclick="W.editServ('${x.id}')">Editar</button><button class="btn sm danger" onclick="W.delServ('${x.id}')">Excluir</button></td></tr>`;
   const listServ=()=>{const f=S.fs,l=A.serv.filter(x=>has(x.nome,f.q)&&has(x.area,f.area)&&has(x.lotacao,f.lot)&&(!f.sit||(f.sit==="pad"?afil(x.id).length>0:afil(x.id).length===0))).sort(cmp);
     return {txt:`${l.length} de ${A.serv.length} servidores`,h:l.map(rowServ).join("")||'<tr><td colspan="6">Nenhum servidor encontrado.</td></tr>'}};
   S.rows={fa:listAp,fs:listServ};
@@ -401,14 +401,14 @@ async function admin(p){
     <input type="search" placeholder="Buscar por lotação" aria-label="Buscar por lotação" value="${esc(f.lot)}" oninput="W.filtrar('fa','lot',this.value)">
     <select aria-label="Situação" onchange="W.filtrar('fa','sit',this.value)"><option value="">Todas as situações</option><option value="sem" ${f.sit==="sem"?"selected":""}>Sem padrinho</option><option value="com" ${f.sit==="com"?"selected":""}>Com padrinho</option></select>
     <button class="btn sm ghost" onclick="W.limpar('fa')">Limpar filtros</button></div><p class="cnt" id="cntA" aria-live="polite">${r.txt}</p>
-    <div class="tw"><table><thead><tr><th>Foto</th><th>Nome</th><th>Profissão / Lotação</th><th>Contato</th><th>Situação</th><th>Ações</th></tr></thead><tbody id="tbA">${r.h}</tbody></table></div>`}
+    <div class="tw"><table><thead><tr><th>Foto</th><th>Nome</th><th>Profissão / Lotação</th><th>E-mail</th><th>Situação</th><th>Ações</th></tr></thead><tbody id="tbA">${r.h}</tbody></table></div>`}
   if(tab==="servidores"){const r=listServ(),f=S.fs;body=`<div class="row"><button class="btn" onclick="W.editServ()">+ Cadastrar servidor</button><a class="btn ghost" href="#/admin/convites">Enviar convites</a><button class="btn ghost" onclick="W.csvServ()">Baixar lista (CSV)</button></div>
     <div class="filtros"><input type="search" placeholder="Buscar por nome" aria-label="Buscar por nome" value="${esc(f.q)}" oninput="W.filtrar('fs','q',this.value)">
     <input type="search" placeholder="Buscar por área" aria-label="Buscar por área" value="${esc(f.area)}" oninput="W.filtrar('fs','area',this.value)">
     <input type="search" placeholder="Buscar por lotação" aria-label="Buscar por lotação" value="${esc(f.lot)}" oninput="W.filtrar('fs','lot',this.value)">
     <select aria-label="Situação" onchange="W.filtrar('fs','sit',this.value)"><option value="">Todos os servidores</option><option value="pad" ${f.sit==="pad"?"selected":""}>Padrinhos</option><option value="sem" ${f.sit==="sem"?"selected":""}>Sem afilhado</option></select>
     <button class="btn sm ghost" onclick="W.limpar('fs')">Limpar filtros</button></div><p class="cnt" id="cntS" aria-live="polite">${r.txt}</p>
-    <div class="tw"><table><thead><tr><th>Foto</th><th>Nome</th><th>Área / Lotação</th><th>Contato</th><th>Afilhados</th><th>Ações</th></tr></thead><tbody id="tbS">${r.h}</tbody></table></div>`}
+    <div class="tw"><table><thead><tr><th>Foto</th><th>Nome</th><th>Área / Lotação</th><th>E-mail</th><th>Afilhados</th><th>Ações</th></tr></thead><tbody id="tbS">${r.h}</tbody></table></div>`}
   if(tab==="convites")body=solHtml+`<div class="two"><div class="box" style="margin:0;max-width:none"><h3>Convidar um servidor</h3><form onsubmit="W.convidar(event)"><label>Nome</label><input name="nome" required><label>E-mail</label><input name="email" type="email"><div class="row"><button class="btn">Gerar link</button></div></form>
     <hr style="border:0;border-top:1px solid var(--line);margin:18px 0"><h3>Link aberto (qualquer servidor)</h3><p>Um único link reutilizável, para enviar por e-mail geral ou mural.</p><button class="btn ghost" onclick="W.convidarAberto()">Gerar link aberto</button></div>
     <div class="box" style="margin:0;max-width:none"><h3>Convidar em lote</h3><p>Uma pessoa por linha, no formato <code>Nome;email</code>.</p><form onsubmit="W.lote(event)"><textarea name="lote" style="min-height:150px" placeholder="Maria Silva;maria@dataprev.gov.br"></textarea><div class="row"><button class="btn">Gerar convites</button></div></form></div></div>
@@ -459,7 +459,7 @@ const W={
     catch(x){toast("Erro: "+x.message)}b.disabled=false},
   filtrar(k,campo,val){S[k][campo]=val;const r=S.rows[k]();$(k==="fa"?"#tbA":"#tbS").innerHTML=r.h;$(k==="fa"?"#cntA":"#cntS").textContent=r.txt},
   limpar(k){S[k]=k==="fa"?{q:"",prof:"",lot:"",sit:""}:{q:"",area:"",lot:"",sit:""};render(true)},
-  csvServ(){csv([["Nome","Área","Lotação","Telefone","E-mail","Afilhados"],...S.adm.serv.map(x=>[x.nome,x.area,x.lotacao,x.fone,x.email,S.adm.aps.filter(a=>a.padrinhoId===x.id).map(a=>a.apadrinhadoNome).join(", ")])],"servidores.csv")},
+  csvServ(){csv([["Nome","Área","Lotação","E-mail","Afilhados"],...S.adm.serv.map(x=>[x.nome,x.area,x.lotacao,x.email,S.adm.aps.filter(a=>a.padrinhoId===x.id).map(a=>a.apadrinhadoNome).join(", ")])],"servidores.csv")},
   buscar(c,v){S.busca[c]=v;$("#gridH").innerHTML=gridHome();$("#cntH").textContent=cntHome()},
   limparBusca(){S.busca={q:"",lot:""};S.filtro="Todos";render(true)},
   aba(v){S.aba=v;render(true)},
@@ -474,9 +474,9 @@ const W={
   imprimir(id){const l=id==="all"?S.adm.aps:[...S.my,...(S.adm?.aps||[])].filter(x=>x.id===id).slice(0,1);if(!l.length)return toast("Nada para imprimir.");const w=window.open("","_blank");w.document.write(`<!DOCTYPE html><meta charset="utf-8"><title>Cartões</title>${cardCss}${l.map(cartao).join("")}`);w.document.close();w.focus();setTimeout(()=>w.print(),400)},
   /* admin */
   editAp(id){const a=S.ap.find(x=>x.id===id)||{},pv=id?S.adm.priv[id]||{}:{};
-    modal(id?"Editar terceirizado":"Cadastrar terceirizado",FA,{...a,...pv},async v=>{const {fone,email,...pub}=v,b=writeBatch(db);
+    modal(id?"Editar terceirizado":"Cadastrar terceirizado",FA,{...a,...pv},async v=>{const {email,...pub}=v,b=writeBatch(db);
       if(id){b.update(doc(db,"apadrinhados",id),pub)}else{const r=doc(collection(db,"apadrinhados"));id=r.id;b.set(r,{...pub,ano:S.cfg.ano,padrinhos:0,criadoEm:serverTimestamp()})}
-      b.set(doc(db,"apadrinhados_privado",id),{fone,email});await b.commit()})},
+      b.set(doc(db,"apadrinhados_privado",id),{email});await b.commit()})},
   async delAp(id){if(!confirm("Excluir este terceirizado?"))return;const b=writeBatch(db);b.delete(doc(db,"apadrinhados",id));b.delete(doc(db,"apadrinhados_privado",id));S.adm.aps.filter(x=>x.apadrinhadoId===id).forEach(x=>b.delete(doc(db,"apadrinhamentos",x.id)));await b.commit();render(true)},
   async assign(id){const sid=$("#as_"+id).value;if(!sid)return toast("Escolha um servidor.");const s=S.adm.serv.find(x=>x.id===sid),a=S.ap.find(x=>x.id===id),b=writeBatch(db);
     b.set(doc(db,"apadrinhamentos",id+"_"+sid),{apadrinhadoId:id,apadrinhadoNome:a.nome,padrinhoId:sid,padrinhoNome:s.nome,ano:S.cfg.ano,presente:"",mensagem:"",entregue:false,criadoEm:serverTimestamp()});
@@ -494,7 +494,7 @@ const W={
   copiar:async l=>{try{await navigator.clipboard.writeText(l);toast("Link copiado!")}catch{prompt("Copie o link:",l)}},
   async entregue(id,v){await updateDoc(doc(db,"apadrinhamentos",id),{entregue:v})},
   async salvarCfg(e){e.preventDefault();const f=e.target;await setDoc(doc(db,"config","campanha"),{ano:+f.ano.value,dataEntrega:f.dataEntrega.value});toast("Campanha atualizada.");render(true)},
-  csvAp(){csv([["Nome","Profissão","Lotação","Idade","Telefone","E-mail","Situação","Padrinho"],...[...S.ap].sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR",{sensitivity:"base"})).map(a=>{const p=S.adm.priv[a.id]||{},x=S.adm.aps.filter(y=>y.apadrinhadoId===a.id);return [a.nome,a.profissao,a.lotacao,a.idade,p.fone,p.email,tem(a)?"Apadrinhado":"Sem padrinho",x.map(z=>z.padrinhoNome).join(", ")]})],"terceirizados.csv")},
+  csvAp(){csv([["Nome","Profissão","Lotação","Idade","E-mail","Situação","Padrinho"],...[...S.ap].sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR",{sensitivity:"base"})).map(a=>{const p=S.adm.priv[a.id]||{},x=S.adm.aps.filter(y=>y.apadrinhadoId===a.id);return [a.nome,a.profissao,a.lotacao,a.idade,p.email,tem(a)?"Apadrinhado":"Sem padrinho",x.map(z=>z.padrinhoNome).join(", ")]})],"terceirizados.csv")},
   csvEnt(){csv([["Apadrinhado","Padrinho","Presente","Mensagem","Entregue"],...S.adm.aps.map(x=>[x.apadrinhadoNome,x.padrinhoNome,x.presente,x.mensagem,x.entregue?"Sim":"Não"])],"presentes.csv")},
   async enviarEmails(){if(!confirm("Enviar a mensagem de Natal por e-mail para todos os afilhados que têm e-mail cadastrado?"))return;
     const tok=await auth.currentUser.getIdToken();let ok=0,fail=0,sem=0;
