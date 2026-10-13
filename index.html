@@ -123,14 +123,14 @@ footer{background:var(--pine);color:#a9c2b5;padding:28px 0;text-align:center;fon
   <nav class="n" id="nav"></nav>
 </div></header>
 <main id="app"><p class="load">Carregando…</p></main>
-<footer><div class="wrap">Campanha Padrinhos Dataprev: Natal e Ano Novo Solidário<br><small id="ver">versão 2026.10.13-d</small></div></footer>
+<footer><div class="wrap">Campanha Padrinhos Dataprev: Natal e Ano Novo Solidário<br><small id="ver">versão 2026.10.13-f</small></div></footer>
 <dialog id="dlg"></dialog>
 <div id="toast" role="status"></div>
 
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signInWithPopup,GoogleAuthProvider,signOut,sendPasswordResetEmail} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {getFirestore,collection,doc,getDoc,getDocs,setDoc,updateDoc,deleteDoc,query,where,writeBatch,serverTimestamp,increment} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {getFirestore,collection,doc,getDoc,getDocs,setDoc,updateDoc,deleteDoc,query,where,orderBy,limit,writeBatch,serverTimestamp,increment} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 /* ===================== CONFIGURAÇÃO ===================== */
 const firebaseConfig={
@@ -144,8 +144,8 @@ const firebaseConfig={
 const ADMIN_EMAIL="willbrasilia@gmail.com";
 const WORKER_URL="https://pushpadrinhosdataprev.willbrasilia.workers.dev"; // Cloudflare Worker (envio de e-mails). Deixe "" para desativar.
 const PROFS=["Recepção","Segurança","Brigadista","Serviços","Estagiário"];
-const PERMS={terceirizados:"Terceirizados (cadastrar, editar e vincular padrinhos)",servidores:"Servidores (cadastrar, editar e excluir)",convites:"Convites de cadastro",entregas:"Presentes, mensagens, impressão e e-mails",campanha:"Dados da campanha (ano e data de entrega)"};
-const PERMS_SHORT={terceirizados:"Terceirizados",servidores:"Servidores",convites:"Convites",entregas:"Presentes",campanha:"Campanha"};
+const PERMS={terceirizados:"Terceirizados (cadastrar, editar e vincular padrinhos)",servidores:"Servidores (cadastrar, editar e excluir)",convites:"Convites de cadastro",entregas:"Presentes, mensagens, impressão e e-mails",campanha:"Dados da campanha (ano e data de entrega)",logs:"Registro de atividades (ver o log de todos os usuários)"};
+const PERMS_SHORT={terceirizados:"Terceirizados",servidores:"Servidores",convites:"Convites",entregas:"Presentes",campanha:"Campanha",logs:"Registro"};
 /* ======================================================== */
 
 const fb=initializeApp(firebaseConfig),auth=getAuth(fb),db=getFirestore(fb);
@@ -153,7 +153,7 @@ const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmt=d=>d?d.split("-").reverse().join("/"):"";
 const ini=n=>(n||"?").split(" ").filter(Boolean).slice(0,2).map(x=>x[0]).join("").toUpperCase();
-const S={busca:{q:"",lot:""},fa:{q:"",prof:"",lot:"",sit:""},fs:{q:"",area:"",lot:"",sit:""},aba:"esperam",user:null,admin:false,super:false,perms:{},perfil:null,cfg:{ano:new Date().getFullYear(),dataEntrega:new Date().getFullYear()+"-12-15"},ap:[],filtro:"Todos",busy:false,adm:null,my:[]};
+const S={fl:{q:"",acao:"",de:"",ate:""},busca:{q:"",lot:""},fa:{q:"",prof:"",lot:"",sit:""},fs:{q:"",area:"",lot:"",sit:""},aba:"esperam",user:null,admin:false,super:false,perms:{},perfil:null,cfg:{ano:new Date().getFullYear(),dataEntrega:new Date().getFullYear()+"-12-15"},ap:[],filtro:"Todos",busy:false,adm:null,my:[]};
 const erroAuth=x=>{const c=x?.code||"";const M={
  "auth/invalid-credential":"E-mail ou senha incorretos.","auth/wrong-password":"E-mail ou senha incorretos.","auth/user-not-found":"E-mail ou senha incorretos.","auth/invalid-email":"E-mail inválido.",
  "auth/too-many-requests":"Muitas tentativas seguidas. Aguarde alguns minutos ou use \"Esqueci a senha\".",
@@ -167,6 +167,14 @@ const erroAuth=x=>{const c=x?.code||"";const M={
 const toast=m=>{const t=$("#toast");t.textContent=m;t.style.display="block";clearTimeout(toast.h);toast.h=setTimeout(()=>t.style.display="none",8000)};
 const av=(a,c="")=>a?.foto?`<img class="av ${c}" src="${a.foto}" alt="Foto de ${esc(a.nome)}">`:`<div class="av ${c}" aria-hidden="true">${esc(ini(a?.nome))}</div>`;
 const g=async n=>(await getDocs(collection(db,n))).docs.map(d=>({id:d.id,...d.data()}));
+const ACOES={apadrinhar:"Apadrinhamento",desfazer_apadrinhamento:"Apadrinhamento desfeito",entrega_registrada:"Entrega registrada",entrega_desfeita:"Entrega desfeita",cadastro:"Cadastro de servidor",perfil_alterado:"Perfil alterado",terceirizado_cadastrado:"Terceirizado cadastrado",terceirizado_alterado:"Terceirizado alterado",terceirizado_excluido:"Terceirizado excluído",servidor_cadastrado:"Servidor cadastrado (adm)",servidor_alterado:"Servidor alterado (adm)",servidor_excluido:"Servidor excluído (adm)"};
+function lg(b,acao,detalhe,alvo="",u=auth.currentUser,nome=null){
+  b.set(doc(collection(db,"logs")),{acao,detalhe:String(detalhe).slice(0,380),usuarioId:u.uid,usuarioNome:String(nome||S.perfil?.nome||u.displayName||u.email||"").slice(0,150),usuarioEmail:u.email||"",alvoNome:String(alvo||"").slice(0,150),criadoEm:serverTimestamp()});
+}
+const dh=t=>t?.toDate?t.toDate().toLocaleString("pt-BR"):"";
+const dia=t=>{if(!t?.toDate)return"";const d=t.toDate();return new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10)};
+const logRows=(l,comUsuario)=>l.map(x=>`<tr><td>${esc(dh(x.criadoEm))}</td>${comUsuario?`<td>${esc(x.usuarioNome)}<br><small>${esc(x.usuarioEmail)}</small></td>`:""}<td><span class="pill ${/desfe|excl/.test(x.acao)?"no":"ok"}">${esc(ACOES[x.acao]||x.acao)}</span></td><td>${esc(x.detalhe)}</td></tr>`).join("")||`<tr><td colspan="4">Nenhum registro.</td></tr>`;
+const dt=t=>t?.toDate?t.toDate().toLocaleDateString("pt-BR"):"";
 const waNum=t=>{const d=(t||"").replace(/\D/g,"");return d.length<=11?"55"+d:d};
 const linkConvite=id=>location.origin+location.pathname+"#/cadastro?convite="+id;
 
@@ -220,14 +228,14 @@ const diasRestantes=()=>Math.ceil((new Date(S.cfg.dataEntrega+"T23:59:59")-new D
 function renderNav(){
   const n=$("#nav");
   n.innerHTML=`<a href="#/">Campanha</a><a href="#/#apadrinhar">Escolher afilhado</a>`+
-   (S.admin?`<a href="#/admin">Painel</a>`:"")+(S.perfil?`<a href="#/meus">Meus afilhados</a>`:"")+(S.user?`<a href="#/perfil">Meu perfil</a><button onclick="W.sair()">Sair</button>`:`<a href="#/entrar">Entrar</a>`);
+   (S.admin?`<a href="#/admin">Painel</a>`:"")+(S.perfil?`<a href="#/meus">Meus afilhados</a>`:"")+(S.user?`<a href="#/perfil">Meu perfil</a><a href="#/atividades">Minha atividade</a><button onclick="W.sair()">Sair</button>`:`<a href="#/entrar">Entrar</a>`);
 }
 async function render(keep){
   const [path,qs]=location.hash.slice(1).split("?"),p=(path||"/").split("/").filter(Boolean),q=new URLSearchParams(qs||"");
   if(!keep)$("#app").innerHTML='<p class="load">Carregando…</p>';
   try{
     await loadPublic();
-    const views={home,entrar,cadastro,acesso,apadrinhado,meus,perfil,admin};
+    const views={home,entrar,cadastro,acesso,apadrinhado,meus,perfil,atividades,admin};
     $("#app").innerHTML=await (views[p[0]||"home"]||home)(p,q);
     if(p[0]==="#apadrinhar")document.getElementById("apadrinhar")?.scrollIntoView();else if(!keep)window.scrollTo(0,0);
   }catch(e){console.error(e);const neg=e.code==="permission-denied"||/permission/i.test(e.message);$("#app").innerHTML=`<div class="box"><h2>Não foi possível carregar</h2><p>${neg?"O Firebase negou o acesso aos dados. As regras publicadas no Firestore não correspondem a esta versão do site: publique o arquivo firestore.rules mais recente em Firestore > Regras.":"Verifique a conexão e se o Firestore foi criado no projeto."}</p><p><small>Detalhe técnico: ${esc(e.code||"")} ${esc(e.message)}</small></p><button class="btn" onclick="location.reload()">Tentar novamente</button></div>`}
@@ -350,6 +358,13 @@ async function apadrinhado(p){
    <p class="prose" style="font-size:1.05rem;white-space:pre-line">${esc(a.descricao)}</p></div></div><hr style="border:0;border-top:1px solid var(--line);margin:24px 0">${acao}</div>`;
 }
 
+async function atividades(){
+  if(!S.user){sessionStorage.next="#/atividades";location.hash="#/entrar";return ""}
+  const l=(await getDocs(query(collection(db,"logs"),where("usuarioId","==",S.user.uid)))).docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.criadoEm?.seconds||0)-(a.criadoEm?.seconds||0));
+  return `<div class="wrap" style="padding:36px 20px 60px"><h2>Minha atividade</h2><p>Registro das suas ações no sistema: apadrinhamentos, entregas de presentes e alterações do perfil.</p>
+  <p class="cnt">${l.length} ${l.length===1?"registro":"registros"}</p><div class="tw"><table><thead><tr><th>Data e hora</th><th>Ação</th><th>Detalhe</th></tr></thead><tbody>${logRows(l,false)}</tbody></table></div></div>`;
+}
+
 async function perfil(){
   if(!S.user){sessionStorage.next="#/perfil";location.hash="#/entrar";return ""}
   if(!S.perfil&&!S.admin)return `<div class="box"><h2>Cadastro pendente</h2><p>Sua conta ainda não tem cadastro de servidor. Use o link de convite da coordenação ou <a href="#/acesso">peça acesso ao administrador</a>.</p></div>`;
@@ -364,11 +379,13 @@ async function meus(){
   if(S.admin&&!S.perfil){location.hash="#/admin";return ""}
   if(!S.perfil)return `<div class="box"><h2>Cadastro pendente</h2><p>Sua conta ainda não tem cadastro de servidor. Use o link de convite da coordenação ou <a href="#/acesso">peça acesso ao administrador</a>.</p></div>`;
   S.my=(await getDocs(query(collection(db,"apadrinhamentos"),where("padrinhoId","==",S.user.uid)))).docs.map(d=>({id:d.id,...d.data()}));
+  await Promise.all(S.my.map(x=>getDoc(doc(db,"apadrinhados_privado",x.apadrinhadoId)).then(d=>{x.email=d.exists()?d.data().email||"":""}).catch(()=>{x.email=""})));
   return `<div class="wrap" style="padding-top:36px;padding-bottom:50px"><h2>Olá, ${esc(S.perfil.nome.split(" ")[0])}! Seus afilhados</h2>
   <p>Entregue os presentes até <b>${fmt(S.cfg.dataEntrega)}</b>. Você pode alterar o presente e a mensagem quando quiser.</p>
-  ${S.my.length?S.my.map(x=>{const a=S.ap.find(y=>y.id===x.apadrinhadoId);return `<div class="box wide" style="margin:18px 0"><div class="perfil" style="grid-template-columns:110px 1fr"><div>${av(a)}</div><div><h3>${esc(x.apadrinhadoNome)}</h3><p>${esc(a?.profissao||"")}<br>${esc(a?.lotacao||"")}</p></div></div>
+  ${S.my.length?S.my.map(x=>{const a=S.ap.find(y=>y.id===x.apadrinhadoId);return `<div class="box wide" style="margin:18px 0"><div class="perfil" style="grid-template-columns:110px 1fr"><div>${av(a)}</div><div><h3>${esc(x.apadrinhadoNome)}</h3><p>${esc(a?.profissao||"")}<br>${esc(a?.lotacao||"")}<br>${x.email?`E-mail: <a href="mailto:${esc(x.email)}">${esc(x.email)}</a>`:""}</p></div></div>
+   ${x.entregue?`<div class="msg-ok">Presente entregue${x.entregueEm?" em "+dt(x.entregueEm):""}. Obrigado por participar!</div>`:""}
    <form onsubmit="W.salvarPresente(event,'${x.id}')"><label>Presente</label><input name="presente" value="${esc(x.presente)}" required><label>Mensagem de Natal e Ano Novo</label><textarea name="mensagem">${esc(x.mensagem)}</textarea>
-   <div class="row"><button class="btn">Salvar</button><button type="button" class="btn ghost" onclick="W.imprimir('${x.id}')">Imprimir cartão</button><button type="button" class="btn danger" onclick="W.desistir('${x.id}')">Desistir</button></div></form></div>`}).join(""):`<div class="msg-info">Você ainda não apadrinhou ninguém.</div>`}
+   <div class="row"><button class="btn">Salvar</button><button type="button" class="btn ${x.entregue?"ghost":"gold"}" onclick="W.entregar('${x.id}',${!x.entregue})">${x.entregue?"Desfazer entrega":"Marcar como entregue"}</button><button type="button" class="btn ghost" onclick="W.imprimir('${x.id}')">Imprimir cartão</button><button type="button" class="btn danger" onclick="W.desistir('${x.id}')">Desistir</button></div></form></div>`}).join(""):`<div class="msg-info">Você ainda não apadrinhou ninguém.</div>`}
   <a class="btn gold" href="#/#apadrinhar">Apadrinhar ${S.my.length?"mais alguém":"um colega"}</a></div>`;
 }
 
@@ -381,15 +398,16 @@ async function admin(p){
   const afil=id=>A.aps.filter(x=>x.padrinhoId===id);
   const pend=A.conv.filter(c=>!c.multi&&!c.usado),solP=(A.sol||[]).filter(x=>x.status==="pendente");
   const padrinhosIds=[...new Set(A.aps.map(x=>x.padrinhoId))];
-  const tabs=[["resumo","Resumo",1],["apadrinhados","Terceirizados",S.perms.terceirizados],["servidores","Servidores",S.perms.servidores],["convites","Convites"+(solP.length?" ("+solP.length+")":""),S.perms.convites],["entregas","Presentes e mensagens",S.perms.entregas],["campanha","Campanha",S.perms.campanha],["admins","Administradores",S.super]].filter(t=>t[2]);
+  const tabs=[["resumo","Resumo",1],["apadrinhados","Terceirizados",S.perms.terceirizados],["servidores","Servidores",S.perms.servidores],["convites","Convites"+(solP.length?" ("+solP.length+")":""),S.perms.convites],["entregas","Presentes e mensagens",S.perms.entregas],["campanha","Campanha",S.perms.campanha],["logs","Registro de atividades",S.perms.logs],["admins","Administradores",S.super]].filter(t=>t[2]);
   const tab=tabs.some(t=>t[0]===(p[1]||"resumo"))?(p[1]||"resumo"):"resumo";
+  if(tab==="logs"){try{S.logErr="";S.logs=(await getDocs(query(collection(db,"logs"),orderBy("criadoEm","desc"),limit(1000)))).docs.map(d=>({id:d.id,...d.data()}))}catch(e){S.logs=[];S.logErr=e.code||e.message}}
   const solHtml=`<h3>Solicitações de acesso (${solP.length})</h3><div class="tw"><table><tr><th>Nome</th><th>E-mail / Telefone</th><th>Área / Lotação</th><th>Mensagem</th><th>Ações</th></tr>${solP.map(x=>`<tr><td>${esc(x.nome)}</td><td>${esc(x.email)}<br><small>${esc(x.fone||"sem telefone")}</small></td><td>${esc(x.area)}<br><small>${esc(x.lotacao||"")}</small></td><td>${esc(x.mensagem||"")}</td><td><button class="btn sm" onclick="W.atender('${x.id}')">Gerar convite</button>${x.fone?`<a class="btn sm ghost" target="_blank" rel="noopener" href="https://wa.me/${waNum(x.fone)}">WhatsApp</a>`:""}<button class="btn sm danger" onclick="W.descartarSol('${x.id}')">Descartar</button></td></tr>`).join("")||'<tr><td colspan="5">Nenhuma solicitação pendente.</td></tr>'}</table></div>`;
   const norm=t=>String(t||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
   const has=(txt,q)=>!q||norm(txt).includes(norm(q));
   const cmp=(a,b)=>a.nome.localeCompare(b.nome,"pt-BR",{sensitivity:"base"});
   const rowAp=a=>{const pv=A.priv[a.id]||{},aps=A.aps.filter(x=>x.apadrinhadoId===a.id),livresS=A.serv.filter(x=>!aps.some(y=>y.padrinhoId===x.id));
     return `<tr><td>${av(a,"sm")}</td><td>${esc(a.nome)}<br><small>${a.idade?a.idade+" anos":""}</small></td><td>${esc(a.profissao)}<br><small>${esc(a.lotacao)}</small></td><td>${esc(pv.email||"")}</td>
-     <td>${aps.length?aps.map(x=>`<div><span class="pill ok">${esc(x.padrinhoNome)}</span> <button class="btn sm danger" aria-label="Remover padrinho ${esc(x.padrinhoNome)}" onclick="W.desistir('${x.id}')">×</button></div>`).join(""):`<span class="pill no">Sem padrinho</span>`}</td>
+     <td>${aps.length?aps.map(x=>`<div><span class="pill ok">${esc(x.padrinhoNome)}${x.entregue?" ✔ entregue":""}</span> <button class="btn sm danger" aria-label="Remover padrinho ${esc(x.padrinhoNome)}" onclick="W.desistir('${x.id}')">×</button></div>`).join(""):`<span class="pill no">Sem padrinho</span>`}</td>
      <td><button class="btn sm ghost" onclick="W.editAp('${a.id}')">Editar</button><button class="btn sm danger" onclick="W.delAp('${a.id}')">Excluir</button>
      <br><select id="as_${a.id}" style="width:150px;padding:5px" aria-label="Servidor"><option value="">Servidor…</option>${livresS.map(x=>`<option value="${x.id}">${esc(x.nome)}</option>`).join("")}</select><button class="btn sm" onclick="W.assign('${a.id}')">Vincular</button></td></tr>`};
   const listAp=()=>{const f=S.fa,l=S.ap.filter(a=>has(a.nome,f.q)&&(!f.prof||a.profissao===f.prof)&&has(a.lotacao,f.lot)&&(!f.sit||(f.sit==="com"?tem(a):!tem(a)))).sort(cmp);
@@ -397,11 +415,12 @@ async function admin(p){
   const rowServ=x=>`<tr><td>${av(x,"sm")}</td><td>${esc(x.nome)}</td><td>${esc(x.area)}<br><small>${esc(x.lotacao)}</small></td><td>${esc(x.email||"")}</td><td>${afil(x.id).map(a=>esc(a.apadrinhadoNome)).join(", ")||"-"}</td><td><button class="btn sm ghost" onclick="W.editServ('${x.id}')">Editar</button><button class="btn sm danger" onclick="W.delServ('${x.id}')">Excluir</button></td></tr>`;
   const listServ=()=>{const f=S.fs,l=A.serv.filter(x=>has(x.nome,f.q)&&has(x.area,f.area)&&has(x.lotacao,f.lot)&&(!f.sit||(f.sit==="pad"?afil(x.id).length>0:afil(x.id).length===0))).sort(cmp);
     return {txt:`${l.length} de ${A.serv.length} servidores`,h:l.map(rowServ).join("")||'<tr><td colspan="6">Nenhum servidor encontrado.</td></tr>'}};
-  S.rows={fa:listAp,fs:listServ};
+  const listLog=()=>{const f=S.fl,all=S.logs||[],l=all.filter(x=>(has(x.usuarioNome,f.q)||has(x.usuarioEmail,f.q)||has(x.detalhe,f.q)||has(x.alvoNome,f.q))&&(!f.acao||x.acao===f.acao)&&(!f.de||dia(x.criadoEm)>=f.de)&&(!f.ate||dia(x.criadoEm)<=f.ate));return {txt:`${l.length} de ${all.length} registros`,h:logRows(l,true)}};
+  S.rows={fa:listAp,fs:listServ,fl:listLog};
   let body="";
   if(tab==="resumo")body=`<div class="dash">
     <div class="stat"><b>${s.t}</b><span>terceirizados cadastrados</span></div><div class="stat ok"><b>${s.d}</b><span>apadrinhados</span></div><div class="stat falta"><b>${s.f}</b><span>sem padrinho</span></div>
-    <div class="stat"><b>${A.serv.length}</b><span>servidores cadastrados</span></div><div class="stat ok"><b>${padrinhosIds.length}</b><span>servidores padrinhos</span></div><div class="stat falta"><b>${pend.length}</b><span>convidados que não se cadastraram</span></div><div class="stat falta"><b>${solP.length}</b><span>pedidos de acesso pendentes</span></div></div>
+    <div class="stat"><b>${A.serv.length}</b><span>servidores cadastrados</span></div><div class="stat ok"><b>${padrinhosIds.length}</b><span>servidores padrinhos</span></div><div class="stat falta"><b>${pend.length}</b><span>convidados que não se cadastraram</span></div><div class="stat falta"><b>${solP.length}</b><span>pedidos de acesso pendentes</span></div><div class="stat ok"><b>${A.aps.filter(x=>x.entregue).length}/${A.aps.length}</b><span>presentes entregues</span></div></div>
     <div class="bar"><i style="width:${s.pct}%"></i></div><p>${s.pct}% dos terceirizados já têm padrinho. Entrega em ${fmt(S.cfg.dataEntrega)} (${diasRestantes()} dias).</p>
     <div class="two"><div><h3>Sem padrinho (${s.f})</h3>${S.ap.filter(a=>!tem(a)).map(a=>`<div>${esc(a.nome)} <small>(${esc(a.profissao)}, ${esc(a.lotacao)})</small></div>`).join("")||"<p>Todos apadrinhados.</p>"}</div>
     <div><h3>Convidados sem cadastro (${pend.length})</h3>${pend.map(c=>`<div>${esc(c.nome)} <small>${esc(c.email||"")}</small></div>`).join("")||"<p>Nenhum pendente.</p>"}</div></div>`;
@@ -419,19 +438,25 @@ async function admin(p){
     <select aria-label="Situação" onchange="W.filtrar('fs','sit',this.value)"><option value="">Todos os servidores</option><option value="pad" ${f.sit==="pad"?"selected":""}>Padrinhos</option><option value="sem" ${f.sit==="sem"?"selected":""}>Sem afilhado</option></select>
     <button class="btn sm ghost" onclick="W.limpar('fs')">Limpar filtros</button></div><p class="cnt" id="cntS" aria-live="polite">${r.txt}</p>
     <div class="tw"><table><thead><tr><th>Foto</th><th>Nome</th><th>Área / Lotação</th><th>E-mail</th><th>Afilhados</th><th>Ações</th></tr></thead><tbody id="tbS">${r.h}</tbody></table></div>`}
+  if(tab==="logs"){const r=listLog(),f=S.fl;body=`${S.logErr?`<div class="msg-info">Não foi possível ler o registro (${esc(S.logErr)}). Publique o firestore.rules mais recente e confirme a permissão "Registro".</div>`:""}<div class="row"><button class="btn ghost" onclick="W.csvLog()">Baixar registro (CSV)</button></div>
+    <div class="filtros"><input type="search" placeholder="Buscar por usuário, colega ou detalhe" aria-label="Buscar" value="${esc(f.q)}" oninput="W.filtrar('fl','q',this.value)">
+    <select aria-label="Ação" onchange="W.filtrar('fl','acao',this.value)"><option value="">Todas as ações</option>${Object.entries(ACOES).map(([k,l])=>`<option value="${k}" ${f.acao===k?"selected":""}>${l}</option>`).join("")}</select>
+    <label style="margin:0;font-weight:500">De<input type="date" value="${f.de}" onchange="W.filtrar('fl','de',this.value)"></label><label style="margin:0;font-weight:500">Até<input type="date" value="${f.ate}" onchange="W.filtrar('fl','ate',this.value)"></label>
+    <button class="btn sm ghost" onclick="W.limpar('fl')">Limpar filtros</button></div><p class="cnt" id="cntL" aria-live="polite">${r.txt} (últimos 1000 registros)</p>
+    <div class="tw"><table><thead><tr><th>Data e hora</th><th>Usuário</th><th>Ação</th><th>Detalhe</th></tr></thead><tbody id="tbL">${r.h}</tbody></table></div>`}
   if(tab==="convites")body=solHtml+`<div class="two"><div class="box" style="margin:0;max-width:none"><h3>Convidar um servidor</h3><form onsubmit="W.convidar(event)"><label>Nome</label><input name="nome" required><label>E-mail</label><input name="email" type="email"><div class="row"><button class="btn">Gerar link</button></div></form>
     <hr style="border:0;border-top:1px solid var(--line);margin:18px 0"><h3>Link aberto (qualquer servidor)</h3><p>Um único link reutilizável, para enviar por e-mail geral ou mural.</p><button class="btn ghost" onclick="W.convidarAberto()">Gerar link aberto</button></div>
     <div class="box" style="margin:0;max-width:none"><h3>Convidar em lote</h3><p>Uma pessoa por linha, no formato <code>Nome;email</code>.</p><form onsubmit="W.lote(event)"><textarea name="lote" style="min-height:150px" placeholder="Maria Silva;maria@dataprev.gov.br"></textarea><div class="row"><button class="btn">Gerar convites</button></div></form></div></div>
     <h3 style="margin-top:30px">Aguardando cadastro (${pend.length})</h3><div class="tw"><table><tr><th>Nome</th><th>E-mail</th><th>Enviar</th></tr>${pend.map(c=>{const l=linkConvite(c.id),t=`Olá ${c.nome.split(" ")[0]}! Participe da campanha Padrinhos Dataprev: ${l}`;return `<tr><td>${esc(c.nome)}</td><td>${esc(c.email||"")}</td><td><button class="btn sm ghost" onclick="W.copiar('${l}')">Copiar link</button><a class="btn sm ghost" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(t)}">WhatsApp</a><a class="btn sm ghost" href="mailto:${esc(c.email||"")}?subject=${encodeURIComponent("Padrinhos Dataprev: seu convite")}&body=${encodeURIComponent(t)}">E-mail</a><button class="btn sm danger" onclick="W.delConv('${c.id}')">Excluir</button></td></tr>`}).join("")||'<tr><td colspan="3">Nenhum convite pendente.</td></tr>'}</table></div>
     <h3>Links abertos</h3><div class="tw"><table>${A.conv.filter(c=>c.multi).map(c=>`<tr><td style="word-break:break-all">${linkConvite(c.id)}</td><td><button class="btn sm ghost" onclick="W.copiar('${linkConvite(c.id)}')">Copiar</button><button class="btn sm danger" onclick="W.delConv('${c.id}')">Excluir</button></td></tr>`).join("")||"<tr><td>Nenhum.</td></tr>"}</table></div>`;
   if(tab==="entregas")body=`<div class="row"><button class="btn" onclick="W.imprimir('all')">Imprimir todos os cartões</button><button class="btn ghost" onclick="W.csvEnt()">Baixar CSV</button>${WORKER_URL?`<button class="btn gold" onclick="W.enviarEmails()">Enviar mensagens por e-mail</button>`:""}</div>
-    <div class="tw"><table><tr><th>Apadrinhado</th><th>Padrinho</th><th>Presente</th><th>Mensagem</th><th>Entregue</th></tr>${A.aps.map(x=>`<tr><td>${esc(x.apadrinhadoNome)}</td><td>${esc(x.padrinhoNome)}</td><td>${esc(x.presente)}</td><td>${esc(x.mensagem)}</td><td><input type="checkbox" style="width:auto" ${x.entregue?"checked":""} onchange="W.entregue('${x.id}',this.checked)" aria-label="Entregue"></td></tr>`).join("")||'<tr><td colspan="5">Nenhum apadrinhamento ainda.</td></tr>'}</table></div>`;
+    <p class="cnt">${A.aps.filter(x=>x.entregue).length} de ${A.aps.length} presentes entregues</p><div class="tw"><table><tr><th>Apadrinhado / E-mail</th><th>Padrinho</th><th>Presente</th><th>Mensagem</th><th>Entregue</th></tr>${A.aps.map(x=>`<tr><td>${esc(x.apadrinhadoNome)}<br><small>${esc(A.priv[x.apadrinhadoId]?.email||"")}</small></td><td>${esc(x.padrinhoNome)}</td><td>${esc(x.presente)}</td><td>${esc(x.mensagem)}</td><td><input type="checkbox" style="width:auto" ${x.entregue?"checked":""} onchange="W.entregue('${x.id}',this.checked)" aria-label="Entregue"> <small>${dt(x.entregueEm)}</small></td></tr>`).join("")||'<tr><td colspan="5">Nenhum apadrinhamento ainda.</td></tr>'}</table></div>`;
   if(tab==="campanha")body=`<div class="box" style="margin:0"><h3>Dados da campanha</h3><form onsubmit="W.salvarCfg(event)"><label>Ano da campanha</label><input name="ano" type="number" value="${S.cfg.ano}" required><label>Data limite de entrega</label><input name="dataEntrega" type="date" value="${S.cfg.dataEntrega}" required><div class="row"><button class="btn">Salvar</button></div></form>
     <p class="msg-info">Para iniciar uma nova campanha, altere o ano. Os dados do ano anterior ficam guardados e a lista de terceirizados começa vazia.</p></div>`;
   if(tab==="admins")body=`<div class="two"><div class="box" style="margin:0;max-width:none"><h3>Novo administrador</h3><p>Informe o e-mail da conta Google da pessoa. Ela entra pelo botão "Sou administrador: entrar com Google".</p>
     <form onsubmit="W.addAdmin(event)"><label>Nome</label><input name="nome" required><label>E-mail Google</label><input name="email" type="email" required><label>Permissões</label>${Object.entries(PERMS).map(([k,l])=>`<label style="font-weight:400"><input type="checkbox" name="p_${k}" style="width:auto" checked> ${l}</label>`).join("")}<div class="row"><button class="btn">Adicionar administrador</button></div></form></div>
     <div class="msg-info" style="align-self:start">O administrador principal (${ADMIN_EMAIL}) tem todas as permissões e é o único que gerencia administradores. Todo administrador vê o Resumo.</div></div>
-    <h3 style="margin-top:30px">Administradores (${A.admins.length})</h3><div class="tw"><table><tr><th>Nome / e-mail</th>${Object.keys(PERMS).map(k=>`<th>${PERMS_SHORT[k]}</th>`).join("")}<th></th></tr>${A.admins.map(a=>`<tr><td>${esc(a.nome)}<br><small>${esc(a.email)}</small></td>${Object.keys(PERMS).map(k=>`<td><input type="checkbox" style="width:auto" aria-label="${PERMS_SHORT[k]}" ${a.perms?.[k]?"checked":""} onchange="W.perm('${a.id}','${k}',this.checked)"></td>`).join("")}<td><button class="btn sm danger" onclick="W.delAdmin('${a.id}')">Remover</button></td></tr>`).join("")||'<tr><td colspan="7">Nenhum administrador adicional.</td></tr>'}</table></div>`;
+    <h3 style="margin-top:30px">Administradores (${A.admins.length})</h3><div class="tw"><table><tr><th>Nome / e-mail</th>${Object.keys(PERMS).map(k=>`<th>${PERMS_SHORT[k]}</th>`).join("")}<th></th></tr>${A.admins.map(a=>`<tr><td>${esc(a.nome)}<br><small>${esc(a.email)}</small></td>${Object.keys(PERMS).map(k=>`<td><input type="checkbox" style="width:auto" aria-label="${PERMS_SHORT[k]}" ${a.perms?.[k]?"checked":""} onchange="W.perm('${a.id}','${k}',this.checked)"></td>`).join("")}<td><button class="btn sm danger" onclick="W.delAdmin('${a.id}')">Remover</button></td></tr>`).join("")||'<tr><td colspan="8">Nenhum administrador adicional.</td></tr>'}</table></div>`;
   return `<div class="wrap" style="padding:30px 20px 60px"><h2>Painel da campanha ${S.cfg.ano}</h2><div class="tabs">${tabs.map(([k,l])=>`<a href="#/admin/${k}" class="${k===tab?"on":""}">${l}</a>`).join("")}</div>${body}</div>`;
 }
 
@@ -439,7 +464,7 @@ async function admin(p){
 function cartao(x){return `<div class="c"><h1>Feliz Natal e um Próspero Ano Novo!</h1><p class="p">Para <b>${esc(x.apadrinhadoNome)}</b></p><p class="m">${esc(x.mensagem||"Que o novo ano traga paz, saúde e alegria. Obrigado por tudo!").replace(/\n/g,"<br>")}</p><p>Com carinho,<br><b>${esc(x.padrinhoNome)}</b><br>Dataprev</p></div>`}
 const cardCss='<style>body{font-family:Georgia,serif;margin:0}.c{page-break-after:always;border:6px double #a3202f;margin:30px;padding:50px 40px;text-align:center;min-height:360px}h1{color:#123628;font-size:28px}.p{font-size:20px}.m{font-size:19px;font-style:italic;margin:30px 0}</style>';
 const csv=(rows,name)=>{const t=rows.map(r=>r.map(c=>`"${String(c??"").replace(/"/g,'""')}"`).join(";")).join("\n"),a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+t],{type:"text/csv"}));a.download=name;a.click()};
-async function liberar(id,afId){const b=writeBatch(db);b.delete(doc(db,"apadrinhamentos",id));b.update(doc(db,"apadrinhados",afId),{padrinhos:increment(-1)});await b.commit()}
+async function liberar(x){const b=writeBatch(db);b.delete(doc(db,"apadrinhamentos",x.id));b.update(doc(db,"apadrinhados",x.apadrinhadoId),{padrinhos:increment(-1)});lg(b,"desfazer_apadrinhamento",`Desfez o apadrinhamento de ${x.apadrinhadoNome} (padrinho: ${x.padrinhoNome})`,x.apadrinhadoNome);await b.commit()}
 
 const W={
   filtro(f){S.filtro=f;render(true)},
@@ -453,22 +478,24 @@ const W={
       const c=await createUserWithEmailAndPassword(auth,v.email,senha),bt=writeBatch(db);
       bt.set(doc(db,"servidores",c.user.uid),{...perfil,convite:conv,criadoEm:serverTimestamp()});
       if(!multi)bt.update(doc(db,"convites",conv),{usado:true,usadoPor:c.user.uid,usadoEm:serverTimestamp()});
-      await bt.commit();S.busy=false;await refreshProfile();toast("Cadastro concluído! Escolha seu afilhado.");location.hash="#/"+(sessionStorage.next?.slice(2)||"");render()
+      lg(bt,"cadastro","Cadastro de servidor concluído ("+(v.area||"")+", "+(v.lotacao||"")+")","",c.user,v.nome);await bt.commit();S.busy=false;await refreshProfile();toast("Cadastro concluído! Escolha seu afilhado.");location.hash="#/"+(sessionStorage.next?.slice(2)||"");render()
     }catch(x){S.busy=false;b.disabled=false;toast(x.code==="auth/email-already-in-use"?"Este e-mail já tem cadastro. Faça login.":"Erro: "+x.message)}},
   async apadrinhar(e,id){e.preventDefault();const a=S.ap.find(x=>x.id===id),b=writeBatch(db),aid=id+"_"+S.user.uid;e.submitter.disabled=true;
     b.set(doc(db,"apadrinhamentos",aid),{apadrinhadoId:id,apadrinhadoNome:a.nome,padrinhoId:S.user.uid,padrinhoNome:S.perfil.nome,ano:S.cfg.ano,presente:$("#pr").value.trim(),mensagem:$("#ms").value.trim(),entregue:false,criadoEm:serverTimestamp()});
     b.update(doc(db,"apadrinhados",id),{padrinhos:increment(1)});
+    lg(b,"apadrinhar",`Apadrinhou ${a.nome}. Presente: ${$("#pr").value.trim()}`,a.nome);
     try{await b.commit();toast("Obrigado! Você é padrinho de "+a.nome.split(" ")[0]+".");location.hash="#/meus"}catch(x){console.error(x);toast(x.code==="permission-denied"?"O Firebase negou o apadrinhamento (permissão). Avise o administrador para republicar as regras do Firestore.":"Não foi possível apadrinhar: "+(x.code||x.message));e.submitter.disabled=false}},
   async salvarPerfil(e){e.preventDefault();const b=e.submitter;b.disabled=true;
     try{const v=read(e.target,S.perfil?FS:FP);
       if(S.perfil){const bt=writeBatch(db);bt.update(doc(db,"servidores",S.user.uid),v);
         if(v.nome!==S.perfil.nome){const q=await getDocs(query(collection(db,"apadrinhamentos"),where("padrinhoId","==",S.user.uid)));q.docs.forEach(d=>bt.update(d.ref,{padrinhoNome:v.nome}))}
-        await bt.commit()}
-      else await setDoc(doc(db,"admins",S.user.email.toLowerCase()),v,{merge:true});
+        const ch=Object.keys(v).filter(k=>(v[k]??"")!==(S.perfil[k]??""));lg(bt,"perfil_alterado",ch.length?"Alterou: "+ch.join(", "):"Salvou o perfil sem alterações","",auth.currentUser,v.nome);await bt.commit()}
+      else{const bt=writeBatch(db);bt.set(doc(db,"admins",S.user.email.toLowerCase()),v,{merge:true});lg(bt,"perfil_alterado","Atualizou o perfil de administrador","",auth.currentUser,v.nome);await bt.commit()}
       await refreshProfile();toast("Perfil atualizado!");render(true)}
     catch(x){toast("Erro: "+x.message)}b.disabled=false},
-  filtrar(k,campo,val){S[k][campo]=val;const r=S.rows[k]();$(k==="fa"?"#tbA":"#tbS").innerHTML=r.h;$(k==="fa"?"#cntA":"#cntS").textContent=r.txt},
-  limpar(k){S[k]=k==="fa"?{q:"",prof:"",lot:"",sit:""}:{q:"",area:"",lot:"",sit:""};render(true)},
+  filtrar(k,campo,val){S[k][campo]=val;const r=S.rows[k](),ids={fa:["#tbA","#cntA"],fs:["#tbS","#cntS"],fl:["#tbL","#cntL"]}[k];$(ids[0]).innerHTML=r.h;$(ids[1]).textContent=r.txt+(k==="fl"?" (últimos 1000 registros)":"")},
+  csvLog(){csv([["Data e hora","Usuário","E-mail","Ação","Detalhe"],...(S.logs||[]).map(x=>[dh(x.criadoEm),x.usuarioNome,x.usuarioEmail,ACOES[x.acao]||x.acao,x.detalhe])],"registro-atividades.csv")},
+  limpar(k){S[k]={fa:{q:"",prof:"",lot:"",sit:""},fs:{q:"",area:"",lot:"",sit:""},fl:{q:"",acao:"",de:"",ate:""}}[k];render(true)},
   csvServ(){csv([["Nome","Área","Lotação","E-mail","Afilhados"],...S.adm.serv.map(x=>[x.nome,x.area,x.lotacao,x.email,S.adm.aps.filter(a=>a.padrinhoId===x.id).map(a=>a.apadrinhadoNome).join(", ")])],"servidores.csv")},
   buscar(c,v){S.busca[c]=v;$("#gridH").innerHTML=gridHome();$("#cntH").textContent=cntHome()},
   limparBusca(){S.busca={q:"",lot:""};S.filtro="Todos";render(true)},
@@ -480,20 +507,20 @@ const W={
   async atender(id){const x=S.adm.sol.find(z=>z.id===id),r=doc(collection(db,"convites")),b=writeBatch(db);b.set(r,{nome:x.nome,email:x.email,fone:x.fone||"",area:x.area||"",lotacao:x.lotacao||"",usado:false,multi:false,criadoEm:serverTimestamp()});b.update(doc(db,"solicitacoes",id),{status:"atendida",conviteId:r.id});await b.commit();await W.copiar(linkConvite(r.id));toast("Convite gerado e link copiado. Envie-o pela lista abaixo.");render(true)},
   async descartarSol(id){if(!confirm("Descartar esta solicitação?"))return;await deleteDoc(doc(db,"solicitacoes",id));render(true)},
   async salvarPresente(e,id){e.preventDefault();const f=e.target;await updateDoc(doc(db,"apadrinhamentos",id),{presente:f.presente.value.trim(),mensagem:f.mensagem.value.trim()});toast("Salvo!")},
-  async desistir(id){if(!confirm("Remover este apadrinhamento? Se o colega não tiver outro padrinho, voltará para a lista de quem espera."))return;const x=[...S.my,...(S.adm?.aps||[])].find(z=>z.id===id);await liberar(id,x.apadrinhadoId);toast("Apadrinhamento removido.");render(true)},
+  async desistir(id){if(!confirm("Remover este apadrinhamento? Se o colega não tiver outro padrinho, voltará para a lista de quem espera."))return;const x=[...S.my,...(S.adm?.aps||[])].find(z=>z.id===id);await liberar(x);toast("Apadrinhamento removido.");render(true)},
   imprimir(id){const l=id==="all"?S.adm.aps:[...S.my,...(S.adm?.aps||[])].filter(x=>x.id===id).slice(0,1);if(!l.length)return toast("Nada para imprimir.");const w=window.open("","_blank");w.document.write(`<!DOCTYPE html><meta charset="utf-8"><title>Cartões</title>${cardCss}${l.map(cartao).join("")}`);w.document.close();w.focus();setTimeout(()=>w.print(),400)},
   /* admin */
   editAp(id){const a=S.ap.find(x=>x.id===id)||{},pv=id?S.adm.priv[id]||{}:{};
-    modal(id?"Editar terceirizado":"Cadastrar terceirizado",FA,{...a,...pv},async v=>{const {email,...pub}=v,b=writeBatch(db);
+    modal(id?"Editar terceirizado":"Cadastrar terceirizado",FA,{...a,...pv},async v=>{const {email,...pub}=v,b=writeBatch(db),novo=!id;
       if(id){b.update(doc(db,"apadrinhados",id),pub)}else{const r=doc(collection(db,"apadrinhados"));id=r.id;b.set(r,{...pub,ano:S.cfg.ano,padrinhos:0,criadoEm:serverTimestamp()})}
-      b.set(doc(db,"apadrinhados_privado",id),{email});await b.commit()})},
-  async delAp(id){if(!confirm("Excluir este terceirizado?"))return;const b=writeBatch(db);b.delete(doc(db,"apadrinhados",id));b.delete(doc(db,"apadrinhados_privado",id));S.adm.aps.filter(x=>x.apadrinhadoId===id).forEach(x=>b.delete(doc(db,"apadrinhamentos",x.id)));await b.commit();render(true)},
+      b.set(doc(db,"apadrinhados_privado",id),{email});lg(b,novo?"terceirizado_cadastrado":"terceirizado_alterado",(novo?"Cadastrou o terceirizado ":"Alterou os dados de ")+pub.nome,pub.nome);await b.commit()})},
+  async delAp(id){if(!confirm("Excluir este terceirizado?"))return;const b=writeBatch(db);b.delete(doc(db,"apadrinhados",id));b.delete(doc(db,"apadrinhados_privado",id));S.adm.aps.filter(x=>x.apadrinhadoId===id).forEach(x=>b.delete(doc(db,"apadrinhamentos",x.id)));{const n0=S.ap.find(y=>y.id===id)?.nome||"";lg(b,"terceirizado_excluido","Excluiu o terceirizado "+n0,n0)}await b.commit();render(true)},
   async assign(id){const sid=$("#as_"+id).value;if(!sid)return toast("Escolha um servidor.");const s=S.adm.serv.find(x=>x.id===sid),a=S.ap.find(x=>x.id===id),b=writeBatch(db);
     b.set(doc(db,"apadrinhamentos",id+"_"+sid),{apadrinhadoId:id,apadrinhadoNome:a.nome,padrinhoId:sid,padrinhoNome:s.nome,ano:S.cfg.ano,presente:"",mensagem:"",entregue:false,criadoEm:serverTimestamp()});
-    b.update(doc(db,"apadrinhados",id),{padrinhos:increment(1)});await b.commit();toast("Padrinho vinculado.");render(true)},
+    b.update(doc(db,"apadrinhados",id),{padrinhos:increment(1)});lg(b,"apadrinhar",`Administrador vinculou ${s.nome} como padrinho de ${a.nome}`,a.nome);await b.commit();toast("Padrinho vinculado.");render(true)},
   editServ(id){const s=S.adm.serv.find(x=>x.id===id)||{};
-    modal(id?"Editar servidor":"Cadastrar servidor",FS,s,async v=>{if(id)await updateDoc(doc(db,"servidores",id),v);else await setDoc(doc(collection(db,"servidores")),{...v,convite:"admin",criadoEm:serverTimestamp()})})},
-  async delServ(id){if(!confirm("Excluir este servidor? (A conta de login dele continua existindo, mas sem acesso.)"))return;await deleteDoc(doc(db,"servidores",id));render(true)},
+    modal(id?"Editar servidor":"Cadastrar servidor",FS,s,async v=>{const b=writeBatch(db);if(id)b.update(doc(db,"servidores",id),v);else b.set(doc(collection(db,"servidores")),{...v,convite:"admin",criadoEm:serverTimestamp()});lg(b,id?"servidor_alterado":"servidor_cadastrado",(id?"Alterou os dados de ":"Cadastrou o servidor ")+v.nome,v.nome);await b.commit()})},
+  async delServ(id){if(!confirm("Excluir este servidor? (A conta de login dele continua existindo, mas sem acesso.)"))return;{const n0=S.adm.serv.find(y=>y.id===id)?.nome||"",b=writeBatch(db);b.delete(doc(db,"servidores",id));lg(b,"servidor_excluido","Excluiu o servidor "+n0,n0);await b.commit()}render(true)},
   async convidar(e){e.preventDefault();const f=e.target,r=doc(collection(db,"convites"));await setDoc(r,{nome:f.nome.value.trim(),email:f.email.value.trim(),usado:false,multi:false,criadoEm:serverTimestamp()});await navigator.clipboard?.writeText(linkConvite(r.id)).catch(()=>{});toast("Convite criado. O link foi copiado.");render(true)},
   async convidarAberto(){const r=doc(collection(db,"convites"));await setDoc(r,{nome:"",email:"",usado:false,multi:true,criadoEm:serverTimestamp()});toast("Link aberto criado.");render(true)},
   async lote(e){e.preventDefault();const ls=e.target.lote.value.split("\n").map(l=>l.trim()).filter(Boolean);const b=writeBatch(db);ls.forEach(l=>{const [n,m=""]=l.split(/[;,\t]/);b.set(doc(collection(db,"convites")),{nome:n.trim(),email:m.trim(),usado:false,multi:false,criadoEm:serverTimestamp()})});await b.commit();toast(ls.length+" convites criados.");render(true)},
@@ -502,10 +529,12 @@ const W={
   async perm(id,k,v){try{await updateDoc(doc(db,"admins",id),{["perms."+k]:v});toast("Permissão atualizada.")}catch(x){toast("Erro: "+x.message)}},
   async delAdmin(id){if(!confirm("Remover este administrador?"))return;await deleteDoc(doc(db,"admins",id));render(true)},
   copiar:async l=>{try{await navigator.clipboard.writeText(l);toast("Link copiado!")}catch{prompt("Copie o link:",l)}},
-  async entregue(id,v){await updateDoc(doc(db,"apadrinhamentos",id),{entregue:v})},
+  async setEntrega(id,v){const x=[...S.my,...(S.adm?.aps||[])].find(z=>z.id===id),b=writeBatch(db);b.update(doc(db,"apadrinhamentos",id),{entregue:v,entregueEm:v?serverTimestamp():null});lg(b,v?"entrega_registrada":"entrega_desfeita",`${v?"Registrou a entrega":"Desfez a entrega"} do presente para ${x.apadrinhadoNome} (padrinho: ${x.padrinhoNome})`,x.apadrinhadoNome);await b.commit()},
+  async entregue(id,v){try{await W.setEntrega(id,v);render(true)}catch(x){toast("Erro: "+(x.code||x.message));render(true)}},
+  async entregar(id,v){if(v&&!confirm("Confirmar que o presente já foi entregue?"))return;try{await W.setEntrega(id,v);toast(v?"Entrega registrada. Obrigado!":"Entrega desfeita.");render(true)}catch(x){toast("Erro: "+(x.code||x.message))}},
   async salvarCfg(e){e.preventDefault();const f=e.target;await setDoc(doc(db,"config","campanha"),{ano:+f.ano.value,dataEntrega:f.dataEntrega.value});toast("Campanha atualizada.");render(true)},
   csvAp(){csv([["Nome","Profissão","Lotação","Idade","E-mail","Situação","Padrinho"],...[...S.ap].sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR",{sensitivity:"base"})).map(a=>{const p=S.adm.priv[a.id]||{},x=S.adm.aps.filter(y=>y.apadrinhadoId===a.id);return [a.nome,a.profissao,a.lotacao,a.idade,p.email,tem(a)?"Apadrinhado":"Sem padrinho",x.map(z=>z.padrinhoNome).join(", ")]})],"terceirizados.csv")},
-  csvEnt(){csv([["Apadrinhado","Padrinho","Presente","Mensagem","Entregue"],...S.adm.aps.map(x=>[x.apadrinhadoNome,x.padrinhoNome,x.presente,x.mensagem,x.entregue?"Sim":"Não"])],"presentes.csv")},
+  csvEnt(){csv([["Apadrinhado","E-mail","Padrinho","Presente","Mensagem","Entregue","Data da entrega"],...S.adm.aps.map(x=>[x.apadrinhadoNome,S.adm.priv[x.apadrinhadoId]?.email||"",x.padrinhoNome,x.presente,x.mensagem,x.entregue?"Sim":"Não",dt(x.entregueEm)])],"presentes.csv")},
   async enviarEmails(){if(!confirm("Enviar a mensagem de Natal por e-mail para todos os afilhados que têm e-mail cadastrado?"))return;
     const tok=await auth.currentUser.getIdToken();let ok=0,fail=0,sem=0;
     for(const x of S.adm.aps){const em=S.adm.priv[x.apadrinhadoId]?.email;if(!em){sem++;continue}

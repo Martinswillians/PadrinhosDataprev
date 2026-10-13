@@ -62,7 +62,10 @@ service cloud.firestore {
 
     // Dados de contato dos terceirizados: somente administradores autorizados
     match /apadrinhados_privado/{id} {
-      allow read: if can('terceirizados') || can('entregas');
+      allow list: if can('terceirizados') || can('entregas');
+      // o padrinho lê somente o e-mail dos próprios afilhados
+      allow get: if can('terceirizados') || can('entregas') || (signed()
+        && exists(/databases/$(database)/documents/apadrinhamentos/$(id + '_' + request.auth.uid)));
       allow write: if can('terceirizados');
     }
 
@@ -74,7 +77,7 @@ service cloud.firestore {
         && id == request.resource.data.apadrinhadoId + '_' + request.auth.uid
         && exists(/databases/$(database)/documents/apadrinhados/$(request.resource.data.apadrinhadoId)));
       allow update: if can('entregas') || can('terceirizados') || (signed() && resource.data.padrinhoId == request.auth.uid
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['presente','mensagem','padrinhoNome']));
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['presente','mensagem','padrinhoNome','entregue','entregueEm']));
       allow delete: if can('terceirizados') || can('entregas') || (signed() && resource.data.padrinhoId == request.auth.uid);
     }
 
@@ -89,6 +92,21 @@ service cloud.firestore {
         && request.resource.data.fone is string && request.resource.data.fone.size() <= 30
         && request.resource.data.mensagem is string && request.resource.data.mensagem.size() <= 800;
       allow read, update, delete: if can('convites');
+    }
+
+    // Registro de atividades (imutável): cada usuário grava e lê os próprios registros; admins com permissão "logs" leem todos
+    match /logs/{id} {
+      allow create: if signed()
+        && request.resource.data.keys().hasOnly(['acao','detalhe','usuarioId','usuarioNome','usuarioEmail','alvoNome','criadoEm'])
+        && request.resource.data.usuarioId == request.auth.uid
+        && request.resource.data.criadoEm == request.time
+        && request.resource.data.acao is string && request.resource.data.acao.size() <= 40
+        && request.resource.data.detalhe is string && request.resource.data.detalhe.size() <= 400
+        && request.resource.data.usuarioNome is string && request.resource.data.usuarioNome.size() <= 160
+        && request.resource.data.usuarioEmail is string && request.resource.data.usuarioEmail.size() <= 200
+        && request.resource.data.alvoNome is string && request.resource.data.alvoNome.size() <= 160;
+      allow read: if can('logs') || (signed() && resource.data.usuarioId == request.auth.uid);
+      allow update, delete: if false;
     }
 
     // Servidores
