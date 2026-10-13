@@ -67,6 +67,9 @@ Os cadastros de terceirizados e de servidores não pedem mais telefone, e o camp
 - **Painel > Registro de atividades**: log de todos os usuários, com busca, filtro por ação e período e CSV. Exige a permissão **Registro** (o administrador principal já tem; marque-a para os demais em Administradores).
 - Os registros não podem ser editados nem apagados por ninguém. Republique `firestore.rules`.
 
+## 13. Motivo obrigatório
+Ao **desfazer um apadrinhamento** ou **desfazer uma entrega** (pelo padrinho ou pelo administrador), o sistema abre uma janela pedindo o motivo, obrigatório. O motivo aparece no detalhe do log de atividades ("... Motivo: ..."). Não há mudança nas regras do Firestore.
+
 ## Segurança
 - A `apiKey` do Firebase é pública por natureza; quem protege os dados são as regras do Firestore.
 - Telefone e e-mail dos terceirizados ficam em coleção separada, legível só pelo administrador.

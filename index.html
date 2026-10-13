@@ -123,7 +123,7 @@ footer{background:var(--pine);color:#a9c2b5;padding:28px 0;text-align:center;fon
   <nav class="n" id="nav"></nav>
 </div></header>
 <main id="app"><p class="load">Carregando…</p></main>
-<footer><div class="wrap">Campanha Padrinhos Dataprev: Natal e Ano Novo Solidário<br><small id="ver">versão 2026.10.13-f</small></div></footer>
+<footer><div class="wrap">Campanha Padrinhos Dataprev: Natal e Ano Novo Solidário<br><small id="ver">versão 2026.10.13-h</small></div></footer>
 <dialog id="dlg"></dialog>
 <div id="toast" role="status"></div>
 
@@ -191,6 +191,14 @@ function fld(f,v=""){
 }
 function read(form,fields){const v={};fields.forEach(f=>{if(f.t==="foto")v.foto=form.querySelector("[data-foto]").dataset.v||"";else{v[f.k]=form.elements[f.k].value.trim();if(f.t==="number")v[f.k]=v[f.k]?+v[f.k]:null}});return v}
 function resize(file,max=480){return new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>{const i=new Image();i.onload=()=>{const s=Math.min(1,max/Math.max(i.width,i.height)),c=document.createElement("canvas");c.width=i.width*s;c.height=i.height*s;c.getContext("2d").drawImage(i,0,0,c.width,c.height);ok(c.toDataURL("image/jpeg",.72))};i.onerror=no;i.src=r.result};r.readAsDataURL(file)})}
+function pedirMotivo(titulo,msg,btn){
+  return new Promise(res=>{const d=$("#dlg");let ok=false;
+    d.innerHTML=`<form id="mm"><h2>${titulo}</h2><p>${msg}</p><label for="mt">Motivo <span class="req" aria-hidden="true">*</span></label><textarea id="mt" required maxlength="200" placeholder="Explique em poucas palavras"></textarea><p class="nota"><span class="req">*</span> Campo obrigatório. O motivo fica registrado no log de atividades.</p><div class="row"><button type="button" class="btn ghost" id="mc">Cancelar</button><button class="btn danger">${btn}</button></div></form>`;
+    $("#mm").onsubmit=e=>{e.preventDefault();const v=$("#mt").value.trim();if(v.length<3)return toast("Informe o motivo (mínimo de 3 letras).");ok=true;d.close();res(v)};
+    $("#mc").onclick=()=>d.close();
+    d.onclose=()=>{d.onclose=null;if(!ok)res(null)};
+    d.showModal();$("#mt").focus()})
+}
 function modal(title,fields,vals,save){
   const d=$("#dlg");
   d.innerHTML=`<form id="mf"><h2>${title}</h2>${fields.map(f=>fld(f,vals[f.k]??"")).join("")}<p class="nota"><span class="req">*</span> Campos obrigatórios</p><div class="row"><button type="button" class="btn ghost" onclick="dlg.close()">Cancelar</button><button class="btn">Salvar</button></div></form>`;
@@ -464,7 +472,7 @@ async function admin(p){
 function cartao(x){return `<div class="c"><h1>Feliz Natal e um Próspero Ano Novo!</h1><p class="p">Para <b>${esc(x.apadrinhadoNome)}</b></p><p class="m">${esc(x.mensagem||"Que o novo ano traga paz, saúde e alegria. Obrigado por tudo!").replace(/\n/g,"<br>")}</p><p>Com carinho,<br><b>${esc(x.padrinhoNome)}</b><br>Dataprev</p></div>`}
 const cardCss='<style>body{font-family:Georgia,serif;margin:0}.c{page-break-after:always;border:6px double #a3202f;margin:30px;padding:50px 40px;text-align:center;min-height:360px}h1{color:#123628;font-size:28px}.p{font-size:20px}.m{font-size:19px;font-style:italic;margin:30px 0}</style>';
 const csv=(rows,name)=>{const t=rows.map(r=>r.map(c=>`"${String(c??"").replace(/"/g,'""')}"`).join(";")).join("\n"),a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+t],{type:"text/csv"}));a.download=name;a.click()};
-async function liberar(x){const b=writeBatch(db);b.delete(doc(db,"apadrinhamentos",x.id));b.update(doc(db,"apadrinhados",x.apadrinhadoId),{padrinhos:increment(-1)});lg(b,"desfazer_apadrinhamento",`Desfez o apadrinhamento de ${x.apadrinhadoNome} (padrinho: ${x.padrinhoNome})`,x.apadrinhadoNome);await b.commit()}
+async function liberar(x,motivo=""){const b=writeBatch(db);b.delete(doc(db,"apadrinhamentos",x.id));b.update(doc(db,"apadrinhados",x.apadrinhadoId),{padrinhos:increment(-1)});lg(b,"desfazer_apadrinhamento",`Desfez o apadrinhamento de ${x.apadrinhadoNome} (padrinho: ${x.padrinhoNome})${motivo?". Motivo: "+motivo:""}`,x.apadrinhadoNome);await b.commit()}
 
 const W={
   filtro(f){S.filtro=f;render(true)},
@@ -507,7 +515,8 @@ const W={
   async atender(id){const x=S.adm.sol.find(z=>z.id===id),r=doc(collection(db,"convites")),b=writeBatch(db);b.set(r,{nome:x.nome,email:x.email,fone:x.fone||"",area:x.area||"",lotacao:x.lotacao||"",usado:false,multi:false,criadoEm:serverTimestamp()});b.update(doc(db,"solicitacoes",id),{status:"atendida",conviteId:r.id});await b.commit();await W.copiar(linkConvite(r.id));toast("Convite gerado e link copiado. Envie-o pela lista abaixo.");render(true)},
   async descartarSol(id){if(!confirm("Descartar esta solicitação?"))return;await deleteDoc(doc(db,"solicitacoes",id));render(true)},
   async salvarPresente(e,id){e.preventDefault();const f=e.target;await updateDoc(doc(db,"apadrinhamentos",id),{presente:f.presente.value.trim(),mensagem:f.mensagem.value.trim()});toast("Salvo!")},
-  async desistir(id){if(!confirm("Remover este apadrinhamento? Se o colega não tiver outro padrinho, voltará para a lista de quem espera."))return;const x=[...S.my,...(S.adm?.aps||[])].find(z=>z.id===id);await liberar(x);toast("Apadrinhamento removido.");render(true)},
+  async desistir(id){const x=[...S.my,...(S.adm?.aps||[])].find(z=>z.id===id);const m=await pedirMotivo("Desfazer apadrinhamento",`Você vai remover o apadrinhamento de <b>${esc(x.apadrinhadoNome)}</b> (padrinho: ${esc(x.padrinhoNome)}). Se o colega não tiver outro padrinho, voltará para a lista de quem espera.`,"Desfazer apadrinhamento");if(m===null)return;
+    try{await liberar(x,m);toast("Apadrinhamento removido.");render(true)}catch(e){toast("Erro: "+(e.code||e.message))}},
   imprimir(id){const l=id==="all"?S.adm.aps:[...S.my,...(S.adm?.aps||[])].filter(x=>x.id===id).slice(0,1);if(!l.length)return toast("Nada para imprimir.");const w=window.open("","_blank");w.document.write(`<!DOCTYPE html><meta charset="utf-8"><title>Cartões</title>${cardCss}${l.map(cartao).join("")}`);w.document.close();w.focus();setTimeout(()=>w.print(),400)},
   /* admin */
   editAp(id){const a=S.ap.find(x=>x.id===id)||{},pv=id?S.adm.priv[id]||{}:{};
@@ -529,9 +538,11 @@ const W={
   async perm(id,k,v){try{await updateDoc(doc(db,"admins",id),{["perms."+k]:v});toast("Permissão atualizada.")}catch(x){toast("Erro: "+x.message)}},
   async delAdmin(id){if(!confirm("Remover este administrador?"))return;await deleteDoc(doc(db,"admins",id));render(true)},
   copiar:async l=>{try{await navigator.clipboard.writeText(l);toast("Link copiado!")}catch{prompt("Copie o link:",l)}},
-  async setEntrega(id,v){const x=[...S.my,...(S.adm?.aps||[])].find(z=>z.id===id),b=writeBatch(db);b.update(doc(db,"apadrinhamentos",id),{entregue:v,entregueEm:v?serverTimestamp():null});lg(b,v?"entrega_registrada":"entrega_desfeita",`${v?"Registrou a entrega":"Desfez a entrega"} do presente para ${x.apadrinhadoNome} (padrinho: ${x.padrinhoNome})`,x.apadrinhadoNome);await b.commit()},
-  async entregue(id,v){try{await W.setEntrega(id,v);render(true)}catch(x){toast("Erro: "+(x.code||x.message));render(true)}},
-  async entregar(id,v){if(v&&!confirm("Confirmar que o presente já foi entregue?"))return;try{await W.setEntrega(id,v);toast(v?"Entrega registrada. Obrigado!":"Entrega desfeita.");render(true)}catch(x){toast("Erro: "+(x.code||x.message))}},
+  async setEntrega(id,v,motivo=""){const x=[...S.my,...(S.adm?.aps||[])].find(z=>z.id===id),b=writeBatch(db);b.update(doc(db,"apadrinhamentos",id),{entregue:v,entregueEm:v?serverTimestamp():null});lg(b,v?"entrega_registrada":"entrega_desfeita",`${v?"Registrou a entrega":"Desfez a entrega"} do presente para ${x.apadrinhadoNome} (padrinho: ${x.padrinhoNome})${motivo?". Motivo: "+motivo:""}`,x.apadrinhadoNome);await b.commit()},
+  async entregue(id,v){let m="";if(!v){const x=[...S.my,...(S.adm?.aps||[])].find(z=>z.id===id);m=await pedirMotivo("Desfazer entrega",`Você vai desfazer o registro de entrega do presente para <b>${esc(x.apadrinhadoNome)}</b>.`,"Desfazer entrega");if(m===null){render(true);return}}
+    try{await W.setEntrega(id,v,m);render(true)}catch(x){toast("Erro: "+(x.code||x.message));render(true)}},
+  async entregar(id,v){if(v&&!confirm("Confirmar que o presente já foi entregue?"))return;let m="";if(!v){const x=S.my.find(z=>z.id===id);m=await pedirMotivo("Desfazer entrega",`Você vai desfazer o registro de entrega do presente para <b>${esc(x.apadrinhadoNome)}</b>.`,"Desfazer entrega");if(m===null)return}
+    try{await W.setEntrega(id,v,m);toast(v?"Entrega registrada. Obrigado!":"Entrega desfeita.");render(true)}catch(x){toast("Erro: "+(x.code||x.message))}},
   async salvarCfg(e){e.preventDefault();const f=e.target;await setDoc(doc(db,"config","campanha"),{ano:+f.ano.value,dataEntrega:f.dataEntrega.value});toast("Campanha atualizada.");render(true)},
   csvAp(){csv([["Nome","Profissão","Lotação","Idade","E-mail","Situação","Padrinho"],...[...S.ap].sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR",{sensitivity:"base"})).map(a=>{const p=S.adm.priv[a.id]||{},x=S.adm.aps.filter(y=>y.apadrinhadoId===a.id);return [a.nome,a.profissao,a.lotacao,a.idade,p.email,tem(a)?"Apadrinhado":"Sem padrinho",x.map(z=>z.padrinhoNome).join(", ")]})],"terceirizados.csv")},
   csvEnt(){csv([["Apadrinhado","E-mail","Padrinho","Presente","Mensagem","Entregue","Data da entrega"],...S.adm.aps.map(x=>[x.apadrinhadoNome,S.adm.priv[x.apadrinhadoId]?.email||"",x.padrinhoNome,x.presente,x.mensagem,x.entregue?"Sim":"Não",dt(x.entregueEm)])],"presentes.csv")},
@@ -543,8 +554,9 @@ const W={
 };
 window.W=W;
 
-onAuthStateChanged(auth,async()=>{if(S.busy)return;await refreshProfile();render(true)});
-render();
+// espera o Firebase informar se há alguém logado antes do primeiro desenho da tela (evita voltar ao login ao atualizar a página)
+onAuthStateChanged(auth,async()=>{if(S.busy)return;await refreshProfile();const first=!S.authDone;S.authDone=true;render(!first)});
+setTimeout(()=>{if(!S.authDone){S.authDone=true;render()}},5000);
 </script>
 </body>
 </html>
