@@ -50,6 +50,12 @@ Painel > **Administradores** (visível só ao administrador principal): informe 
 ## 8. Listas com busca
 No painel, as abas **Terceirizados** e **Servidores** listam em ordem alfabética e têm filtros combináveis (nome, profissão ou área, lotação e situação), sem diferenciar acentos ou maiúsculas. Campos obrigatórios aparecem com asterisco (*).
 
+## 9. Busca na página da campanha
+Nas abas **Quem espera um padrinho** e **Quem já tem padrinho** há busca por nome e por lotação, combinável com o filtro de profissão. A busca ignora acentos e maiúsculas e o resultado atualiza enquanto se digita.
+
+## 10. Menos dados expostos
+Os cadastros de terceirizados e de servidores não pedem mais telefone, e o campo de nome passou a se chamar apenas **Nome** (pode ser só o primeiro nome). O telefone continua opcional apenas no pedido de acesso ao administrador.
+
 ## Segurança
 - A `apiKey` do Firebase é pública por natureza; quem protege os dados são as regras do Firestore.
 - Telefone e e-mail dos terceirizados ficam em coleção separada, legível só pelo administrador.

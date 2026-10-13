@@ -47,13 +47,13 @@ service cloud.firestore {
       allow update: if can('terceirizados') || (isServidor()
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['padrinhos'])
         && (
-          // servidor apadrinha (inclusive quem já tem outros padrinhos)
-          ( request.resource.data.padrinhos == resource.data.padrinhos + 1
+          // servidor apadrinha (inclusive quem já tem outros padrinhos; cadastros antigos sem o campo contam como 0)
+          ( request.resource.data.padrinhos == resource.data.get('padrinhos', 0) + 1
             && !exists(/databases/$(database)/documents/apadrinhamentos/$(id + '_' + request.auth.uid))
             && existsAfter(/databases/$(database)/documents/apadrinhamentos/$(id + '_' + request.auth.uid)) )
           ||
           // servidor desiste do próprio apadrinhamento
-          ( request.resource.data.padrinhos == resource.data.padrinhos - 1
+          ( request.resource.data.padrinhos == resource.data.get('padrinhos', 0) - 1
             && request.resource.data.padrinhos >= 0
             && exists(/databases/$(database)/documents/apadrinhamentos/$(id + '_' + request.auth.uid))
             && !existsAfter(/databases/$(database)/documents/apadrinhamentos/$(id + '_' + request.auth.uid)) )

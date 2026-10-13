@@ -123,7 +123,7 @@ footer{background:var(--pine);color:#a9c2b5;padding:28px 0;text-align:center;fon
   <nav class="n" id="nav"></nav>
 </div></header>
 <main id="app"><p class="load">Carregando…</p></main>
-<footer><div class="wrap">Campanha Padrinhos Dataprev: Natal e Ano Novo Solidário<br><small id="ver">versão 2026.10.09-c</small></div></footer>
+<footer><div class="wrap">Campanha Padrinhos Dataprev: Natal e Ano Novo Solidário<br><small id="ver">versão 2026.10.13-d</small></div></footer>
 <dialog id="dlg"></dialog>
 <div id="toast" role="status"></div>
 
@@ -458,7 +458,7 @@ const W={
   async apadrinhar(e,id){e.preventDefault();const a=S.ap.find(x=>x.id===id),b=writeBatch(db),aid=id+"_"+S.user.uid;e.submitter.disabled=true;
     b.set(doc(db,"apadrinhamentos",aid),{apadrinhadoId:id,apadrinhadoNome:a.nome,padrinhoId:S.user.uid,padrinhoNome:S.perfil.nome,ano:S.cfg.ano,presente:$("#pr").value.trim(),mensagem:$("#ms").value.trim(),entregue:false,criadoEm:serverTimestamp()});
     b.update(doc(db,"apadrinhados",id),{padrinhos:increment(1)});
-    try{await b.commit();toast("Obrigado! Você é padrinho de "+a.nome.split(" ")[0]+".");location.hash="#/meus"}catch(x){toast("Não foi possível apadrinhar. Você já apadrinhou este colega?");render()}},
+    try{await b.commit();toast("Obrigado! Você é padrinho de "+a.nome.split(" ")[0]+".");location.hash="#/meus"}catch(x){console.error(x);toast(x.code==="permission-denied"?"O Firebase negou o apadrinhamento (permissão). Avise o administrador para republicar as regras do Firestore.":"Não foi possível apadrinhar: "+(x.code||x.message));e.submitter.disabled=false}},
   async salvarPerfil(e){e.preventDefault();const b=e.submitter;b.disabled=true;
     try{const v=read(e.target,S.perfil?FS:FP);
       if(S.perfil){const bt=writeBatch(db);bt.update(doc(db,"servidores",S.user.uid),v);
