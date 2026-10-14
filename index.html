@@ -112,6 +112,7 @@ footer{background:var(--pine);color:#a9c2b5;padding:28px 0;text-align:center;fon
 .nota{color:var(--mute);font-size:.88rem;margin:12px 0 0}
 .filtros{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:14px 0 6px;align-items:center}
 .cnt{color:var(--mute);margin:4px 0 0;font-size:.92rem}
+.qr{width:min(260px,100%);margin:10px auto;border:1px solid var(--line);border-radius:12px;overflow:hidden}.qr svg{display:block;width:100%;height:auto}.urlq{word-break:break-all;color:var(--mute);font-size:.82rem}
 @media(max-width:820px){.deco:before{display:none}}
 @media(max-width:820px){.hero .wrap,.perfil,.two{grid-template-columns:1fr}.bigtag{display:none}.perfil .av.lg{margin:auto}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
@@ -123,10 +124,911 @@ footer{background:var(--pine);color:#a9c2b5;padding:28px 0;text-align:center;fon
   <nav class="n" id="nav"></nav>
 </div></header>
 <main id="app"><p class="load">Carregando…</p></main>
-<footer><div class="wrap">Campanha Padrinhos Dataprev: Natal e Ano Novo Solidário<br><small id="ver">versão 2026.10.13-h</small></div></footer>
+<footer><div class="wrap">Campanha Padrinhos Dataprev: Natal e Ano Novo Solidário<br><small id="ver">versão 2026.10.14-i</small></div></footer>
 <dialog id="dlg"></dialog>
 <div id="toast" role="status"></div>
 
+<script>/* QRCode for JavaScript - Copyright (c) 2009 Kazuhiko Arase - MIT license */
+(function(){var M={};function require(n){return M[n.replace(/^\.\//,"")]}
+M.QRMode=(function(){var module={exports:{}};
+module.exports = {
+MODE_NUMBER :       1 << 0,
+MODE_ALPHA_NUM :    1 << 1,
+MODE_8BIT_BYTE :    1 << 2,
+MODE_KANJI :        1 << 3
+};
+return module.exports})();
+M.QRErrorCorrectLevel=(function(){var module={exports:{}};
+module.exports = {
+L : 1,
+M : 0,
+Q : 3,
+H : 2
+};
+return module.exports})();
+M.QRMaskPattern=(function(){var module={exports:{}};
+module.exports = {
+PATTERN000 : 0,
+PATTERN001 : 1,
+PATTERN010 : 2,
+PATTERN011 : 3,
+PATTERN100 : 4,
+PATTERN101 : 5,
+PATTERN110 : 6,
+PATTERN111 : 7
+};
+return module.exports})();
+M.QRMath=(function(){var module={exports:{}};
+var QRMath = {
+glog : function(n) {
+if (n < 1) {
+throw new Error("glog(" + n + ")");
+}
+return QRMath.LOG_TABLE[n];
+},
+gexp : function(n) {
+while (n < 0) {
+n += 255;
+}
+while (n >= 256) {
+n -= 255;
+}
+return QRMath.EXP_TABLE[n];
+},
+EXP_TABLE : new Array(256),
+LOG_TABLE : new Array(256)
+};
+for (var i = 0; i < 8; i++) {
+QRMath.EXP_TABLE[i] = 1 << i;
+}
+for (var i = 8; i < 256; i++) {
+QRMath.EXP_TABLE[i] = QRMath.EXP_TABLE[i - 4]
+^ QRMath.EXP_TABLE[i - 5]
+^ QRMath.EXP_TABLE[i - 6]
+^ QRMath.EXP_TABLE[i - 8];
+}
+for (var i = 0; i < 255; i++) {
+QRMath.LOG_TABLE[QRMath.EXP_TABLE[i] ] = i;
+}
+module.exports = QRMath;
+return module.exports})();
+M.QRPolynomial=(function(){var module={exports:{}};
+var QRMath = require('./QRMath');
+function QRPolynomial(num, shift) {
+if (num.length === undefined) {
+throw new Error(num.length + "/" + shift);
+}
+var offset = 0;
+while (offset < num.length && num[offset] === 0) {
+offset++;
+}
+this.num = new Array(num.length - offset + shift);
+for (var i = 0; i < num.length - offset; i++) {
+this.num[i] = num[i + offset];
+}
+}
+QRPolynomial.prototype = {
+get : function(index) {
+return this.num[index];
+},
+getLength : function() {
+return this.num.length;
+},
+multiply : function(e) {
+var num = new Array(this.getLength() + e.getLength() - 1);
+for (var i = 0; i < this.getLength(); i++) {
+for (var j = 0; j < e.getLength(); j++) {
+num[i + j] ^= QRMath.gexp(QRMath.glog(this.get(i) ) + QRMath.glog(e.get(j) ) );
+}
+}
+return new QRPolynomial(num, 0);
+},
+mod : function(e) {
+if (this.getLength() - e.getLength() < 0) {
+return this;
+}
+var ratio = QRMath.glog(this.get(0) ) - QRMath.glog(e.get(0) );
+var num = new Array(this.getLength() );
+for (var i = 0; i < this.getLength(); i++) {
+num[i] = this.get(i);
+}
+for (var x = 0; x < e.getLength(); x++) {
+num[x] ^= QRMath.gexp(QRMath.glog(e.get(x) ) + ratio);
+}
+return new QRPolynomial(num, 0).mod(e);
+}
+};
+module.exports = QRPolynomial;
+return module.exports})();
+M.QRUtil=(function(){var module={exports:{}};
+var QRMode = require('./QRMode');
+var QRPolynomial = require('./QRPolynomial');
+var QRMath = require('./QRMath');
+var QRMaskPattern = require('./QRMaskPattern');
+var QRUtil = {
+PATTERN_POSITION_TABLE : [
+[],
+[6, 18],
+[6, 22],
+[6, 26],
+[6, 30],
+[6, 34],
+[6, 22, 38],
+[6, 24, 42],
+[6, 26, 46],
+[6, 28, 50],
+[6, 30, 54],
+[6, 32, 58],
+[6, 34, 62],
+[6, 26, 46, 66],
+[6, 26, 48, 70],
+[6, 26, 50, 74],
+[6, 30, 54, 78],
+[6, 30, 56, 82],
+[6, 30, 58, 86],
+[6, 34, 62, 90],
+[6, 28, 50, 72, 94],
+[6, 26, 50, 74, 98],
+[6, 30, 54, 78, 102],
+[6, 28, 54, 80, 106],
+[6, 32, 58, 84, 110],
+[6, 30, 58, 86, 114],
+[6, 34, 62, 90, 118],
+[6, 26, 50, 74, 98, 122],
+[6, 30, 54, 78, 102, 126],
+[6, 26, 52, 78, 104, 130],
+[6, 30, 56, 82, 108, 134],
+[6, 34, 60, 86, 112, 138],
+[6, 30, 58, 86, 114, 142],
+[6, 34, 62, 90, 118, 146],
+[6, 30, 54, 78, 102, 126, 150],
+[6, 24, 50, 76, 102, 128, 154],
+[6, 28, 54, 80, 106, 132, 158],
+[6, 32, 58, 84, 110, 136, 162],
+[6, 26, 54, 82, 110, 138, 166],
+[6, 30, 58, 86, 114, 142, 170]
+],
+G15 : (1 << 10) | (1 << 8) | (1 << 5) | (1 << 4) | (1 << 2) | (1 << 1) | (1 << 0),
+G18 : (1 << 12) | (1 << 11) | (1 << 10) | (1 << 9) | (1 << 8) | (1 << 5) | (1 << 2) | (1 << 0),
+G15_MASK : (1 << 14) | (1 << 12) | (1 << 10)    | (1 << 4) | (1 << 1),
+getBCHTypeInfo : function(data) {
+var d = data << 10;
+while (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G15) >= 0) {
+d ^= (QRUtil.G15 << (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G15) ) );
+}
+return ( (data << 10) | d) ^ QRUtil.G15_MASK;
+},
+getBCHTypeNumber : function(data) {
+var d = data << 12;
+while (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G18) >= 0) {
+d ^= (QRUtil.G18 << (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G18) ) );
+}
+return (data << 12) | d;
+},
+getBCHDigit : function(data) {
+var digit = 0;
+while (data !== 0) {
+digit++;
+data >>>= 1;
+}
+return digit;
+},
+getPatternPosition : function(typeNumber) {
+return QRUtil.PATTERN_POSITION_TABLE[typeNumber - 1];
+},
+getMask : function(maskPattern, i, j) {
+switch (maskPattern) {
+case QRMaskPattern.PATTERN000 : return (i + j) % 2 === 0;
+case QRMaskPattern.PATTERN001 : return i % 2 === 0;
+case QRMaskPattern.PATTERN010 : return j % 3 === 0;
+case QRMaskPattern.PATTERN011 : return (i + j) % 3 === 0;
+case QRMaskPattern.PATTERN100 : return (Math.floor(i / 2) + Math.floor(j / 3) ) % 2 === 0;
+case QRMaskPattern.PATTERN101 : return (i * j) % 2 + (i * j) % 3 === 0;
+case QRMaskPattern.PATTERN110 : return ( (i * j) % 2 + (i * j) % 3) % 2 === 0;
+case QRMaskPattern.PATTERN111 : return ( (i * j) % 3 + (i + j) % 2) % 2 === 0;
+default :
+throw new Error("bad maskPattern:" + maskPattern);
+}
+},
+getErrorCorrectPolynomial : function(errorCorrectLength) {
+var a = new QRPolynomial([1], 0);
+for (var i = 0; i < errorCorrectLength; i++) {
+a = a.multiply(new QRPolynomial([1, QRMath.gexp(i)], 0) );
+}
+return a;
+},
+getLengthInBits : function(mode, type) {
+if (1 <= type && type < 10) {
+switch(mode) {
+case QRMode.MODE_NUMBER     : return 10;
+case QRMode.MODE_ALPHA_NUM  : return 9;
+case QRMode.MODE_8BIT_BYTE  : return 8;
+case QRMode.MODE_KANJI      : return 8;
+default :
+throw new Error("mode:" + mode);
+}
+} else if (type < 27) {
+switch(mode) {
+case QRMode.MODE_NUMBER     : return 12;
+case QRMode.MODE_ALPHA_NUM  : return 11;
+case QRMode.MODE_8BIT_BYTE  : return 16;
+case QRMode.MODE_KANJI      : return 10;
+default :
+throw new Error("mode:" + mode);
+}
+} else if (type < 41) {
+switch(mode) {
+case QRMode.MODE_NUMBER     : return 14;
+case QRMode.MODE_ALPHA_NUM  : return 13;
+case QRMode.MODE_8BIT_BYTE  : return 16;
+case QRMode.MODE_KANJI      : return 12;
+default :
+throw new Error("mode:" + mode);
+}
+} else {
+throw new Error("type:" + type);
+}
+},
+getLostPoint : function(qrCode) {
+var moduleCount = qrCode.getModuleCount();
+var lostPoint = 0;
+var row = 0;
+var col = 0;
+for (row = 0; row < moduleCount; row++) {
+for (col = 0; col < moduleCount; col++) {
+var sameCount = 0;
+var dark = qrCode.isDark(row, col);
+for (var r = -1; r <= 1; r++) {
+if (row + r < 0 || moduleCount <= row + r) {
+continue;
+}
+for (var c = -1; c <= 1; c++) {
+if (col + c < 0 || moduleCount <= col + c) {
+continue;
+}
+if (r === 0 && c === 0) {
+continue;
+}
+if (dark === qrCode.isDark(row + r, col + c) ) {
+sameCount++;
+}
+}
+}
+if (sameCount > 5) {
+lostPoint += (3 + sameCount - 5);
+}
+}
+}
+for (row = 0; row < moduleCount - 1; row++) {
+for (col = 0; col < moduleCount - 1; col++) {
+var count = 0;
+if (qrCode.isDark(row,     col    ) ) count++;
+if (qrCode.isDark(row + 1, col    ) ) count++;
+if (qrCode.isDark(row,     col + 1) ) count++;
+if (qrCode.isDark(row + 1, col + 1) ) count++;
+if (count === 0 || count === 4) {
+lostPoint += 3;
+}
+}
+}
+for (row = 0; row < moduleCount; row++) {
+for (col = 0; col < moduleCount - 6; col++) {
+if (qrCode.isDark(row, col) &&
+!qrCode.isDark(row, col + 1) &&
+qrCode.isDark(row, col + 2) &&
+qrCode.isDark(row, col + 3) &&
+qrCode.isDark(row, col + 4) &&
+!qrCode.isDark(row, col + 5) &&
+qrCode.isDark(row, col + 6) ) {
+lostPoint += 40;
+}
+}
+}
+for (col = 0; col < moduleCount; col++) {
+for (row = 0; row < moduleCount - 6; row++) {
+if (qrCode.isDark(row, col) &&
+!qrCode.isDark(row + 1, col) &&
+qrCode.isDark(row + 2, col) &&
+qrCode.isDark(row + 3, col) &&
+qrCode.isDark(row + 4, col) &&
+!qrCode.isDark(row + 5, col) &&
+qrCode.isDark(row + 6, col) ) {
+lostPoint += 40;
+}
+}
+}
+var darkCount = 0;
+for (col = 0; col < moduleCount; col++) {
+for (row = 0; row < moduleCount; row++) {
+if (qrCode.isDark(row, col) ) {
+darkCount++;
+}
+}
+}
+var ratio = Math.abs(100 * darkCount / moduleCount / moduleCount - 50) / 5;
+lostPoint += ratio * 10;
+return lostPoint;
+}
+};
+module.exports = QRUtil;
+return module.exports})();
+M.QRRSBlock=(function(){var module={exports:{}};
+var QRErrorCorrectLevel = require('./QRErrorCorrectLevel');
+function QRRSBlock(totalCount, dataCount) {
+this.totalCount = totalCount;
+this.dataCount  = dataCount;
+}
+QRRSBlock.RS_BLOCK_TABLE = [
+[1, 26, 19],
+[1, 26, 16],
+[1, 26, 13],
+[1, 26, 9],
+[1, 44, 34],
+[1, 44, 28],
+[1, 44, 22],
+[1, 44, 16],
+[1, 70, 55],
+[1, 70, 44],
+[2, 35, 17],
+[2, 35, 13],
+[1, 100, 80],
+[2, 50, 32],
+[2, 50, 24],
+[4, 25, 9],
+[1, 134, 108],
+[2, 67, 43],
+[2, 33, 15, 2, 34, 16],
+[2, 33, 11, 2, 34, 12],
+[2, 86, 68],
+[4, 43, 27],
+[4, 43, 19],
+[4, 43, 15],
+[2, 98, 78],
+[4, 49, 31],
+[2, 32, 14, 4, 33, 15],
+[4, 39, 13, 1, 40, 14],
+[2, 121, 97],
+[2, 60, 38, 2, 61, 39],
+[4, 40, 18, 2, 41, 19],
+[4, 40, 14, 2, 41, 15],
+[2, 146, 116],
+[3, 58, 36, 2, 59, 37],
+[4, 36, 16, 4, 37, 17],
+[4, 36, 12, 4, 37, 13],
+[2, 86, 68, 2, 87, 69],
+[4, 69, 43, 1, 70, 44],
+[6, 43, 19, 2, 44, 20],
+[6, 43, 15, 2, 44, 16],
+[4, 101, 81],
+[1, 80, 50, 4, 81, 51],
+[4, 50, 22, 4, 51, 23],
+[3, 36, 12, 8, 37, 13],
+[2, 116, 92, 2, 117, 93],
+[6, 58, 36, 2, 59, 37],
+[4, 46, 20, 6, 47, 21],
+[7, 42, 14, 4, 43, 15],
+[4, 133, 107],
+[8, 59, 37, 1, 60, 38],
+[8, 44, 20, 4, 45, 21],
+[12, 33, 11, 4, 34, 12],
+[3, 145, 115, 1, 146, 116],
+[4, 64, 40, 5, 65, 41],
+[11, 36, 16, 5, 37, 17],
+[11, 36, 12, 5, 37, 13],
+[5, 109, 87, 1, 110, 88],
+[5, 65, 41, 5, 66, 42],
+[5, 54, 24, 7, 55, 25],
+[11, 36, 12],
+[5, 122, 98, 1, 123, 99],
+[7, 73, 45, 3, 74, 46],
+[15, 43, 19, 2, 44, 20],
+[3, 45, 15, 13, 46, 16],
+[1, 135, 107, 5, 136, 108],
+[10, 74, 46, 1, 75, 47],
+[1, 50, 22, 15, 51, 23],
+[2, 42, 14, 17, 43, 15],
+[5, 150, 120, 1, 151, 121],
+[9, 69, 43, 4, 70, 44],
+[17, 50, 22, 1, 51, 23],
+[2, 42, 14, 19, 43, 15],
+[3, 141, 113, 4, 142, 114],
+[3, 70, 44, 11, 71, 45],
+[17, 47, 21, 4, 48, 22],
+[9, 39, 13, 16, 40, 14],
+[3, 135, 107, 5, 136, 108],
+[3, 67, 41, 13, 68, 42],
+[15, 54, 24, 5, 55, 25],
+[15, 43, 15, 10, 44, 16],
+[4, 144, 116, 4, 145, 117],
+[17, 68, 42],
+[17, 50, 22, 6, 51, 23],
+[19, 46, 16, 6, 47, 17],
+[2, 139, 111, 7, 140, 112],
+[17, 74, 46],
+[7, 54, 24, 16, 55, 25],
+[34, 37, 13],
+[4, 151, 121, 5, 152, 122],
+[4, 75, 47, 14, 76, 48],
+[11, 54, 24, 14, 55, 25],
+[16, 45, 15, 14, 46, 16],
+[6, 147, 117, 4, 148, 118],
+[6, 73, 45, 14, 74, 46],
+[11, 54, 24, 16, 55, 25],
+[30, 46, 16, 2, 47, 17],
+[8, 132, 106, 4, 133, 107],
+[8, 75, 47, 13, 76, 48],
+[7, 54, 24, 22, 55, 25],
+[22, 45, 15, 13, 46, 16],
+[10, 142, 114, 2, 143, 115],
+[19, 74, 46, 4, 75, 47],
+[28, 50, 22, 6, 51, 23],
+[33, 46, 16, 4, 47, 17],
+[8, 152, 122, 4, 153, 123],
+[22, 73, 45, 3, 74, 46],
+[8, 53, 23, 26, 54, 24],
+[12, 45, 15, 28, 46, 16],
+[3, 147, 117, 10, 148, 118],
+[3, 73, 45, 23, 74, 46],
+[4, 54, 24, 31, 55, 25],
+[11, 45, 15, 31, 46, 16],
+[7, 146, 116, 7, 147, 117],
+[21, 73, 45, 7, 74, 46],
+[1, 53, 23, 37, 54, 24],
+[19, 45, 15, 26, 46, 16],
+[5, 145, 115, 10, 146, 116],
+[19, 75, 47, 10, 76, 48],
+[15, 54, 24, 25, 55, 25],
+[23, 45, 15, 25, 46, 16],
+[13, 145, 115, 3, 146, 116],
+[2, 74, 46, 29, 75, 47],
+[42, 54, 24, 1, 55, 25],
+[23, 45, 15, 28, 46, 16],
+[17, 145, 115],
+[10, 74, 46, 23, 75, 47],
+[10, 54, 24, 35, 55, 25],
+[19, 45, 15, 35, 46, 16],
+[17, 145, 115, 1, 146, 116],
+[14, 74, 46, 21, 75, 47],
+[29, 54, 24, 19, 55, 25],
+[11, 45, 15, 46, 46, 16],
+[13, 145, 115, 6, 146, 116],
+[14, 74, 46, 23, 75, 47],
+[44, 54, 24, 7, 55, 25],
+[59, 46, 16, 1, 47, 17],
+[12, 151, 121, 7, 152, 122],
+[12, 75, 47, 26, 76, 48],
+[39, 54, 24, 14, 55, 25],
+[22, 45, 15, 41, 46, 16],
+[6, 151, 121, 14, 152, 122],
+[6, 75, 47, 34, 76, 48],
+[46, 54, 24, 10, 55, 25],
+[2, 45, 15, 64, 46, 16],
+[17, 152, 122, 4, 153, 123],
+[29, 74, 46, 14, 75, 47],
+[49, 54, 24, 10, 55, 25],
+[24, 45, 15, 46, 46, 16],
+[4, 152, 122, 18, 153, 123],
+[13, 74, 46, 32, 75, 47],
+[48, 54, 24, 14, 55, 25],
+[42, 45, 15, 32, 46, 16],
+[20, 147, 117, 4, 148, 118],
+[40, 75, 47, 7, 76, 48],
+[43, 54, 24, 22, 55, 25],
+[10, 45, 15, 67, 46, 16],
+[19, 148, 118, 6, 149, 119],
+[18, 75, 47, 31, 76, 48],
+[34, 54, 24, 34, 55, 25],
+[20, 45, 15, 61, 46, 16]
+];
+QRRSBlock.getRSBlocks = function(typeNumber, errorCorrectLevel) {
+var rsBlock = QRRSBlock.getRsBlockTable(typeNumber, errorCorrectLevel);
+if (rsBlock === undefined) {
+throw new Error("bad rs block @ typeNumber:" + typeNumber + "/errorCorrectLevel:" + errorCorrectLevel);
+}
+var length = rsBlock.length / 3;
+var list = [];
+for (var i = 0; i < length; i++) {
+var count = rsBlock[i * 3 + 0];
+var totalCount = rsBlock[i * 3 + 1];
+var dataCount  = rsBlock[i * 3 + 2];
+for (var j = 0; j < count; j++) {
+list.push(new QRRSBlock(totalCount, dataCount) );
+}
+}
+return list;
+};
+QRRSBlock.getRsBlockTable = function(typeNumber, errorCorrectLevel) {
+switch(errorCorrectLevel) {
+case QRErrorCorrectLevel.L :
+return QRRSBlock.RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 0];
+case QRErrorCorrectLevel.M :
+return QRRSBlock.RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 1];
+case QRErrorCorrectLevel.Q :
+return QRRSBlock.RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 2];
+case QRErrorCorrectLevel.H :
+return QRRSBlock.RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 3];
+default :
+return undefined;
+}
+};
+module.exports = QRRSBlock;
+return module.exports})();
+M.QRBitBuffer=(function(){var module={exports:{}};
+function QRBitBuffer() {
+this.buffer = [];
+this.length = 0;
+}
+QRBitBuffer.prototype = {
+get : function(index) {
+var bufIndex = Math.floor(index / 8);
+return ( (this.buffer[bufIndex] >>> (7 - index % 8) ) & 1) == 1;
+},
+put : function(num, length) {
+for (var i = 0; i < length; i++) {
+this.putBit( ( (num >>> (length - i - 1) ) & 1) == 1);
+}
+},
+getLengthInBits : function() {
+return this.length;
+},
+putBit : function(bit) {
+var bufIndex = Math.floor(this.length / 8);
+if (this.buffer.length <= bufIndex) {
+this.buffer.push(0);
+}
+if (bit) {
+this.buffer[bufIndex] |= (0x80 >>> (this.length % 8) );
+}
+this.length++;
+}
+};
+module.exports = QRBitBuffer;
+return module.exports})();
+M.QR8bitByte=(function(){var module={exports:{}};
+var QRMode = require('./QRMode');
+function QR8bitByte(data) {
+this.mode = QRMode.MODE_8BIT_BYTE;
+this.data = data;
+}
+QR8bitByte.prototype = {
+getLength : function() {
+return this.data.length;
+},
+write : function(buffer) {
+for (var i = 0; i < this.data.length; i++) {
+buffer.put(this.data.charCodeAt(i), 8);
+}
+}
+};
+module.exports = QR8bitByte;
+return module.exports})();
+M.index=(function(){var module={exports:{}};
+var QR8bitByte = require('./QR8bitByte');
+var QRUtil = require('./QRUtil');
+var QRPolynomial = require('./QRPolynomial');
+var QRRSBlock = require('./QRRSBlock');
+var QRBitBuffer = require('./QRBitBuffer');
+function QRCode(typeNumber, errorCorrectLevel) {
+this.typeNumber = typeNumber;
+this.errorCorrectLevel = errorCorrectLevel;
+this.modules = null;
+this.moduleCount = 0;
+this.dataCache = null;
+this.dataList = [];
+}
+QRCode.prototype = {
+addData : function(data) {
+var newData = new QR8bitByte(data);
+this.dataList.push(newData);
+this.dataCache = null;
+},
+isDark : function(row, col) {
+if (row < 0 || this.moduleCount <= row || col < 0 || this.moduleCount <= col) {
+throw new Error(row + "," + col);
+}
+return this.modules[row][col];
+},
+getModuleCount : function() {
+return this.moduleCount;
+},
+make : function() {
+if (this.typeNumber < 1 ){
+var typeNumber = 1;
+for (typeNumber = 1; typeNumber < 40; typeNumber++) {
+var rsBlocks = QRRSBlock.getRSBlocks(typeNumber, this.errorCorrectLevel);
+var buffer = new QRBitBuffer();
+var totalDataCount = 0;
+for (var i = 0; i < rsBlocks.length; i++) {
+totalDataCount += rsBlocks[i].dataCount;
+}
+for (var x = 0; x < this.dataList.length; x++) {
+var data = this.dataList[x];
+buffer.put(data.mode, 4);
+buffer.put(data.getLength(), QRUtil.getLengthInBits(data.mode, typeNumber) );
+data.write(buffer);
+}
+if (buffer.getLengthInBits() <= totalDataCount * 8)
+break;
+}
+this.typeNumber = typeNumber;
+}
+this.makeImpl(false, this.getBestMaskPattern() );
+},
+makeImpl : function(test, maskPattern) {
+this.moduleCount = this.typeNumber * 4 + 17;
+this.modules = new Array(this.moduleCount);
+for (var row = 0; row < this.moduleCount; row++) {
+this.modules[row] = new Array(this.moduleCount);
+for (var col = 0; col < this.moduleCount; col++) {
+this.modules[row][col] = null;//(col + row) % 3;
+}
+}
+this.setupPositionProbePattern(0, 0);
+this.setupPositionProbePattern(this.moduleCount - 7, 0);
+this.setupPositionProbePattern(0, this.moduleCount - 7);
+this.setupPositionAdjustPattern();
+this.setupTimingPattern();
+this.setupTypeInfo(test, maskPattern);
+if (this.typeNumber >= 7) {
+this.setupTypeNumber(test);
+}
+if (this.dataCache === null) {
+this.dataCache = QRCode.createData(this.typeNumber, this.errorCorrectLevel, this.dataList);
+}
+this.mapData(this.dataCache, maskPattern);
+},
+setupPositionProbePattern : function(row, col)  {
+for (var r = -1; r <= 7; r++) {
+if (row + r <= -1 || this.moduleCount <= row + r) continue;
+for (var c = -1; c <= 7; c++) {
+if (col + c <= -1 || this.moduleCount <= col + c) continue;
+if ( (0 <= r && r <= 6 && (c === 0 || c === 6) ) ||
+(0 <= c && c <= 6 && (r === 0 || r === 6) ) ||
+(2 <= r && r <= 4 && 2 <= c && c <= 4) ) {
+this.modules[row + r][col + c] = true;
+} else {
+this.modules[row + r][col + c] = false;
+}
+}
+}
+},
+getBestMaskPattern : function() {
+var minLostPoint = 0;
+var pattern = 0;
+for (var i = 0; i < 8; i++) {
+this.makeImpl(true, i);
+var lostPoint = QRUtil.getLostPoint(this);
+if (i === 0 || minLostPoint >  lostPoint) {
+minLostPoint = lostPoint;
+pattern = i;
+}
+}
+return pattern;
+},
+createMovieClip : function(target_mc, instance_name, depth) {
+var qr_mc = target_mc.createEmptyMovieClip(instance_name, depth);
+var cs = 1;
+this.make();
+for (var row = 0; row < this.modules.length; row++) {
+var y = row * cs;
+for (var col = 0; col < this.modules[row].length; col++) {
+var x = col * cs;
+var dark = this.modules[row][col];
+if (dark) {
+qr_mc.beginFill(0, 100);
+qr_mc.moveTo(x, y);
+qr_mc.lineTo(x + cs, y);
+qr_mc.lineTo(x + cs, y + cs);
+qr_mc.lineTo(x, y + cs);
+qr_mc.endFill();
+}
+}
+}
+return qr_mc;
+},
+setupTimingPattern : function() {
+for (var r = 8; r < this.moduleCount - 8; r++) {
+if (this.modules[r][6] !== null) {
+continue;
+}
+this.modules[r][6] = (r % 2 === 0);
+}
+for (var c = 8; c < this.moduleCount - 8; c++) {
+if (this.modules[6][c] !== null) {
+continue;
+}
+this.modules[6][c] = (c % 2 === 0);
+}
+},
+setupPositionAdjustPattern : function() {
+var pos = QRUtil.getPatternPosition(this.typeNumber);
+for (var i = 0; i < pos.length; i++) {
+for (var j = 0; j < pos.length; j++) {
+var row = pos[i];
+var col = pos[j];
+if (this.modules[row][col] !== null) {
+continue;
+}
+for (var r = -2; r <= 2; r++) {
+for (var c = -2; c <= 2; c++) {
+if (Math.abs(r) === 2 ||
+Math.abs(c) === 2 ||
+(r === 0 && c === 0) ) {
+this.modules[row + r][col + c] = true;
+} else {
+this.modules[row + r][col + c] = false;
+}
+}
+}
+}
+}
+},
+setupTypeNumber : function(test) {
+var bits = QRUtil.getBCHTypeNumber(this.typeNumber);
+var mod;
+for (var i = 0; i < 18; i++) {
+mod = (!test && ( (bits >> i) & 1) === 1);
+this.modules[Math.floor(i / 3)][i % 3 + this.moduleCount - 8 - 3] = mod;
+}
+for (var x = 0; x < 18; x++) {
+mod = (!test && ( (bits >> x) & 1) === 1);
+this.modules[x % 3 + this.moduleCount - 8 - 3][Math.floor(x / 3)] = mod;
+}
+},
+setupTypeInfo : function(test, maskPattern) {
+var data = (this.errorCorrectLevel << 3) | maskPattern;
+var bits = QRUtil.getBCHTypeInfo(data);
+var mod;
+for (var v = 0; v < 15; v++) {
+mod = (!test && ( (bits >> v) & 1) === 1);
+if (v < 6) {
+this.modules[v][8] = mod;
+} else if (v < 8) {
+this.modules[v + 1][8] = mod;
+} else {
+this.modules[this.moduleCount - 15 + v][8] = mod;
+}
+}
+for (var h = 0; h < 15; h++) {
+mod = (!test && ( (bits >> h) & 1) === 1);
+if (h < 8) {
+this.modules[8][this.moduleCount - h - 1] = mod;
+} else if (h < 9) {
+this.modules[8][15 - h - 1 + 1] = mod;
+} else {
+this.modules[8][15 - h - 1] = mod;
+}
+}
+this.modules[this.moduleCount - 8][8] = (!test);
+},
+mapData : function(data, maskPattern) {
+var inc = -1;
+var row = this.moduleCount - 1;
+var bitIndex = 7;
+var byteIndex = 0;
+for (var col = this.moduleCount - 1; col > 0; col -= 2) {
+if (col === 6) col--;
+while (true) {
+for (var c = 0; c < 2; c++) {
+if (this.modules[row][col - c] === null) {
+var dark = false;
+if (byteIndex < data.length) {
+dark = ( ( (data[byteIndex] >>> bitIndex) & 1) === 1);
+}
+var mask = QRUtil.getMask(maskPattern, row, col - c);
+if (mask) {
+dark = !dark;
+}
+this.modules[row][col - c] = dark;
+bitIndex--;
+if (bitIndex === -1) {
+byteIndex++;
+bitIndex = 7;
+}
+}
+}
+row += inc;
+if (row < 0 || this.moduleCount <= row) {
+row -= inc;
+inc = -inc;
+break;
+}
+}
+}
+}
+};
+QRCode.PAD0 = 0xEC;
+QRCode.PAD1 = 0x11;
+QRCode.createData = function(typeNumber, errorCorrectLevel, dataList) {
+var rsBlocks = QRRSBlock.getRSBlocks(typeNumber, errorCorrectLevel);
+var buffer = new QRBitBuffer();
+for (var i = 0; i < dataList.length; i++) {
+var data = dataList[i];
+buffer.put(data.mode, 4);
+buffer.put(data.getLength(), QRUtil.getLengthInBits(data.mode, typeNumber) );
+data.write(buffer);
+}
+var totalDataCount = 0;
+for (var x = 0; x < rsBlocks.length; x++) {
+totalDataCount += rsBlocks[x].dataCount;
+}
+if (buffer.getLengthInBits() > totalDataCount * 8) {
+throw new Error("code length overflow. (" +
+buffer.getLengthInBits() +
+">" +
+totalDataCount * 8 +
+")");
+}
+if (buffer.getLengthInBits() + 4 <= totalDataCount * 8) {
+buffer.put(0, 4);
+}
+while (buffer.getLengthInBits() % 8 !== 0) {
+buffer.putBit(false);
+}
+while (true) {
+if (buffer.getLengthInBits() >= totalDataCount * 8) {
+break;
+}
+buffer.put(QRCode.PAD0, 8);
+if (buffer.getLengthInBits() >= totalDataCount * 8) {
+break;
+}
+buffer.put(QRCode.PAD1, 8);
+}
+return QRCode.createBytes(buffer, rsBlocks);
+};
+QRCode.createBytes = function(buffer, rsBlocks) {
+var offset = 0;
+var maxDcCount = 0;
+var maxEcCount = 0;
+var dcdata = new Array(rsBlocks.length);
+var ecdata = new Array(rsBlocks.length);
+for (var r = 0; r < rsBlocks.length; r++) {
+var dcCount = rsBlocks[r].dataCount;
+var ecCount = rsBlocks[r].totalCount - dcCount;
+maxDcCount = Math.max(maxDcCount, dcCount);
+maxEcCount = Math.max(maxEcCount, ecCount);
+dcdata[r] = new Array(dcCount);
+for (var i = 0; i < dcdata[r].length; i++) {
+dcdata[r][i] = 0xff & buffer.buffer[i + offset];
+}
+offset += dcCount;
+var rsPoly = QRUtil.getErrorCorrectPolynomial(ecCount);
+var rawPoly = new QRPolynomial(dcdata[r], rsPoly.getLength() - 1);
+var modPoly = rawPoly.mod(rsPoly);
+ecdata[r] = new Array(rsPoly.getLength() - 1);
+for (var x = 0; x < ecdata[r].length; x++) {
+var modIndex = x + modPoly.getLength() - ecdata[r].length;
+ecdata[r][x] = (modIndex >= 0)? modPoly.get(modIndex) : 0;
+}
+}
+var totalCodeCount = 0;
+for (var y = 0; y < rsBlocks.length; y++) {
+totalCodeCount += rsBlocks[y].totalCount;
+}
+var data = new Array(totalCodeCount);
+var index = 0;
+for (var z = 0; z < maxDcCount; z++) {
+for (var s = 0; s < rsBlocks.length; s++) {
+if (z < dcdata[s].length) {
+data[index++] = dcdata[s][z];
+}
+}
+}
+for (var xx = 0; xx < maxEcCount; xx++) {
+for (var t = 0; t < rsBlocks.length; t++) {
+if (xx < ecdata[t].length) {
+data[index++] = ecdata[t][xx];
+}
+}
+}
+return data;
+};
+module.exports = QRCode;
+return module.exports})();
+window.QRLib={make:function(t){var q=new M.index(0,M.QRErrorCorrectLevel.M);q.addData(t);q.make();return q}};
+})();
+</script>
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signInWithPopup,GoogleAuthProvider,signOut,sendPasswordResetEmail} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -359,7 +1261,7 @@ async function apadrinhado(p){
   else if(!S.perfil)acao=`<div class="msg-info">Sua conta ainda não tem cadastro de servidor. Use o link de convite enviado pela coordenação ou <a href="#/acesso">peça acesso ao administrador</a>.</div>`;
   else acao=(n?`<div class="msg-info">${nome1} já tem ${n} ${n===1?"padrinho":"padrinhos"}. Você pode apadrinhar também: mais de um padrinho é bem-vindo.</div>`:"")+`<form onsubmit="W.apadrinhar(event,'${a.id}')"><h3>Seu presente e sua mensagem</h3>
    <label for="pr">O que você vai presentear? <span class="req" aria-hidden="true">*</span></label><input id="pr" required placeholder="Ex.: cesta de Natal e um tênis">
-   <label for="ms">Mensagem de Natal e Ano Novo</label><textarea id="ms" placeholder="Será impressa ou enviada a ${nome1} no dia ${fmt(S.cfg.dataEntrega)}."></textarea>
+   <label for="ms">Mensagem de Natal e Ano Novo</label><textarea id="ms" maxlength="600">${esc(msgPadrao(a.nome))}</textarea><p class="nota">Esta é uma mensagem padrão: edite como quiser. Ela será impressa ou enviada a ${nome1} no dia ${fmt(S.cfg.dataEntrega)}. <button type="button" class="btn sm ghost" onclick="W.msgPadrao('ms','${a.id}')">Usar mensagem padrão</button></p>
    <p class="msg-info">Combine-se para entregar o presente até ${fmt(S.cfg.dataEntrega)}.</p><button class="btn">Confirmar apadrinhamento</button></form>`;
   return `<div class="box wide"><a href="#/">← Voltar</a><div class="perfil" style="margin-top:18px">${av(a,"lg")}<div><h1 style="font-size:2.2rem">${esc(a.nome)}</h1>
    <p><b style="color:var(--berry)">${esc(a.profissao)}</b><br>Lotação: ${esc(a.lotacao)}${a.idade?`<br>${a.idade} anos`:""}</p>${n?`<span class="pill ok">${n} ${n===1?"padrinho":"padrinhos"}</span>`:`<span class="pill no">Espera um padrinho</span>`}
@@ -392,7 +1294,7 @@ async function meus(){
   <p>Entregue os presentes até <b>${fmt(S.cfg.dataEntrega)}</b>. Você pode alterar o presente e a mensagem quando quiser.</p>
   ${S.my.length?S.my.map(x=>{const a=S.ap.find(y=>y.id===x.apadrinhadoId);return `<div class="box wide" style="margin:18px 0"><div class="perfil" style="grid-template-columns:110px 1fr"><div>${av(a)}</div><div><h3>${esc(x.apadrinhadoNome)}</h3><p>${esc(a?.profissao||"")}<br>${esc(a?.lotacao||"")}<br>${x.email?`E-mail: <a href="mailto:${esc(x.email)}">${esc(x.email)}</a>`:""}</p></div></div>
    ${x.entregue?`<div class="msg-ok">Presente entregue${x.entregueEm?" em "+dt(x.entregueEm):""}. Obrigado por participar!</div>`:""}
-   <form onsubmit="W.salvarPresente(event,'${x.id}')"><label>Presente</label><input name="presente" value="${esc(x.presente)}" required><label>Mensagem de Natal e Ano Novo</label><textarea name="mensagem">${esc(x.mensagem)}</textarea>
+   <form onsubmit="W.salvarPresente(event,'${x.id}')"><label>Presente</label><input name="presente" value="${esc(x.presente)}" required><label>Mensagem de Natal e Ano Novo</label><textarea name="mensagem" maxlength="600">${esc(x.mensagem||msgPadrao(x.apadrinhadoNome))}</textarea><p class="nota">Edite a mensagem como quiser e clique em Salvar. <button type="button" class="btn sm ghost" onclick="this.form.mensagem.value=W.msgDe('${x.id}')">Usar mensagem padrão</button></p>
    <div class="row"><button class="btn">Salvar</button><button type="button" class="btn ${x.entregue?"ghost":"gold"}" onclick="W.entregar('${x.id}',${!x.entregue})">${x.entregue?"Desfazer entrega":"Marcar como entregue"}</button><button type="button" class="btn ghost" onclick="W.imprimir('${x.id}')">Imprimir cartão</button><button type="button" class="btn danger" onclick="W.desistir('${x.id}')">Desistir</button></div></form></div>`}).join(""):`<div class="msg-info">Você ainda não apadrinhou ninguém.</div>`}
   <a class="btn gold" href="#/#apadrinhar">Apadrinhar ${S.my.length?"mais alguém":"um colega"}</a></div>`;
 }
@@ -406,7 +1308,7 @@ async function admin(p){
   const afil=id=>A.aps.filter(x=>x.padrinhoId===id);
   const pend=A.conv.filter(c=>!c.multi&&!c.usado),solP=(A.sol||[]).filter(x=>x.status==="pendente");
   const padrinhosIds=[...new Set(A.aps.map(x=>x.padrinhoId))];
-  const tabs=[["resumo","Resumo",1],["apadrinhados","Terceirizados",S.perms.terceirizados],["servidores","Servidores",S.perms.servidores],["convites","Convites"+(solP.length?" ("+solP.length+")":""),S.perms.convites],["entregas","Presentes e mensagens",S.perms.entregas],["campanha","Campanha",S.perms.campanha],["logs","Registro de atividades",S.perms.logs],["admins","Administradores",S.super]].filter(t=>t[2]);
+  const tabs=[["resumo","Resumo",1],["apadrinhados","Terceirizados",S.perms.terceirizados],["servidores","Servidores",S.perms.servidores],["convites","Convites"+(solP.length?" ("+solP.length+")":""),S.perms.convites],["entregas","Presentes e mensagens",S.perms.entregas],["campanha","Campanha",S.perms.campanha],["qr","QR Code",S.perms.convites],["logs","Registro de atividades",S.perms.logs],["admins","Administradores",S.super]].filter(t=>t[2]);
   const tab=tabs.some(t=>t[0]===(p[1]||"resumo"))?(p[1]||"resumo"):"resumo";
   if(tab==="logs"){try{S.logErr="";S.logs=(await getDocs(query(collection(db,"logs"),orderBy("criadoEm","desc"),limit(1000)))).docs.map(d=>({id:d.id,...d.data()}))}catch(e){S.logs=[];S.logErr=e.code||e.message}}
   const solHtml=`<h3>Solicitações de acesso (${solP.length})</h3><div class="tw"><table><tr><th>Nome</th><th>E-mail / Telefone</th><th>Área / Lotação</th><th>Mensagem</th><th>Ações</th></tr>${solP.map(x=>`<tr><td>${esc(x.nome)}</td><td>${esc(x.email)}<br><small>${esc(x.fone||"sem telefone")}</small></td><td>${esc(x.area)}<br><small>${esc(x.lotacao||"")}</small></td><td>${esc(x.mensagem||"")}</td><td><button class="btn sm" onclick="W.atender('${x.id}')">Gerar convite</button>${x.fone?`<a class="btn sm ghost" target="_blank" rel="noopener" href="https://wa.me/${waNum(x.fone)}">WhatsApp</a>`:""}<button class="btn sm danger" onclick="W.descartarSol('${x.id}')">Descartar</button></td></tr>`).join("")||'<tr><td colspan="5">Nenhuma solicitação pendente.</td></tr>'}</table></div>`;
@@ -446,6 +1348,9 @@ async function admin(p){
     <select aria-label="Situação" onchange="W.filtrar('fs','sit',this.value)"><option value="">Todos os servidores</option><option value="pad" ${f.sit==="pad"?"selected":""}>Padrinhos</option><option value="sem" ${f.sit==="sem"?"selected":""}>Sem afilhado</option></select>
     <button class="btn sm ghost" onclick="W.limpar('fs')">Limpar filtros</button></div><p class="cnt" id="cntS" aria-live="polite">${r.txt}</p>
     <div class="tw"><table><thead><tr><th>Foto</th><th>Nome</th><th>Área / Lotação</th><th>E-mail</th><th>Afilhados</th><th>Ações</th></tr></thead><tbody id="tbS">${r.h}</tbody></table></div>`}
+  if(tab==="qr"){const open=A.conv.filter(c=>c.multi),cid=open.some(c=>c.id===S.qrConv)?S.qrConv:open[0]?.id;S.qrUrls={site:location.origin+location.pathname,cad:cid?linkConvite(cid):""};
+    const box=(k,tit,desc)=>`<div class="box" style="margin:0;max-width:none;text-align:center"><h3>${tit}</h3><p>${desc}</p>${S.qrUrls[k]?`<div class="qr">${qrSvg(S.qrUrls[k])}</div><p class="urlq">${esc(S.qrUrls[k])}</p><div class="row" style="justify-content:center"><button class="btn sm ghost" onclick="W.qr('copiar','${k}')">Copiar link</button><button class="btn sm ghost" onclick="W.qr('png','${k}')">Baixar imagem (PNG)</button><button class="btn sm" onclick="W.qr('cartaz','${k}')">Imprimir cartaz</button></div>`:`<div class="msg-info">Ainda não há link aberto de cadastro.</div><button class="btn" onclick="W.convidarAberto()">Gerar link aberto</button>`}</div>`;
+    body=`<p>Imprima ou mostre os QR Codes para que os servidores acessem o site ou se cadastrem direto pelo celular.</p>${open.length>1?`<label for="qc">Link de cadastro usado no QR Code</label><select id="qc" onchange="W.qrConv(this.value)" style="max-width:420px">${open.map((c,i)=>`<option value="${c.id}" ${c.id===cid?"selected":""}>Link ${i+1}${c.criadoEm?" (criado em "+dt(c.criadoEm)+")":""}</option>`).join("")}</select>`:""}<div class="two" style="margin-top:16px">${box("site","Acessar o site","Leva direto à página da campanha.")}${box("cad","Cadastro de servidor","Abre o formulário de cadastro, sem precisar de convite individual.")}</div>`}
   if(tab==="logs"){const r=listLog(),f=S.fl;body=`${S.logErr?`<div class="msg-info">Não foi possível ler o registro (${esc(S.logErr)}). Publique o firestore.rules mais recente e confirme a permissão "Registro".</div>`:""}<div class="row"><button class="btn ghost" onclick="W.csvLog()">Baixar registro (CSV)</button></div>
     <div class="filtros"><input type="search" placeholder="Buscar por usuário, colega ou detalhe" aria-label="Buscar" value="${esc(f.q)}" oninput="W.filtrar('fl','q',this.value)">
     <select aria-label="Ação" onchange="W.filtrar('fl','acao',this.value)"><option value="">Todas as ações</option>${Object.entries(ACOES).map(([k,l])=>`<option value="${k}" ${f.acao===k?"selected":""}>${l}</option>`).join("")}</select>
@@ -459,7 +1364,7 @@ async function admin(p){
     <h3>Links abertos</h3><div class="tw"><table>${A.conv.filter(c=>c.multi).map(c=>`<tr><td style="word-break:break-all">${linkConvite(c.id)}</td><td><button class="btn sm ghost" onclick="W.copiar('${linkConvite(c.id)}')">Copiar</button><button class="btn sm danger" onclick="W.delConv('${c.id}')">Excluir</button></td></tr>`).join("")||"<tr><td>Nenhum.</td></tr>"}</table></div>`;
   if(tab==="entregas")body=`<div class="row"><button class="btn" onclick="W.imprimir('all')">Imprimir todos os cartões</button><button class="btn ghost" onclick="W.csvEnt()">Baixar CSV</button>${WORKER_URL?`<button class="btn gold" onclick="W.enviarEmails()">Enviar mensagens por e-mail</button>`:""}</div>
     <p class="cnt">${A.aps.filter(x=>x.entregue).length} de ${A.aps.length} presentes entregues</p><div class="tw"><table><tr><th>Apadrinhado / E-mail</th><th>Padrinho</th><th>Presente</th><th>Mensagem</th><th>Entregue</th></tr>${A.aps.map(x=>`<tr><td>${esc(x.apadrinhadoNome)}<br><small>${esc(A.priv[x.apadrinhadoId]?.email||"")}</small></td><td>${esc(x.padrinhoNome)}</td><td>${esc(x.presente)}</td><td>${esc(x.mensagem)}</td><td><input type="checkbox" style="width:auto" ${x.entregue?"checked":""} onchange="W.entregue('${x.id}',this.checked)" aria-label="Entregue"> <small>${dt(x.entregueEm)}</small></td></tr>`).join("")||'<tr><td colspan="5">Nenhum apadrinhamento ainda.</td></tr>'}</table></div>`;
-  if(tab==="campanha")body=`<div class="box" style="margin:0"><h3>Dados da campanha</h3><form onsubmit="W.salvarCfg(event)"><label>Ano da campanha</label><input name="ano" type="number" value="${S.cfg.ano}" required><label>Data limite de entrega</label><input name="dataEntrega" type="date" value="${S.cfg.dataEntrega}" required><div class="row"><button class="btn">Salvar</button></div></form>
+  if(tab==="campanha")body=`<div class="box" style="margin:0"><h3>Dados da campanha</h3><form onsubmit="W.salvarCfg(event)"><label>Ano da campanha</label><input name="ano" type="number" value="${S.cfg.ano}" required><label>Data limite de entrega</label><input name="dataEntrega" type="date" value="${S.cfg.dataEntrega}" required><label>Mensagem de Natal padrão (use {nome} para o primeiro nome do apadrinhado)</label><textarea name="mensagemPadrao" maxlength="600" placeholder="Deixe em branco para usar o texto original">${esc(S.cfg.mensagemPadrao||"")}</textarea><p class="nota">Texto original: ${esc(MSG_PADRAO)}</p><div class="row"><button class="btn">Salvar</button></div></form>
     <p class="msg-info">Para iniciar uma nova campanha, altere o ano. Os dados do ano anterior ficam guardados e a lista de terceirizados começa vazia.</p></div>`;
   if(tab==="admins")body=`<div class="two"><div class="box" style="margin:0;max-width:none"><h3>Novo administrador</h3><p>Informe o e-mail da conta Google da pessoa. Ela entra pelo botão "Sou administrador: entrar com Google".</p>
     <form onsubmit="W.addAdmin(event)"><label>Nome</label><input name="nome" required><label>E-mail Google</label><input name="email" type="email" required><label>Permissões</label>${Object.entries(PERMS).map(([k,l])=>`<label style="font-weight:400"><input type="checkbox" name="p_${k}" style="width:auto" checked> ${l}</label>`).join("")}<div class="row"><button class="btn">Adicionar administrador</button></div></form></div>
@@ -469,8 +1374,34 @@ async function admin(p){
 }
 
 /* ===================== AÇÕES ===================== */
-function cartao(x){return `<div class="c"><h1>Feliz Natal e um Próspero Ano Novo!</h1><p class="p">Para <b>${esc(x.apadrinhadoNome)}</b></p><p class="m">${esc(x.mensagem||"Que o novo ano traga paz, saúde e alegria. Obrigado por tudo!").replace(/\n/g,"<br>")}</p><p>Com carinho,<br><b>${esc(x.padrinhoNome)}</b><br>Dataprev</p></div>`}
-const cardCss='<style>body{font-family:Georgia,serif;margin:0}.c{page-break-after:always;border:6px double #a3202f;margin:30px;padding:50px 40px;text-align:center;min-height:360px}h1{color:#123628;font-size:28px}.p{font-size:20px}.m{font-size:19px;font-style:italic;margin:30px 0}</style>';
+const MSG_PADRAO="Querido(a) {nome},\nQue o Natal traga paz, saúde e muita alegria a você e à sua família, e que o Ano Novo venha cheio de conquistas e esperança.\nObrigado por cuidar de nós o ano inteiro!";
+const msgPadrao=nome=>(S.cfg.mensagemPadrao||MSG_PADRAO).replace(/\{nome\}/g,String(nome||"").split(" ")[0]);
+const RAMO='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 215 150"><path d="M0 8 Q90 20 175 118" fill="none" stroke="#6b4a2b" stroke-width="3.2" stroke-linecap="round"/><g stroke-linecap="round" fill="none"><path d="M10.8 9.7 L23.0 36.3" stroke="#1f7a4d" stroke-width="3.2"/><path d="M10.8 9.7 L24.8 21.3" stroke="#1f7a4d" stroke-width="2.6"/><path d="M10.8 9.7 L31.9 -10.4" stroke="#1f7a4d" stroke-width="3.2"/><path d="M10.8 9.7 L28.0 4.2" stroke="#1f7a4d" stroke-width="2.6"/><path d="M24.7 12.9 L34.6 39.3" stroke="#2e9b5f" stroke-width="3.2"/><path d="M24.7 12.9 L37.3 25.0" stroke="#2e9b5f" stroke-width="2.6"/><path d="M24.7 12.9 L46.4 -5.0" stroke="#2e9b5f" stroke-width="3.2"/><path d="M24.7 12.9 L41.6 8.8" stroke="#2e9b5f" stroke-width="2.6"/><path d="M38.5 17.1 L46.2 43.1" stroke="#1f7a4d" stroke-width="3.2"/><path d="M38.5 17.1 L49.8 29.5" stroke="#1f7a4d" stroke-width="2.6"/><path d="M38.5 17.1 L60.5 1.4" stroke="#1f7a4d" stroke-width="3.2"/><path d="M38.5 17.1 L55.0 14.3" stroke="#1f7a4d" stroke-width="2.6"/><path d="M52.2 22.4 L58.0 47.8" stroke="#2e9b5f" stroke-width="3.2"/><path d="M52.2 22.4 L62.3 35.0" stroke="#2e9b5f" stroke-width="2.6"/><path d="M52.2 22.4 L74.4 8.7" stroke="#2e9b5f" stroke-width="3.2"/><path d="M52.2 22.4 L68.3 20.7" stroke="#2e9b5f" stroke-width="2.6"/><path d="M65.9 28.7 L69.9 53.3" stroke="#1f7a4d" stroke-width="3.2"/><path d="M65.9 28.7 L74.8 41.4" stroke="#1f7a4d" stroke-width="2.6"/><path d="M65.9 28.7 L88.0 16.9" stroke="#1f7a4d" stroke-width="3.2"/><path d="M65.9 28.7 L81.4 28.1" stroke="#1f7a4d" stroke-width="2.6"/><path d="M79.5 36.0 L81.9 59.8" stroke="#2e9b5f" stroke-width="3.2"/><path d="M79.5 36.0 L87.3 48.6" stroke="#2e9b5f" stroke-width="2.6"/><path d="M79.5 36.0 L101.3 26.0" stroke="#2e9b5f" stroke-width="3.2"/><path d="M79.5 36.0 L94.4 36.3" stroke="#2e9b5f" stroke-width="2.6"/><path d="M93.1 44.3 L94.1 67.2" stroke="#1f7a4d" stroke-width="3.2"/><path d="M93.1 44.3 L99.8 56.8" stroke="#1f7a4d" stroke-width="2.6"/><path d="M93.1 44.3 L114.5 36.0" stroke="#1f7a4d" stroke-width="3.2"/><path d="M93.1 44.3 L107.3 45.4" stroke="#1f7a4d" stroke-width="2.6"/><path d="M106.6 53.7 L106.4 75.5" stroke="#2e9b5f" stroke-width="3.2"/><path d="M106.6 53.7 L112.4 66.0" stroke="#2e9b5f" stroke-width="2.6"/><path d="M106.6 53.7 L127.4 46.9" stroke="#2e9b5f" stroke-width="3.2"/><path d="M106.6 53.7 L120.1 55.5" stroke="#2e9b5f" stroke-width="2.6"/><path d="M120.1 64.1 L118.8 84.9" stroke="#1f7a4d" stroke-width="3.2"/><path d="M120.1 64.1 L125.0 76.0" stroke="#1f7a4d" stroke-width="2.6"/><path d="M120.1 64.1 L140.2 58.6" stroke="#1f7a4d" stroke-width="3.2"/><path d="M120.1 64.1 L132.8 66.4" stroke="#1f7a4d" stroke-width="2.6"/><path d="M133.5 75.5 L131.3 95.2" stroke="#2e9b5f" stroke-width="3.2"/><path d="M133.5 75.5 L137.6 87.1" stroke="#2e9b5f" stroke-width="2.6"/><path d="M133.5 75.5 L152.8 71.2" stroke="#2e9b5f" stroke-width="3.2"/><path d="M133.5 75.5 L145.4 78.3" stroke="#2e9b5f" stroke-width="2.6"/><path d="M146.8 88.0 L144.0 106.5" stroke="#1f7a4d" stroke-width="3.2"/><path d="M146.8 88.0 L150.2 99.1" stroke="#1f7a4d" stroke-width="2.6"/><path d="M146.8 88.0 L165.3 84.7" stroke="#1f7a4d" stroke-width="3.2"/><path d="M146.8 88.0 L158.0 91.1" stroke="#1f7a4d" stroke-width="2.6"/><path d="M160.1 101.5 L156.7 118.9" stroke="#2e9b5f" stroke-width="3.2"/><path d="M160.1 101.5 L162.9 112.1" stroke="#2e9b5f" stroke-width="2.6"/><path d="M160.1 101.5 L177.6 99.1" stroke="#2e9b5f" stroke-width="3.2"/><path d="M160.1 101.5 L170.5 104.9" stroke="#2e9b5f" stroke-width="2.6"/><path d="M173.3 116.0 L169.5 132.2" stroke="#1f7a4d" stroke-width="3.2"/><path d="M173.3 116.0 L175.5 126.1" stroke="#1f7a4d" stroke-width="2.6"/><path d="M173.3 116.0 L189.9 114.4" stroke="#1f7a4d" stroke-width="3.2"/><path d="M173.3 116.0 L183.0 119.6" stroke="#1f7a4d" stroke-width="2.6"/></g><rect x="42.8" y="29.3" width="5" height="5" fill="#d9a82e"/><circle cx="45.3" cy="42.3" r="8.5" fill="#c62839"/><circle cx="42.7" cy="39.5" r="2.2" fill="#fff" opacity=".55"/><rect x="101.2" y="13.1" width="5" height="5" fill="#d9a82e"/><circle cx="103.7" cy="26.1" r="8.5" fill="#f1c75b"/><circle cx="101.1" cy="23.3" r="2.2" fill="#fff" opacity=".55"/><rect x="114.1" y="75.6" width="5" height="5" fill="#d9a82e"/><circle cx="116.6" cy="88.6" r="8.5" fill="#2b6cb0"/><circle cx="114.0" cy="85.8" r="2.2" fill="#fff" opacity=".55"/><rect x="23.5" y="22.2" width="5" height="5" fill="#d9a82e"/><circle cx="26.0" cy="35.2" r="8.5" fill="#f1c75b"/><circle cx="23.4" cy="32.4" r="2.2" fill="#fff" opacity=".55"/><rect x="94.6" y="59.7" width="5" height="5" fill="#d9a82e"/><circle cx="97.1" cy="72.7" r="8.5" fill="#c62839"/><circle cx="94.5" cy="69.9" r="2.2" fill="#fff" opacity=".55"/></svg>';
+const luzes=w=>{const n=8,sw=w/n,cs=["#c62839","#f1c75b","#2e8b57","#2b6cb0"];let d="M0 2",b="";for(let k=0;k<n;k++){d+=` Q${(k+.5)*sw} 14 ${(k+1)*sw} 2`;b+=`<circle cx="${(k+.5)*sw}" cy="9.5" r="2.1" fill="${cs[k%4]}"/><rect x="${(k+.5)*sw-.5}" y="6.2" width="1" height="1.6" fill="#8a6d1d"/>`}return `<svg class="lz" viewBox="0 0 ${w} 16"><path d="${d}" fill="none" stroke="#2f6b4f" stroke-width=".7"/>${b}</svg>`};
+const cardCssPrint=`<style>@page{size:A5 landscape;margin:0}*{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}body{margin:0;background:#e6ede8;font-family:Georgia,"Times New Roman",serif;color:#3b2a20}
+.c{width:210mm;height:148mm;margin:0 auto;page-break-after:always;position:relative;overflow:hidden;padding:5mm;background:#fff}
+@media screen{.c{margin:14px auto;box-shadow:0 4px 18px rgba(0,0,0,.28)}}
+.f{position:relative;height:100%;border-radius:6mm;border:2.2mm solid #176b45;box-shadow:inset 0 0 0 1mm #f1c75b,inset 0 0 0 1.6mm #fff;background:radial-gradient(rgba(23,107,69,.11) .35mm,transparent .5mm) 0 0/8mm 8mm,radial-gradient(rgba(198,40,57,.10) .35mm,transparent .5mm) 4mm 4mm/8mm 8mm,linear-gradient(180deg,#fff7e8,#ffeedd);overflow:hidden;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14mm 30mm 9mm}
+.lz{position:absolute;top:0;left:0;width:100%;height:16mm}
+.r1,.r2{position:absolute;width:50mm}.r1{left:-4mm;top:14mm}.r2{right:-4mm;bottom:-3mm;transform:rotate(180deg)}.r1 svg,.r2 svg{display:block;width:100%;height:auto}
+.st{color:#f1c75b;font-size:9mm;line-height:1;text-shadow:0 .4mm 0 #c9962d}
+h1{margin:1mm 0 0;font-size:11.5mm;line-height:1.05;color:#b3202f}h1 span{display:block;font-size:6mm;font-style:italic;color:#176b45;margin-top:1.5mm;font-weight:400}
+.fita{background:#176b45;color:#fff;padding:1.4mm 9mm;border-radius:99px;font-size:5.2mm;margin:3.5mm 0 2.5mm;border:.5mm solid #f1c75b}
+.m{margin:0;font-style:italic;line-height:1.45;white-space:pre-line;max-width:135mm}
+.s{margin-top:3mm;font-size:4.4mm}.s b{color:#b3202f;font-size:5.4mm}
+.rod{position:absolute;bottom:3mm;left:0;right:0;font-size:2.8mm;letter-spacing:.3mm;color:#9a8672}</style>`;
+function cartaoPrint(x){const nome=x.apadrinhadoNome,msg=x.mensagem||msgPadrao(nome),tam=msg.length<=140?5.4:msg.length<=260?4.5:3.8;
+  return `<div class="c"><div class="f">${luzes(210)}<div class="r1">${RAMO}</div><div class="r2">${RAMO}</div><div class="st">★</div><h1>Feliz Natal<span>e um Próspero Ano Novo!</span></h1><div class="fita">Para <b>${esc(nome)}</b></div><p class="m" style="font-size:${tam}mm">${esc(msg)}</p><div class="s">Com carinho,<br><b>${esc(x.padrinhoNome)}</b></div><div class="rod">Campanha Padrinhos Dataprev ${esc(x.ano||S.cfg.ano)}</div></div></div>`}
+function cartaoEmail(x){const nome=x.apadrinhadoNome,msg=x.mensagem||msgPadrao(nome);
+  return `<div style="max-width:600px;margin:0 auto;border:6px solid #176b45;border-radius:18px;background:#fff7e8;padding:28px 24px;text-align:center;font-family:Georgia,'Times New Roman',serif;color:#3b2a20"><div style="font-size:30px">🎄 ⭐ 🎁</div><h1 style="color:#b3202f;margin:8px 0 4px;font-size:30px;line-height:1.1">Feliz Natal<br><span style="font-size:20px;color:#176b45;font-style:italic;font-weight:normal">e um Próspero Ano Novo!</span></h1><p style="display:inline-block;background:#176b45;color:#fff;padding:6px 22px;border-radius:99px;font-size:18px;margin:10px 0">Para <b>${esc(nome)}</b></p><p style="font-size:18px;font-style:italic;line-height:1.5;margin:8px 0">${esc(msg).replace(/\n/g,"<br>")}</p><p style="font-size:16px;margin:14px 0 0">Com carinho,<br><b style="color:#b3202f;font-size:18px">${esc(x.padrinhoNome)}</b></p><p style="font-size:12px;color:#9a8672;margin:14px 0 0">Campanha Padrinhos Dataprev ${esc(x.ano||S.cfg.ano)}</p></div>`}
+const qrSvg=t=>{try{const q=window.QRLib.make(t),n=q.getModuleCount(),m=4;let d="";for(let r=0;r<n;r++)for(let c=0;c<n;c++)if(q.isDark(r,c))d+=`M${c+m},${r+m}h1v1h-1z`;return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${n+2*m} ${n+2*m}" shape-rendering="crispEdges"><rect width="100%" height="100%" fill="#fff"/><path d="${d}" fill="#123628"/></svg>`}catch(e){return `<p>Não foi possível gerar o QR Code.</p>`}};
+const svgPng=(svg,px)=>new Promise((ok,no)=>{const i=new Image();i.onload=()=>{const c=document.createElement("canvas");c.width=c.height=px;const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,px,px);x.imageSmoothingEnabled=false;x.drawImage(i,0,0,px,px);c.toBlob(ok,"image/png")};i.onerror=no;i.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svg)});
+function posterQR(k,url){
+  const T=k==="site"?["Conheça e apadrinhe!","Escaneie o QR Code com a câmera do celular e escolha um colega para apadrinhar neste Natal e Ano Novo."]:["Servidor, cadastre-se!","Escaneie o QR Code com a câmera do celular para criar seu cadastro e apadrinhar um colega: recepção, segurança, brigada, serviços ou estágio."];
+  const w=window.open("","_blank");if(!w)return toast("O navegador bloqueou a janela. Libere pop-ups para este site.");
+  const css=cardCssPrint.replace("A5 landscape","A4 portrait").replace("height:148mm","height:297mm").replace(".r1,.r2{position:absolute;width:50mm}",".r1,.r2{position:absolute;width:46mm}")+`<style>.f{padding:40mm 26mm 22mm}h1{font-size:13mm;margin:3mm 0 3mm;text-wrap:balance}.k{color:#176b45;font-size:5mm;letter-spacing:.6mm;text-transform:uppercase;margin-top:2mm}.d{font-size:6.2mm;font-style:italic;max-width:150mm;margin:0 0 7mm;line-height:1.4}.qb{width:112mm;padding:4mm;background:#fff;border:1.6mm solid #176b45;border-radius:6mm;box-shadow:0 0 0 1mm #f1c75b}.qb svg{display:block;width:100%;height:auto}.u{font-family:Arial,sans-serif;font-size:3.6mm;word-break:break-all;max-width:125mm;margin:6mm 0 2mm;color:#176b45}.e{font-size:5mm;color:#b3202f;font-weight:bold;margin:2mm 0 0}</style>`;
+  w.document.write(`<!DOCTYPE html><meta charset="utf-8"><title>Cartaz QR Code</title>${css}<div class="c"><div class="f">${luzes(210)}<div class="r1">${RAMO}</div><div class="r2">${RAMO}</div><div class="st">★</div><div class="k">Natal e Ano Novo Solidário Dataprev ${S.cfg.ano}</div><h1>${T[0]}</h1><p class="d">${T[1]}</p><div class="qb">${qrSvg(url)}</div><p class="u">${esc(url)}</p><p class="e">Presentes entregues até ${fmt(S.cfg.dataEntrega)}</p></div></div>`);
+  w.document.close();w.focus();setTimeout(()=>w.print(),500)}
 const csv=(rows,name)=>{const t=rows.map(r=>r.map(c=>`"${String(c??"").replace(/"/g,'""')}"`).join(";")).join("\n"),a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+t],{type:"text/csv"}));a.download=name;a.click()};
 async function liberar(x,motivo=""){const b=writeBatch(db);b.delete(doc(db,"apadrinhamentos",x.id));b.update(doc(db,"apadrinhados",x.apadrinhadoId),{padrinhos:increment(-1)});lg(b,"desfazer_apadrinhamento",`Desfez o apadrinhamento de ${x.apadrinhadoNome} (padrinho: ${x.padrinhoNome})${motivo?". Motivo: "+motivo:""}`,x.apadrinhadoNome);await b.commit()}
 
@@ -507,6 +1438,12 @@ const W={
   csvServ(){csv([["Nome","Área","Lotação","E-mail","Afilhados"],...S.adm.serv.map(x=>[x.nome,x.area,x.lotacao,x.email,S.adm.aps.filter(a=>a.padrinhoId===x.id).map(a=>a.apadrinhadoNome).join(", ")])],"servidores.csv")},
   buscar(c,v){S.busca[c]=v;$("#gridH").innerHTML=gridHome();$("#cntH").textContent=cntHome()},
   limparBusca(){S.busca={q:"",lot:""};S.filtro="Todos";render(true)},
+  msgPadrao(el,afId){$("#"+el).value=msgPadrao(S.ap.find(x=>x.id===afId).nome)},
+  msgDe(id){return msgPadrao(S.my.find(x=>x.id===id).apadrinhadoNome)},
+  qrConv(id){S.qrConv=id;render(true)},
+  qr(a,k){const u=S.qrUrls[k];if(a==="copiar")return W.copiar(u);
+    if(a==="png")return svgPng(qrSvg(u),1000).then(b=>{const l=document.createElement("a");l.href=URL.createObjectURL(b);l.download=k==="site"?"qrcode-site.png":"qrcode-cadastro.png";l.click()}).catch(()=>toast("Não foi possível gerar a imagem."));
+    if(a==="cartaz")posterQR(k,u)},
   aba(v){S.aba=v;render(true)},
   async solicitar(e){e.preventDefault();const f=e.target;if(f.site.value)return;e.submitter.disabled=true;
     try{await setDoc(doc(collection(db,"solicitacoes")),{nome:f.nome.value.trim(),email:f.email.value.trim(),area:f.area.value.trim(),lotacao:f.lotacao.value.trim(),fone:f.fone.value.trim(),mensagem:f.mensagem.value.trim(),status:"pendente",criadoEm:serverTimestamp()});
@@ -517,7 +1454,7 @@ const W={
   async salvarPresente(e,id){e.preventDefault();const f=e.target;await updateDoc(doc(db,"apadrinhamentos",id),{presente:f.presente.value.trim(),mensagem:f.mensagem.value.trim()});toast("Salvo!")},
   async desistir(id){const x=[...S.my,...(S.adm?.aps||[])].find(z=>z.id===id);const m=await pedirMotivo("Desfazer apadrinhamento",`Você vai remover o apadrinhamento de <b>${esc(x.apadrinhadoNome)}</b> (padrinho: ${esc(x.padrinhoNome)}). Se o colega não tiver outro padrinho, voltará para a lista de quem espera.`,"Desfazer apadrinhamento");if(m===null)return;
     try{await liberar(x,m);toast("Apadrinhamento removido.");render(true)}catch(e){toast("Erro: "+(e.code||e.message))}},
-  imprimir(id){const l=id==="all"?S.adm.aps:[...S.my,...(S.adm?.aps||[])].filter(x=>x.id===id).slice(0,1);if(!l.length)return toast("Nada para imprimir.");const w=window.open("","_blank");w.document.write(`<!DOCTYPE html><meta charset="utf-8"><title>Cartões</title>${cardCss}${l.map(cartao).join("")}`);w.document.close();w.focus();setTimeout(()=>w.print(),400)},
+  imprimir(id){const l=id==="all"?S.adm.aps:[...S.my,...(S.adm?.aps||[])].filter(x=>x.id===id).slice(0,1);if(!l.length)return toast("Nada para imprimir.");const w=window.open("","_blank");w.document.write(`<!DOCTYPE html><meta charset="utf-8"><title>Cartões</title>${cardCssPrint}${l.map(cartaoPrint).join("")}`);w.document.close();w.focus();setTimeout(()=>w.print(),400)},
   /* admin */
   editAp(id){const a=S.ap.find(x=>x.id===id)||{},pv=id?S.adm.priv[id]||{}:{};
     modal(id?"Editar terceirizado":"Cadastrar terceirizado",FA,{...a,...pv},async v=>{const {email,...pub}=v,b=writeBatch(db),novo=!id;
@@ -543,13 +1480,13 @@ const W={
     try{await W.setEntrega(id,v,m);render(true)}catch(x){toast("Erro: "+(x.code||x.message));render(true)}},
   async entregar(id,v){if(v&&!confirm("Confirmar que o presente já foi entregue?"))return;let m="";if(!v){const x=S.my.find(z=>z.id===id);m=await pedirMotivo("Desfazer entrega",`Você vai desfazer o registro de entrega do presente para <b>${esc(x.apadrinhadoNome)}</b>.`,"Desfazer entrega");if(m===null)return}
     try{await W.setEntrega(id,v,m);toast(v?"Entrega registrada. Obrigado!":"Entrega desfeita.");render(true)}catch(x){toast("Erro: "+(x.code||x.message))}},
-  async salvarCfg(e){e.preventDefault();const f=e.target;await setDoc(doc(db,"config","campanha"),{ano:+f.ano.value,dataEntrega:f.dataEntrega.value});toast("Campanha atualizada.");render(true)},
+  async salvarCfg(e){e.preventDefault();const f=e.target;await setDoc(doc(db,"config","campanha"),{ano:+f.ano.value,dataEntrega:f.dataEntrega.value,mensagemPadrao:f.mensagemPadrao.value.trim()});toast("Campanha atualizada.");render(true)},
   csvAp(){csv([["Nome","Profissão","Lotação","Idade","E-mail","Situação","Padrinho"],...[...S.ap].sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR",{sensitivity:"base"})).map(a=>{const p=S.adm.priv[a.id]||{},x=S.adm.aps.filter(y=>y.apadrinhadoId===a.id);return [a.nome,a.profissao,a.lotacao,a.idade,p.email,tem(a)?"Apadrinhado":"Sem padrinho",x.map(z=>z.padrinhoNome).join(", ")]})],"terceirizados.csv")},
   csvEnt(){csv([["Apadrinhado","E-mail","Padrinho","Presente","Mensagem","Entregue","Data da entrega"],...S.adm.aps.map(x=>[x.apadrinhadoNome,S.adm.priv[x.apadrinhadoId]?.email||"",x.padrinhoNome,x.presente,x.mensagem,x.entregue?"Sim":"Não",dt(x.entregueEm)])],"presentes.csv")},
   async enviarEmails(){if(!confirm("Enviar a mensagem de Natal por e-mail para todos os afilhados que têm e-mail cadastrado?"))return;
     const tok=await auth.currentUser.getIdToken();let ok=0,fail=0,sem=0;
     for(const x of S.adm.aps){const em=S.adm.priv[x.apadrinhadoId]?.email;if(!em){sem++;continue}
-      try{const r=await fetch(WORKER_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({idToken:tok,to:em,subject:"Feliz Natal, "+x.apadrinhadoNome.split(" ")[0]+"!",html:cartao(x)})});r.ok?ok++:fail++}catch{fail++}}
+      try{const r=await fetch(WORKER_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({idToken:tok,to:em,subject:"Feliz Natal, "+x.apadrinhadoNome.split(" ")[0]+"!",html:cartaoEmail(x)})});r.ok?ok++:fail++}catch{fail++}}
     toast(`Enviados: ${ok}. Falhas: ${fail}. Sem e-mail: ${sem}.`)}
 };
 window.W=W;

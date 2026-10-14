@@ -70,6 +70,11 @@ Os cadastros de terceirizados e de servidores não pedem mais telefone, e o camp
 ## 13. Motivo obrigatório
 Ao **desfazer um apadrinhamento** ou **desfazer uma entrega** (pelo padrinho ou pelo administrador), o sistema abre uma janela pedindo o motivo, obrigatório. O motivo aparece no detalhe do log de atividades ("... Motivo: ..."). Não há mudança nas regras do Firestore.
 
+## 14. Mensagem padrão, cartão colorido e QR Code
+- **Mensagem de Natal padrão:** ao apadrinhar (e em Meus afilhados, quando a mensagem estiver vazia) o campo já vem preenchido com uma mensagem acolhedora, que o padrinho edita à vontade; o botão "Usar mensagem padrão" restaura o texto. O administrador pode trocar o texto padrão em Painel > Campanha (use `{nome}` para o primeiro nome do apadrinhado).
+- **Cartão para impressão:** formato A5 paisagem, colorido, com pisca-pisca, ramos de pinheiro com enfeites e moldura. Na janela de impressão ative "Gráficos de segundo plano" se as cores não saírem. O e-mail também usa um cartão colorido.
+- **QR Code:** Painel > QR Code gera o QR do site e o do cadastro de servidor (usa um "link aberto"), com copiar link, baixar PNG e imprimir cartaz A4. A biblioteca de QR (MIT) está embutida no `index.html`; não há dependência externa. Apenas o `index.html` precisa ser enviado ao GitHub.
+
 ## Segurança
 - A `apiKey` do Firebase é pública por natureza; quem protege os dados são as regras do Firestore.
 - Telefone e e-mail dos terceirizados ficam em coleção separada, legível só pelo administrador.
