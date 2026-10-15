@@ -23,10 +23,10 @@ service cloud.firestore {
       return signed() && exists(/databases/$(database)/documents/servidores/$(request.auth.uid));
     }
 
-    // Configuração da campanha (ano, data de entrega)
+    // Configuração da campanha (campanha) e resumo público de arrecadação (resumo)
     match /config/{d} {
       allow read: if true;
-      allow write: if can('campanha');
+      allow write: if can('campanha') || (d == 'resumo' && can('contribuicoes'));
     }
 
     // Administradores e permissões (apenas o administrador principal gerencia)
@@ -39,59 +39,51 @@ service cloud.firestore {
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['nome','area','lotacao','fone','foto','descricao']));
     }
 
-    // Perfil público dos terceirizados (sem telefone/e-mail).
-    // "padrinhos" = quantos servidores já apadrinharam (0 = ainda espera um padrinho).
+    // Colegas terceirizados que serão presenteados (perfil público, sem e-mail)
     match /apadrinhados/{id} {
       allow read: if true;
-      allow create, delete: if can('terceirizados');
-      allow update: if can('terceirizados') || (isServidor()
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['padrinhos'])
-        && (
-          // servidor apadrinha (inclusive quem já tem outros padrinhos; cadastros antigos sem o campo contam como 0)
-          ( request.resource.data.padrinhos == resource.data.get('padrinhos', 0) + 1
-            && !exists(/databases/$(database)/documents/apadrinhamentos/$(id + '_' + request.auth.uid))
-            && existsAfter(/databases/$(database)/documents/apadrinhamentos/$(id + '_' + request.auth.uid)) )
-          ||
-          // servidor desiste do próprio apadrinhamento
-          ( request.resource.data.padrinhos == resource.data.get('padrinhos', 0) - 1
-            && request.resource.data.padrinhos >= 0
-            && exists(/databases/$(database)/documents/apadrinhamentos/$(id + '_' + request.auth.uid))
-            && !existsAfter(/databases/$(database)/documents/apadrinhamentos/$(id + '_' + request.auth.uid)) )
-        ));
+      allow create, update, delete: if can('terceirizados');
     }
-
-    // Dados de contato dos terceirizados: somente administradores autorizados
+    // E-mail dos terceirizados: somente administradores autorizados
     match /apadrinhados_privado/{id} {
-      allow list: if can('terceirizados') || can('entregas');
-      // o padrinho lê somente o e-mail dos próprios afilhados
-      allow get: if can('terceirizados') || can('entregas') || (signed()
-        && exists(/databases/$(database)/documents/apadrinhamentos/$(id + '_' + request.auth.uid)));
-      allow write: if can('terceirizados');
+      allow read, write: if can('terceirizados');
     }
 
-    // Um documento por padrinho e afilhado (id = idAfilhado_idPadrinho): um afilhado pode ter vários padrinhos
-    match /apadrinhamentos/{id} {
-      allow read: if isStaff() || (signed() && resource.data.padrinhoId == request.auth.uid);
-      allow create: if can('terceirizados') || can('entregas') || (isServidor()
-        && request.resource.data.padrinhoId == request.auth.uid
-        && id == request.resource.data.apadrinhadoId + '_' + request.auth.uid
-        && exists(/databases/$(database)/documents/apadrinhados/$(request.resource.data.apadrinhadoId)));
-      allow update: if can('entregas') || can('terceirizados') || (signed() && resource.data.padrinhoId == request.auth.uid
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['presente','mensagem','padrinhoNome','entregue','entregueEm']));
-      allow delete: if can('terceirizados') || can('entregas') || (signed() && resource.data.padrinhoId == request.auth.uid);
+    // Contribuições: um documento por servidor e ano (id = ano_uid)
+    match /contribuicoes/{id} {
+      allow read: if isStaff() || (signed() && resource.data.servidorId == request.auth.uid);
+      allow create: if can('contribuicoes') || (isServidor()
+        && request.resource.data.servidorId == request.auth.uid
+        && id == string(request.resource.data.ano) + '_' + request.auth.uid
+        && request.resource.data.status == 'em_analise'
+        && request.resource.data.valor is number
+        && request.resource.data.valor > 0 && request.resource.data.valor <= 100000);
+      allow update: if can('contribuicoes') || (signed() && resource.data.servidorId == request.auth.uid && (
+        // reenvio do comprovante (nunca depois de confirmada)
+        ( resource.data.status != 'confirmado'
+          && request.resource.data.status == 'em_analise'
+          && request.resource.data.valor is number
+          && request.resource.data.valor > 0 && request.resource.data.valor <= 100000
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['valor','status','comprovanteNome','enviadoEm','obsAdmin']) )
+        ||
+        // atualização dos dados do servidor (nome, área, lotação)
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['servidorNome','area','lotacao'])
+      ));
+      allow delete: if can('contribuicoes');
     }
 
-    // Pedidos de acesso enviados por quem não recebeu convite (qualquer pessoa pode enviar; só admins leem)
-    match /solicitacoes/{id} {
-      allow create: if request.resource.data.keys().hasOnly(['nome','email','area','lotacao','fone','mensagem','status','criadoEm'])
-        && request.resource.data.status == 'pendente'
-        && request.resource.data.nome is string && request.resource.data.nome.size() > 0 && request.resource.data.nome.size() <= 120
-        && request.resource.data.email is string && request.resource.data.email.size() > 3 && request.resource.data.email.size() <= 160
-        && request.resource.data.area is string && request.resource.data.area.size() > 0 && request.resource.data.area.size() <= 120
-        && request.resource.data.lotacao is string && request.resource.data.lotacao.size() > 0 && request.resource.data.lotacao.size() <= 120
-        && request.resource.data.fone is string && request.resource.data.fone.size() <= 30
-        && request.resource.data.mensagem is string && request.resource.data.mensagem.size() <= 800;
-      allow read, update, delete: if can('convites');
+    // Arquivo do comprovante (imagem reduzida ou PDF pequeno, guardado como texto)
+    match /comprovantes/{id} {
+      allow read: if can('contribuicoes') || (signed() && resource.data.servidorId == request.auth.uid);
+      allow create, update: if can('contribuicoes') || (isServidor()
+        && request.resource.data.servidorId == request.auth.uid
+        && id == string(request.resource.data.ano) + '_' + request.auth.uid
+        && request.resource.data.keys().hasOnly(['servidorId','ano','dados','tipo','nome','enviadoEm'])
+        && request.resource.data.dados is string && request.resource.data.dados.size() <= 900000
+        && request.resource.data.tipo in ['image/jpeg','application/pdf']
+        && (!exists(/databases/$(database)/documents/contribuicoes/$(id))
+            || get(/databases/$(database)/documents/contribuicoes/$(id)).data.status != 'confirmado'));
+      allow delete: if can('contribuicoes');
     }
 
     // Registro de atividades (imutável): cada usuário grava e lê os próprios registros; admins com permissão "logs" leem todos
@@ -107,6 +99,19 @@ service cloud.firestore {
         && request.resource.data.alvoNome is string && request.resource.data.alvoNome.size() <= 160;
       allow read: if can('logs') || (signed() && resource.data.usuarioId == request.auth.uid);
       allow update, delete: if false;
+    }
+
+    // Pedidos de acesso enviados por quem não recebeu convite (qualquer pessoa pode enviar; só admins leem)
+    match /solicitacoes/{id} {
+      allow create: if request.resource.data.keys().hasOnly(['nome','email','area','lotacao','fone','mensagem','status','criadoEm'])
+        && request.resource.data.status == 'pendente'
+        && request.resource.data.nome is string && request.resource.data.nome.size() > 0 && request.resource.data.nome.size() <= 120
+        && request.resource.data.email is string && request.resource.data.email.size() > 3 && request.resource.data.email.size() <= 160
+        && request.resource.data.area is string && request.resource.data.area.size() > 0 && request.resource.data.area.size() <= 120
+        && request.resource.data.lotacao is string && request.resource.data.lotacao.size() > 0 && request.resource.data.lotacao.size() <= 120
+        && request.resource.data.fone is string && request.resource.data.fone.size() <= 30
+        && request.resource.data.mensagem is string && request.resource.data.mensagem.size() <= 800;
+      allow read, update, delete: if can('convites');
     }
 
     // Servidores

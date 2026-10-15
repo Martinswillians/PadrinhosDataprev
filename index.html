@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Padrinhos Dataprev | Natal e Ano Novo Solidário</title>
+<title>Natal Solidário Dataprev | Café da manhã de Natal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;1,9..144,500&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -111,6 +111,14 @@ footer{background:var(--pine);color:#a9c2b5;padding:28px 0;text-align:center;fon
 .req{color:var(--berry);font-weight:700}
 .nota{color:var(--mute);font-size:.88rem;margin:12px 0 0}
 .filtros{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:14px 0 6px;align-items:center}
+.pill.an{background:#fbf0c9;color:#7a5800}
+.itens{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;margin:18px 0}
+.prod{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:8px}
+.prod img{width:100%;aspect-ratio:4/3;object-fit:contain;background:#fff;border-radius:10px}
+.prod .ph{aspect-ratio:4/3;display:grid;place-items:center;background:var(--frost);border-radius:10px;font-size:3.4rem}
+.prod h3{margin:6px 0 0;font-size:1.25rem}.prod p{margin:0;color:var(--mute);flex:1}.prod .preco{font:700 1.5rem var(--serif);color:var(--berry)}
+.pix{display:grid;grid-template-columns:260px 1fr;gap:22px;align-items:center;margin:10px 0}.chave{font:700 1.5rem var(--serif);word-break:break-all;margin:6px 0}
+@media(max-width:700px){.pix{grid-template-columns:1fr}}
 .cnt{color:var(--mute);margin:4px 0 0;font-size:.92rem}
 .qr{width:min(260px,100%);margin:10px auto;border:1px solid var(--line);border-radius:12px;overflow:hidden}.qr svg{display:block;width:100%;height:auto}.urlq{word-break:break-all;color:var(--mute);font-size:.82rem}
 @media(max-width:820px){.deco:before{display:none}}
@@ -120,11 +128,11 @@ footer{background:var(--pine);color:#a9c2b5;padding:28px 0;text-align:center;fon
 </head>
 <body>
 <header class="top"><div class="wrap">
-  <a class="brand" href="#/">Padrinhos <i>Dataprev</i></a>
+  <a class="brand" href="#/">Natal Solidário <i>Dataprev</i></a>
   <nav class="n" id="nav"></nav>
 </div></header>
 <main id="app"><p class="load">Carregando…</p></main>
-<footer><div class="wrap">Campanha Padrinhos Dataprev: Natal e Ano Novo Solidário<br><small id="ver">versão 2026.10.14-i</small></div></footer>
+<footer><div class="wrap">Natal Solidário Dataprev: café da manhã de Natal<br><small id="ver">versão 2026.10.14-j</small></div></footer>
 <dialog id="dlg"></dialog>
 <div id="toast" role="status"></div>
 
@@ -1044,10 +1052,9 @@ const firebaseConfig={
   appId:"1:277078954038:web:4e3966ff88c40e58920897"
 };
 const ADMIN_EMAIL="willbrasilia@gmail.com";
-const WORKER_URL="https://pushpadrinhosdataprev.willbrasilia.workers.dev"; // Cloudflare Worker (envio de e-mails). Deixe "" para desativar.
 const PROFS=["Recepção","Segurança","Brigadista","Serviços","Estagiário"];
-const PERMS={terceirizados:"Terceirizados (cadastrar, editar e vincular padrinhos)",servidores:"Servidores (cadastrar, editar e excluir)",convites:"Convites de cadastro",entregas:"Presentes, mensagens, impressão e e-mails",campanha:"Dados da campanha (ano e data de entrega)",logs:"Registro de atividades (ver o log de todos os usuários)"};
-const PERMS_SHORT={terceirizados:"Terceirizados",servidores:"Servidores",convites:"Convites",entregas:"Presentes",campanha:"Campanha",logs:"Registro"};
+const PERMS={terceirizados:"Terceirizados (cadastrar, editar e excluir)",servidores:"Servidores (cadastrar, editar e excluir)",convites:"Convites de cadastro e QR Code",contribuicoes:"Contribuições (conferir comprovantes e confirmar pagamentos)",campanha:"Dados da campanha (valor, PIX, data e itens)",logs:"Registro de atividades (ver o log de todos os usuários)"};
+const PERMS_SHORT={terceirizados:"Terceirizados",servidores:"Servidores",convites:"Convites",contribuicoes:"Contribuições",campanha:"Campanha",logs:"Registro"};
 /* ======================================================== */
 
 const fb=initializeApp(firebaseConfig),auth=getAuth(fb),db=getFirestore(fb);
@@ -1055,7 +1062,10 @@ const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmt=d=>d?d.split("-").reverse().join("/"):"";
 const ini=n=>(n||"?").split(" ").filter(Boolean).slice(0,2).map(x=>x[0]).join("").toUpperCase();
-const S={fl:{q:"",acao:"",de:"",ate:""},busca:{q:"",lot:""},fa:{q:"",prof:"",lot:"",sit:""},fs:{q:"",area:"",lot:"",sit:""},aba:"esperam",user:null,admin:false,super:false,perms:{},perfil:null,cfg:{ano:new Date().getFullYear(),dataEntrega:new Date().getFullYear()+"-12-15"},ap:[],filtro:"Todos",busy:false,adm:null,my:[]};
+const ANO0=new Date().getFullYear();
+const S={fl:{q:"",acao:"",de:"",ate:""},busca:{q:"",lot:""},fa:{q:"",prof:"",lot:""},fs:{q:"",area:"",lot:"",sit:""},fc:{q:"",st:"",lot:""},user:null,admin:false,super:false,perms:{},perfil:null,
+ cfg:{ano:ANO0,dataEntrega:ANO0+"-12-15",valorContribuicao:50,meta:0,reservaCafe:0,tipoChave:"Telefone",chavePix:"61984299820",nomeRecebedor:"Campanha Natal Dataprev",cidadeRecebedor:"Brasilia",itens:[{nome:"Panetone individual",detalhe:"Um panetone para cada colega presenteado",preco:0,foto:""},{nome:"Cesta de Natal",detalhe:"Kit com 3 itens",preco:0,foto:""}]},
+ resumo:{arrecadado:0,confirmados:0},ap:[],filtro:"Todos",busy:false,adm:null,minha:null};
 const erroAuth=x=>{const c=x?.code||"";const M={
  "auth/invalid-credential":"E-mail ou senha incorretos.","auth/wrong-password":"E-mail ou senha incorretos.","auth/user-not-found":"E-mail ou senha incorretos.","auth/invalid-email":"E-mail inválido.",
  "auth/too-many-requests":"Muitas tentativas seguidas. Aguarde alguns minutos ou use \"Esqueci a senha\".",
@@ -1069,13 +1079,13 @@ const erroAuth=x=>{const c=x?.code||"";const M={
 const toast=m=>{const t=$("#toast");t.textContent=m;t.style.display="block";clearTimeout(toast.h);toast.h=setTimeout(()=>t.style.display="none",8000)};
 const av=(a,c="")=>a?.foto?`<img class="av ${c}" src="${a.foto}" alt="Foto de ${esc(a.nome)}">`:`<div class="av ${c}" aria-hidden="true">${esc(ini(a?.nome))}</div>`;
 const g=async n=>(await getDocs(collection(db,n))).docs.map(d=>({id:d.id,...d.data()}));
-const ACOES={apadrinhar:"Apadrinhamento",desfazer_apadrinhamento:"Apadrinhamento desfeito",entrega_registrada:"Entrega registrada",entrega_desfeita:"Entrega desfeita",cadastro:"Cadastro de servidor",perfil_alterado:"Perfil alterado",terceirizado_cadastrado:"Terceirizado cadastrado",terceirizado_alterado:"Terceirizado alterado",terceirizado_excluido:"Terceirizado excluído",servidor_cadastrado:"Servidor cadastrado (adm)",servidor_alterado:"Servidor alterado (adm)",servidor_excluido:"Servidor excluído (adm)"};
+const ACOES={contribuicao_enviada:"Comprovante enviado",contribuicao_reenviada:"Comprovante reenviado",contribuicao_confirmada:"Contribuição confirmada",contribuicao_recusada:"Contribuição recusada",contribuicao_desfeita:"Confirmação desfeita",contribuicao_manual:"Contribuição registrada (adm)",contribuicao_excluida:"Contribuição excluída",cadastro:"Cadastro de servidor",perfil_alterado:"Perfil alterado",terceirizado_cadastrado:"Terceirizado cadastrado",terceirizado_alterado:"Terceirizado alterado",terceirizado_excluido:"Terceirizado excluído",servidor_cadastrado:"Servidor cadastrado (adm)",servidor_alterado:"Servidor alterado (adm)",servidor_excluido:"Servidor excluído (adm)",apadrinhar:"Apadrinhamento (versão anterior)",desfazer_apadrinhamento:"Apadrinhamento desfeito (versão anterior)",entrega_registrada:"Entrega registrada (versão anterior)",entrega_desfeita:"Entrega desfeita (versão anterior)"};
 function lg(b,acao,detalhe,alvo="",u=auth.currentUser,nome=null){
   b.set(doc(collection(db,"logs")),{acao,detalhe:String(detalhe).slice(0,380),usuarioId:u.uid,usuarioNome:String(nome||S.perfil?.nome||u.displayName||u.email||"").slice(0,150),usuarioEmail:u.email||"",alvoNome:String(alvo||"").slice(0,150),criadoEm:serverTimestamp()});
 }
 const dh=t=>t?.toDate?t.toDate().toLocaleString("pt-BR"):"";
 const dia=t=>{if(!t?.toDate)return"";const d=t.toDate();return new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10)};
-const logRows=(l,comUsuario)=>l.map(x=>`<tr><td>${esc(dh(x.criadoEm))}</td>${comUsuario?`<td>${esc(x.usuarioNome)}<br><small>${esc(x.usuarioEmail)}</small></td>`:""}<td><span class="pill ${/desfe|excl/.test(x.acao)?"no":"ok"}">${esc(ACOES[x.acao]||x.acao)}</span></td><td>${esc(x.detalhe)}</td></tr>`).join("")||`<tr><td colspan="4">Nenhum registro.</td></tr>`;
+const logRows=(l,comUsuario)=>l.map(x=>`<tr><td>${esc(dh(x.criadoEm))}</td>${comUsuario?`<td>${esc(x.usuarioNome)}<br><small>${esc(x.usuarioEmail)}</small></td>`:""}<td><span class="pill ${/desfe|excl|recus/.test(x.acao)?"no":"ok"}">${esc(ACOES[x.acao]||x.acao)}</span></td><td>${esc(x.detalhe)}</td></tr>`).join("")||`<tr><td colspan="4">Nenhum registro.</td></tr>`;
 const dt=t=>t?.toDate?t.toDate().toLocaleDateString("pt-BR"):"";
 const waNum=t=>{const d=(t||"").replace(/\D/g,"");return d.length<=11?"55"+d:d};
 const linkConvite=id=>location.origin+location.pathname+"#/cadastro?convite="+id;
@@ -1089,7 +1099,7 @@ function fld(f,v=""){
   if(f.t==="foto")return `<label>${f.l}${f.req?` <span class="req" aria-hidden="true">*</span>`:""}</label><div class="fotobox"><img data-foto data-v="${esc(v)}" src="${v||"data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="}" alt=""><input type="file" accept="image/*" onchange="W.foto(this)"></div>`;
   if(f.t==="select")return `<label for="${id}">${f.l}${f.req?` <span class="req" aria-hidden="true">*</span>`:""}</label><select id="${id}" name="${f.k}" ${r}>${f.o.map(o=>`<option ${o===v?"selected":""}>${o}</option>`).join("")}</select>`;
   if(f.t==="textarea")return `<label for="${id}">${f.l}${f.req?` <span class="req" aria-hidden="true">*</span>`:""}</label><textarea id="${id}" name="${f.k}">${esc(v)}</textarea>`;
-  return `<label for="${id}">${f.l}${f.req?` <span class="req" aria-hidden="true">*</span>`:""}</label><input id="${id}" name="${f.k}" type="${f.t||"text"}" value="${esc(v)}" ${r} ${f.t==="password"?'minlength="6" autocomplete="new-password"':""}>`;
+  return `<label for="${id}">${f.l}${f.req?` <span class="req" aria-hidden="true">*</span>`:""}</label><input id="${id}" name="${f.k}" type="${f.t||"text"}" value="${esc(v)}" ${r} ${f.t==="number"?'step="any"':""} ${f.t==="password"?'minlength="6" autocomplete="new-password"':""}>`;
 }
 function read(form,fields){const v={};fields.forEach(f=>{if(f.t==="foto")v.foto=form.querySelector("[data-foto]").dataset.v||"";else{v[f.k]=form.elements[f.k].value.trim();if(f.t==="number")v[f.k]=v[f.k]?+v[f.k]:null}});return v}
 function resize(file,max=480){return new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>{const i=new Image();i.onload=()=>{const s=Math.min(1,max/Math.max(i.width,i.height)),c=document.createElement("canvas");c.width=i.width*s;c.height=i.height*s;c.getContext("2d").drawImage(i,0,0,c.width,c.height);ok(c.toDataURL("image/jpeg",.72))};i.onerror=no;i.src=r.result};r.readAsDataURL(file)})}
@@ -1109,9 +1119,30 @@ function modal(title,fields,vals,save){
 }
 
 /* ---------- dados ---------- */
+const brl=n=>Number(n||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+const ST={em_analise:["Em análise","an"],confirmado:["Confirmada","ok"],recusada:["Recusada","no"]};
+const FI=[{k:"nome",l:"Nome do item",req:1},{k:"detalhe",l:"Descrição (ex.: kit com 3 itens)"},{k:"preco",l:"Preço unitário (R$)",t:"number"},{k:"foto",l:"Foto do produto",t:"foto"}];
+/* ---------- PIX (BR Code estático) ---------- */
+const emv=(id,v)=>id+String(v.length).padStart(2,"0")+v;
+function crc16(s){let c=0xFFFF;for(let i=0;i<s.length;i++){c^=s.charCodeAt(i)<<8;for(let j=0;j<8;j++)c=(c&0x8000)?((c<<1)^0x1021):(c<<1);c&=0xFFFF}return c.toString(16).toUpperCase().padStart(4,"0")}
+const asc=(t,n)=>String(t||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^A-Za-z0-9 ]/g,"").trim().slice(0,n)||"NATAL DATAPREV";
+function pixPayload(tipo,chave,valor,nome,cidade){
+  const dig=String(chave||"").replace(/\D/g,"");
+  const k=tipo==="Telefone"?(String(chave).startsWith("+")?String(chave).replace(/[^\d+]/g,""):"+55"+dig):tipo==="CPF/CNPJ"?dig:String(chave||"").trim();
+  const p=emv("00","01")+emv("01","12")+emv("26",emv("00","br.gov.bcb.pix")+emv("01",k))+emv("52","0000")+emv("53","986")+(valor>0?emv("54",Number(valor).toFixed(2)):"")+emv("58","BR")+emv("59",asc(nome,25).toUpperCase())+emv("60",asc(cidade||"BRASILIA",15).toUpperCase())+emv("62",emv("05","***"))+"6304";
+  return p+crc16(p);
+}
+async function lerComprovante(file){
+  if(file.type.startsWith("image/")){let d=await resize(file,1200);if(d.length>850000)d=await resize(file,800);return {dados:d,tipo:"image/jpeg",nome:file.name}}
+  if(file.type==="application/pdf"){if(file.size>650*1024)throw new Error("O PDF tem mais de 650 KB. Envie uma foto ou print do comprovante, ou um PDF menor.");
+    const d=await new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=no;r.readAsDataURL(file)});return {dados:d,tipo:"application/pdf",nome:file.name}}
+  throw new Error("Envie uma imagem (foto ou print) ou um PDF.");
+}
 async function loadPublic(){
   const c=await getDoc(doc(db,"config","campanha"));
   if(c.exists())S.cfg={...S.cfg,...c.data()};
+  if(!Array.isArray(S.cfg.itens)||!S.cfg.itens.length)S.cfg.itens=[{nome:"Panetone individual",detalhe:"",preco:0,foto:""},{nome:"Cesta de Natal",detalhe:"Kit com 3 itens",preco:0,foto:""}];
+  try{const r=await getDoc(doc(db,"config","resumo"));S.resumo=r.exists()?{arrecadado:0,confirmados:0,...r.data()}:{arrecadado:0,confirmados:0}}catch{}
   const q=await getDocs(query(collection(db,"apadrinhados"),where("ano","==",S.cfg.ano)));
   S.ap=q.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR",{sensitivity:"base"}));
 }
@@ -1127,27 +1158,24 @@ async function refreshProfile(){
 }
 async function loadAdmin(){
   const sg=n=>g(n).catch(()=>[]);
-  const [serv,conv,aps,priv,admins,sol]=await Promise.all([sg("servidores"),sg("convites"),sg("apadrinhamentos"),sg("apadrinhados_privado"),S.super?sg("admins"):[],sg("solicitacoes")]);
-  S.adm={serv:serv.sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR",{sensitivity:"base"})),conv,admins:admins.filter(a=>a.id!==ADMIN_EMAIL),sol,aps:aps.filter(x=>x.ano===S.cfg.ano),priv:Object.fromEntries(priv.map(p=>[p.id,p]))};
+  const [serv,conv,contrib,priv,admins,sol]=await Promise.all([sg("servidores"),sg("convites"),sg("contribuicoes"),sg("apadrinhados_privado"),S.super?sg("admins"):[],sg("solicitacoes")]);
+  S.adm={serv:serv.sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR",{sensitivity:"base"})),conv,admins:admins.filter(a=>a.id!==ADMIN_EMAIL),sol,contrib:contrib.filter(x=>x.ano===S.cfg.ano),priv:Object.fromEntries(priv.map(p=>[p.id,p]))};
 }
-const tem=a=>(a.padrinhos||0)>0;
-const stats=()=>{const t=S.ap.length,d=S.ap.filter(tem).length;return{t,d,f:t-d,pct:t?Math.round(d/t*100):0}};
 const diasRestantes=()=>Math.ceil((new Date(S.cfg.dataEntrega+"T23:59:59")-new Date())/864e5);
 
 /* ---------- navegação ---------- */
 function renderNav(){
   const n=$("#nav");
-  n.innerHTML=`<a href="#/">Campanha</a><a href="#/#apadrinhar">Escolher afilhado</a>`+
-   (S.admin?`<a href="#/admin">Painel</a>`:"")+(S.perfil?`<a href="#/meus">Meus afilhados</a>`:"")+(S.user?`<a href="#/perfil">Meu perfil</a><a href="#/atividades">Minha atividade</a><button onclick="W.sair()">Sair</button>`:`<a href="#/entrar">Entrar</a>`);
+  n.innerHTML=`<a href="#/">Campanha</a><a href="#/contribuir">${S.perfil?"Minha contribuição":"Contribuir"}</a>`+(S.admin?`<a href="#/admin">Painel</a>`:"")+(S.user?`<a href="#/perfil">Meu perfil</a><a href="#/atividades">Minha atividade</a><button onclick="W.sair()">Sair</button>`:`<a href="#/entrar">Entrar</a>`);
 }
 async function render(keep){
   const [path,qs]=location.hash.slice(1).split("?"),p=(path||"/").split("/").filter(Boolean),q=new URLSearchParams(qs||"");
   if(!keep)$("#app").innerHTML='<p class="load">Carregando…</p>';
   try{
     await loadPublic();
-    const views={home,entrar,cadastro,acesso,apadrinhado,meus,perfil,atividades,admin};
+    const views={home,entrar,cadastro,acesso,contribuir,perfil,atividades,admin};
     $("#app").innerHTML=await (views[p[0]||"home"]||home)(p,q);
-    if(p[0]==="#apadrinhar")document.getElementById("apadrinhar")?.scrollIntoView();else if(!keep)window.scrollTo(0,0);
+    if(p[0]==="#presentear")document.getElementById("presentear")?.scrollIntoView();else if(!keep)window.scrollTo(0,0);
   }catch(e){console.error(e);const neg=e.code==="permission-denied"||/permission/i.test(e.message);$("#app").innerHTML=`<div class="box"><h2>Não foi possível carregar</h2><p>${neg?"O Firebase negou o acesso aos dados. As regras publicadas no Firestore não correspondem a esta versão do site: publique o arquivo firestore.rules mais recente em Firestore > Regras.":"Verifique a conexão e se o Firestore foi criado no projeto."}</p><p><small>Detalhe técnico: ${esc(e.code||"")} ${esc(e.message)}</small></p><button class="btn" onclick="location.reload()">Tentar novamente</button></div>`}
 }
 window.addEventListener("hashchange",()=>render());
@@ -1155,60 +1183,66 @@ window.addEventListener("hashchange",()=>render());
 /* ===================== VIEWS ===================== */
 const norm=t=>String(t||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
 const has=(txt,q)=>!q||norm(txt).includes(norm(q));
-function filtrarHome(){const b=S.busca;return S.ap.filter(a=>(S.aba==="tem"?tem(a):!tem(a))&&(S.filtro==="Todos"||a.profissao===S.filtro)&&has(a.nome,b.q)&&has(a.lotacao,b.lot))}
-function cntHome(){const n=filtrarHome().length;return n===1?"1 colega encontrado":n+" colegas encontrados"}
+function filtrarHome(){const b=S.busca;return S.ap.filter(a=>(S.filtro==="Todos"||a.profissao===S.filtro)&&has(a.nome,b.q)&&has(a.lotacao,b.lot))}
+function cntHome(){const n=filtrarHome().length;return n===1?"1 colega":n+" colegas"}
 function gridHome(){
   const l=filtrarHome();if(l.length)return `<div class="grid">${l.map(tagCard).join("")}</div>`;
   const filtrando=S.busca.q||S.busca.lot||S.filtro!=="Todos";
-  return `<div class="msg-${filtrando?"info":"ok"}">${filtrando?"Nenhum colega encontrado com esses filtros. Tente outro nome ou lotação.":!S.ap.length?"Os perfis serão publicados em breve.":S.aba==="tem"?"Ninguém foi apadrinhado ainda. Seja o primeiro!":"Todos os colegas desta lista já têm padrinho. Obrigado a cada um de vocês!"}</div>`}
+  return `<div class="msg-${filtrando?"info":"ok"}">${filtrando?"Nenhum colega encontrado com esses filtros. Tente outro nome ou lotação.":"Os perfis dos colegas serão publicados em breve."}</div>`}
 function tagCard(a){
-  const n=a.padrinhos||0;
   return `<article class="tag">${av(a)}<h3>${esc(a.nome)}</h3><div class="role">${esc(a.profissao)}</div><div>${esc(a.lotacao)}${a.idade?`<br>${a.idade} anos`:""}</div>
-  ${n?`<span class="pill ok">${n} ${n===1?"padrinho":"padrinhos"}</span>`:""}
-  <p class="desc">${esc((a.descricao||"").length>150?a.descricao.slice(0,150)+"…":a.descricao)}</p><a class="btn ${n?"gold":""}" href="#/apadrinhado/${a.id}">${n?"Apadrinhar também":"Quero apadrinhar"}</a></article>`;
+  <p class="desc">${esc((a.descricao||"").length>150?a.descricao.slice(0,150)+"…":a.descricao)}</p></article>`;
+}
+function itemCard(it,i){
+  return `<article class="prod">${it.foto?`<img src="${it.foto}" alt="${esc(it.nome)}">`:`<div class="ph" aria-hidden="true">${i?"🎁":"🎄"}</div>`}<h3>${esc(it.nome)}</h3><p>${esc(it.detalhe||"")}</p>${+it.preco>0?`<div class="preco">${brl(it.preco)}</div>`:""}<a class="btn gold" href="#/contribuir">Quero contribuir</a></article>`;
 }
 async function home(){
-  const s=stats(),ano=S.cfg.ano,dias=diasRestantes();
-    const prazo=dias>0?`Faltam ${dias} ${dias===1?"dia":"dias"} para a entrega, em ${fmt(S.cfg.dataEntrega)}.`:dias===0?"A entrega é hoje!":`Entrega realizada em ${fmt(S.cfg.dataEntrega)}.`;
+  const dias=diasRestantes(),r=S.resumo,v=S.cfg.valorContribuicao,meta=+S.cfg.meta||0,pct=meta>0?Math.min(100,Math.round((r.arrecadado||0)/meta*100)):0,data=fmt(S.cfg.dataEntrega);
+  const prazo=dias>0?`Faltam ${dias} ${dias===1?"dia":"dias"} para o café da manhã, em ${data}.`:dias===0?"O café da manhã é hoje!":`O café da manhã aconteceu em ${data}.`;
   return `
 <section class="hero"><div class="wrap"><div>
-  <h1>Natal e Ano Novo Solidário Dataprev ${ano}</h1>
-  <p class="lead">Quem cuida de nós o ano inteiro também merece ser lembrado. Escolha um colega da recepção, da segurança, da brigada ou do estágio e seja o padrinho dele neste fim de ano.</p>
-  <div class="cta"><a class="btn gold" href="#/#apadrinhar">Escolher meu afilhado</a>${S.user?"":`<a class="btn ghost" style="color:#fff;border-color:#4d7a66" href="#/entrar">Já sou padrinho: entrar</a>`}</div>
+  <h1>Café da manhã de Natal Dataprev ${S.cfg.ano}</h1>
+  <p class="lead">Vamos nos reunir em um café da manhã e levar panetones e cestas de Natal aos colegas que cuidam de nós o ano inteiro: recepção, segurança, brigada, serviços e estágio. Participe com ${brl(v)}.</p>
+  <div class="cta"><a class="btn gold" href="#/contribuir">Quero contribuir com ${brl(v)}</a><a class="btn ghost" style="color:#fff;border-color:#4d7a66" href="#/#presentear">Ver quem vamos presentear</a></div>
   <span class="prazo">${prazo}</span></div>
-  <div class="bigtag"><small>Para:</small><div class="para">alguém que cuida de você</div><small>De:</small><div class="para" style="font-size:1.3rem">um colega Dataprev</div><div class="msg">Obrigado por estar aqui todos os dias.</div></div>
+  <div class="bigtag"><small>Para:</small><div class="para">quem cuida de você</div><small>De:</small><div class="para" style="font-size:1.3rem">um colega Dataprev</div><div class="msg">Obrigado por estar aqui todos os dias.</div></div>
 </div></section>
 
 <section class="s deco branch"><div class="wrap">
   <h2>Hora de retribuir</h2>
   <div class="prose">
-   <p>Eles abrem a porta antes de a gente chegar. Sorriem na recepção mesmo nos dias pesados, vigiam o prédio enquanto dormimos e estão prontos para agir quando uma emergência aparece. Quase sempre em silêncio, quase sempre sem agradecimento.</p>
-   <p>O fim de ano é o momento de devolver um pouco de tudo o que recebemos ao longo dos meses: o trabalho, a estabilidade, a mesa posta em casa. Um presente simples, um cartão escrito à mão ou uma mensagem de carinho podem mudar o Natal de uma família inteira.</p>
-   <p>Apadrinhar é isso: olhar para quem está ao nosso lado todos os dias e dizer "eu vi você, e sou grato".</p>
+   <p>Eles abrem a porta antes de a gente chegar. Sorriem na recepção mesmo nos dias pesados, vigiam o prédio enquanto dormimos, cuidam da limpeza e estão prontos para agir quando uma emergência aparece. Quase sempre em silêncio, quase sempre sem agradecimento.</p>
+   <p>O fim de ano é o momento de devolver um pouco de tudo o que recebemos. Cada servidor que contribui com ${brl(v)} ajuda a comprar panetones e cestas de Natal para os colegas terceirizados e a montar um café da manhã em que todos se sentem parte da mesma casa.</p>
+   <p>Contribuir é isso: olhar para quem está ao nosso lado todos os dias e dizer "eu vi você, e sou grato".</p>
   </div>
   <div class="regras">
-   <div><b>1. Escolha</b>Veja os perfis abaixo e apadrinhe um ou mais colegas.</div>
-   <div><b>2. Presenteie</b>Informe o que vai dar e, se quiser, escreva uma mensagem de Natal e Ano Novo.</div>
-   <div><b>3. Entregue até ${fmt(S.cfg.dataEntrega).slice(0,5)}</b>Os presentes devem chegar aos afilhados até o dia ${fmt(S.cfg.dataEntrega).slice(0,2)} de dezembro. Sua mensagem pode ser impressa ou enviada por e-mail nesse dia.</div>
+   <div><b>1. Cadastre-se</b>Use o QR Code ou o link de convite para criar seu cadastro.</div>
+   <div><b>2. Faça o PIX de ${brl(v)}</b>A chave PIX aparece na sua página, logo depois do cadastro.</div>
+   <div><b>3. Envie o comprovante</b>Anexe o comprovante na sua página. A coordenação confere e confirma.</div>
+   <div><b>4. Venha ao café</b>Em ${data} vamos entregar os panetones e celebrar juntos.</div>
   </div>
 </div></section>
 
-<section class="s alt deco fw"><div class="wrap">
+<section class="s alt"><div class="wrap">
+  <h2>O que vamos comprar</h2>
+  <p class="prose">Com o valor arrecadado compraremos panetones individuais ou cestas de Natal com 3 itens, conforme o que o orçamento permitir, além do café da manhã.</p>
+  <div class="itens">${S.cfg.itens.map(itemCard).join("")}</div>
+</div></section>
+
+<section class="s deco fw"><div class="wrap">
   <h2>Como está a campanha</h2>
   <div class="dash">
-    <div class="stat"><b>${s.t}</b><span>colegas participam</span></div>
-    <div class="stat ok"><b>${s.d}</b><span>já têm padrinho</span></div>
-    <div class="stat falta"><b>${s.f}</b><span>ainda esperam um padrinho</span></div>
-    <div class="stat"><b>${s.pct}%</b><span>da meta alcançada</span></div>
+    <div class="stat"><b>${brl(v)}</b><span>contribuição por servidor</span></div>
+    <div class="stat ok"><b>${r.confirmados||0}</b><span>contribuições confirmadas</span></div>
+    <div class="stat ok"><b>${brl(r.arrecadado)}</b><span>arrecadado até agora</span></div>
+    <div class="stat"><b>${S.ap.length}</b><span>colegas que vamos presentear</span></div>
   </div>
-  <div class="bar" role="progressbar" aria-valuenow="${s.pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${s.pct}%"></i></div>
-  <div class="prof">${PROFS.map(pf=>{const t=S.ap.filter(a=>a.profissao===pf),d=t.filter(tem).length;return `<div><b>${pf}</b><br><small>${d} de ${t.length} apadrinhados</small><div class="bar"><i style="width:${t.length?d/t.length*100:0}%"></i></div></div>`}).join("")}</div>
+  ${meta>0?`<div class="bar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div><p class="cnt">${pct}% da meta de ${brl(meta)}</p>`:""}
+  <p style="margin-top:22px"><a class="btn" href="#/contribuir">Quero contribuir</a></p>
 </div></section>
 
-<section class="s" id="apadrinhar"><div class="wrap">
-  <h2>Escolha quem você vai apadrinhar</h2>
-  <div class="seg" role="tablist"><button role="tab" aria-selected="${S.aba==="esperam"}" class="${S.aba==="esperam"?"on":""}" onclick="W.aba('esperam')">Quem espera um padrinho (${s.f})</button><button role="tab" aria-selected="${S.aba==="tem"}" class="${S.aba==="tem"?"on":""}" onclick="W.aba('tem')">Quem já tem padrinho (${s.d})</button></div>
-  ${S.aba==="tem"?`<p class="msg-info">Estes colegas já foram escolhidos, mas você também pode apadrinhá-los: um afilhado pode ter mais de um padrinho.</p>`:""}
+<section class="s alt" id="presentear"><div class="wrap">
+  <h2>Quem vamos presentear</h2>
   <div class="chips">${["Todos",...PROFS].map(f=>`<button class="chip ${S.filtro===f?"on":""}" onclick="W.filtro('${f}')">${f}</button>`).join("")}</div>
   <div class="filtros"><input type="search" placeholder="Buscar por nome" aria-label="Buscar por nome" value="${esc(S.busca.q)}" oninput="W.buscar('q',this.value)">
   <input type="search" placeholder="Buscar por lotação" aria-label="Buscar por lotação" value="${esc(S.busca.lot)}" oninput="W.buscar('lot',this.value)">
@@ -1217,7 +1251,6 @@ async function home(){
   <div id="gridH">${gridHome()}</div>
 </div></section>`;
 }
-
 async function entrar(p,q){
   return `<div class="box"><h2>Entrar</h2>
   <form onsubmit="W.login(event)"><label for="le">E-mail</label><input id="le" type="email" required autocomplete="username">
@@ -1234,7 +1267,7 @@ async function cadastro(p,q){
   const cv=c.data();
   if(cv.usado&&!cv.multi)return `<div class="box"><h2>Convite já utilizado</h2><p>Este convite já foi usado para criar um cadastro. <a href="#/entrar">Entre com seu e-mail e senha.</a></p></div>`;
   const f=FS.concat([{k:"senha",l:"Crie uma senha (mínimo 6 caracteres)",t:"password",req:1}]);
-  return `<div class="box wide"><h2>Cadastro de servidor${cv.nome?`: olá, ${esc(cv.nome.split(" ")[0])}!`:""}</h2><p>Preencha seus dados para participar da campanha como padrinho.</p>
+  return `<div class="box wide"><h2>Cadastro de servidor${cv.nome?`: olá, ${esc(cv.nome.split(" ")[0])}!`:""}</h2><p>Preencha seus dados para participar do café da manhã de Natal.</p>
   <form onsubmit="W.cadastrar(event,'${id}',${cv.multi?1:0})">${f.map(x=>fld(x,x.k==="nome"?cv.nome:x.k==="email"?cv.email:(cv[x.k]||""))).join("")}<p class="nota"><span class="req">*</span> Campos obrigatórios</p><div class="row"><button class="btn">Concluir cadastro</button></div></form></div>`;
 }
 
@@ -1250,28 +1283,10 @@ async function acesso(){
   <p class="nota">${R} Campos obrigatórios</p><div class="row"><button class="btn">Enviar solicitação</button></div></form></div>`;
 }
 
-async function apadrinhado(p){
-  const a=S.ap.find(x=>x.id===p[1]);
-  if(!a)return `<div class="box"><h2>Perfil não encontrado</h2><a href="#/">Voltar à campanha</a></div>`;
-  const n=a.padrinhos||0,nome1=esc(a.nome.split(" ")[0]);let acao="",mine=false;
-  if(S.user&&S.perfil){try{mine=(await getDoc(doc(db,"apadrinhamentos",a.id+"_"+S.user.uid))).exists()}catch{}}
-  if(mine)acao=`<div class="msg-ok">Você é padrinho de ${esc(a.nome)}. <a href="#/meus">Ver meus afilhados</a></div>`;
-  else if(!S.user){sessionStorage.next="#/apadrinhado/"+a.id;acao=`<div class="msg-info">Para apadrinhar, entre com sua conta de servidor. Ainda sem cadastro? <a href="#/acesso">Peça acesso ao administrador</a>.</div><a class="btn" href="#/entrar">Entrar para apadrinhar</a>`}
-  else if(S.admin&&!S.perfil)acao=`<div class="msg-info">Como administrador, vincule um padrinho pelo <a href="#/admin/apadrinhados">painel</a>.</div>`;
-  else if(!S.perfil)acao=`<div class="msg-info">Sua conta ainda não tem cadastro de servidor. Use o link de convite enviado pela coordenação ou <a href="#/acesso">peça acesso ao administrador</a>.</div>`;
-  else acao=(n?`<div class="msg-info">${nome1} já tem ${n} ${n===1?"padrinho":"padrinhos"}. Você pode apadrinhar também: mais de um padrinho é bem-vindo.</div>`:"")+`<form onsubmit="W.apadrinhar(event,'${a.id}')"><h3>Seu presente e sua mensagem</h3>
-   <label for="pr">O que você vai presentear? <span class="req" aria-hidden="true">*</span></label><input id="pr" required placeholder="Ex.: cesta de Natal e um tênis">
-   <label for="ms">Mensagem de Natal e Ano Novo</label><textarea id="ms" maxlength="600">${esc(msgPadrao(a.nome))}</textarea><p class="nota">Esta é uma mensagem padrão: edite como quiser. Ela será impressa ou enviada a ${nome1} no dia ${fmt(S.cfg.dataEntrega)}. <button type="button" class="btn sm ghost" onclick="W.msgPadrao('ms','${a.id}')">Usar mensagem padrão</button></p>
-   <p class="msg-info">Combine-se para entregar o presente até ${fmt(S.cfg.dataEntrega)}.</p><button class="btn">Confirmar apadrinhamento</button></form>`;
-  return `<div class="box wide"><a href="#/">← Voltar</a><div class="perfil" style="margin-top:18px">${av(a,"lg")}<div><h1 style="font-size:2.2rem">${esc(a.nome)}</h1>
-   <p><b style="color:var(--berry)">${esc(a.profissao)}</b><br>Lotação: ${esc(a.lotacao)}${a.idade?`<br>${a.idade} anos`:""}</p>${n?`<span class="pill ok">${n} ${n===1?"padrinho":"padrinhos"}</span>`:`<span class="pill no">Espera um padrinho</span>`}
-   <p class="prose" style="font-size:1.05rem;white-space:pre-line">${esc(a.descricao)}</p></div></div><hr style="border:0;border-top:1px solid var(--line);margin:24px 0">${acao}</div>`;
-}
-
 async function atividades(){
   if(!S.user){sessionStorage.next="#/atividades";location.hash="#/entrar";return ""}
   const l=(await getDocs(query(collection(db,"logs"),where("usuarioId","==",S.user.uid)))).docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.criadoEm?.seconds||0)-(a.criadoEm?.seconds||0));
-  return `<div class="wrap" style="padding:36px 20px 60px"><h2>Minha atividade</h2><p>Registro das suas ações no sistema: apadrinhamentos, entregas de presentes e alterações do perfil.</p>
+  return `<div class="wrap" style="padding:36px 20px 60px"><h2>Minha atividade</h2><p>Registro das suas ações no sistema: comprovantes enviados, confirmações e alterações do perfil.</p>
   <p class="cnt">${l.length} ${l.length===1?"registro":"registros"}</p><div class="tw"><table><thead><tr><th>Data e hora</th><th>Ação</th><th>Detalhe</th></tr></thead><tbody>${logRows(l,false)}</tbody></table></div></div>`;
 }
 
@@ -1284,70 +1299,101 @@ async function perfil(){
   <form onsubmit="W.salvarPerfil(event)">${f.map(x=>fld(x,v[x.k]||"")).join("")}<p class="nota"><span class="req">*</span> Campos obrigatórios</p><div class="row"><button class="btn">Salvar alterações</button></div></form></div>`;
 }
 
-async function meus(){
-  if(!S.user){location.hash="#/entrar";return ""}
-  if(S.admin&&!S.perfil){location.hash="#/admin";return ""}
-  if(!S.perfil)return `<div class="box"><h2>Cadastro pendente</h2><p>Sua conta ainda não tem cadastro de servidor. Use o link de convite da coordenação ou <a href="#/acesso">peça acesso ao administrador</a>.</p></div>`;
-  S.my=(await getDocs(query(collection(db,"apadrinhamentos"),where("padrinhoId","==",S.user.uid)))).docs.map(d=>({id:d.id,...d.data()}));
-  await Promise.all(S.my.map(x=>getDoc(doc(db,"apadrinhados_privado",x.apadrinhadoId)).then(d=>{x.email=d.exists()?d.data().email||"":""}).catch(()=>{x.email=""})));
-  return `<div class="wrap" style="padding-top:36px;padding-bottom:50px"><h2>Olá, ${esc(S.perfil.nome.split(" ")[0])}! Seus afilhados</h2>
-  <p>Entregue os presentes até <b>${fmt(S.cfg.dataEntrega)}</b>. Você pode alterar o presente e a mensagem quando quiser.</p>
-  ${S.my.length?S.my.map(x=>{const a=S.ap.find(y=>y.id===x.apadrinhadoId);return `<div class="box wide" style="margin:18px 0"><div class="perfil" style="grid-template-columns:110px 1fr"><div>${av(a)}</div><div><h3>${esc(x.apadrinhadoNome)}</h3><p>${esc(a?.profissao||"")}<br>${esc(a?.lotacao||"")}<br>${x.email?`E-mail: <a href="mailto:${esc(x.email)}">${esc(x.email)}</a>`:""}</p></div></div>
-   ${x.entregue?`<div class="msg-ok">Presente entregue${x.entregueEm?" em "+dt(x.entregueEm):""}. Obrigado por participar!</div>`:""}
-   <form onsubmit="W.salvarPresente(event,'${x.id}')"><label>Presente</label><input name="presente" value="${esc(x.presente)}" required><label>Mensagem de Natal e Ano Novo</label><textarea name="mensagem" maxlength="600">${esc(x.mensagem||msgPadrao(x.apadrinhadoNome))}</textarea><p class="nota">Edite a mensagem como quiser e clique em Salvar. <button type="button" class="btn sm ghost" onclick="this.form.mensagem.value=W.msgDe('${x.id}')">Usar mensagem padrão</button></p>
-   <div class="row"><button class="btn">Salvar</button><button type="button" class="btn ${x.entregue?"ghost":"gold"}" onclick="W.entregar('${x.id}',${!x.entregue})">${x.entregue?"Desfazer entrega":"Marcar como entregue"}</button><button type="button" class="btn ghost" onclick="W.imprimir('${x.id}')">Imprimir cartão</button><button type="button" class="btn danger" onclick="W.desistir('${x.id}')">Desistir</button></div></form></div>`}).join(""):`<div class="msg-info">Você ainda não apadrinhou ninguém.</div>`}
-  <a class="btn gold" href="#/#apadrinhar">Apadrinhar ${S.my.length?"mais alguém":"um colega"}</a></div>`;
+async function contribuir(){
+  if(!S.user){sessionStorage.next="#/contribuir";location.hash="#/entrar";return ""}
+  if(S.admin&&!S.perfil)return `<div class="box"><h2>Contribuições</h2><p>Como administrador, acompanhe e confirme as contribuições no <a href="#/admin/contribuicoes">painel</a>.</p></div>`;
+  if(!S.perfil)return `<div class="box"><h2>Cadastro pendente</h2><p>Sua conta ainda não tem cadastro de servidor. Use o link ou o QR Code de convite da coordenação ou <a href="#/acesso">peça acesso ao administrador</a>.</p></div>`;
+  const id=S.cfg.ano+"_"+S.user.uid;let c=null;
+  try{const d=await getDoc(doc(db,"contribuicoes",id));if(d.exists())c={id,...d.data()}}catch{}
+  S.minha=c;
+  const cf=S.cfg,pay=pixPayload(cf.tipoChave,cf.chavePix,cf.valorContribuicao,cf.nomeRecebedor,cf.cidadeRecebedor),conf=c?.status==="confirmado";S.pay=pay;
+  const R='<span class="req" aria-hidden="true">*</span>';
+  const estado=!c?"":c.status==="confirmado"?`<div class="msg-ok">Contribuição de ${brl(c.valor)} <b>confirmada</b>. Obrigado por participar do Natal solidário! Nos vemos no café da manhã em ${fmt(cf.dataEntrega)}.</div>`
+    :c.status==="recusada"?`<div class="msg-info"><b>Comprovante recusado.</b> ${esc(c.obsAdmin||"")} Envie um novo comprovante abaixo.</div>`
+    :`<div class="msg-info">Recebemos seu comprovante${c.enviadoEm?" em "+dt(c.enviadoEm):""}. A coordenação vai conferir e confirmar em breve.</div>`;
+  return `<div class="box wide"><h2>Olá, ${esc(S.perfil.nome.split(" ")[0])}! Sua contribuição</h2>
+  <p>O café da manhã de Natal será em <b>${fmt(cf.dataEntrega)}</b>. A contribuição é de <b>${brl(cf.valorContribuicao)}</b> por servidor e será usada para comprar panetones ou cestas de Natal para os colegas terceirizados e para o café.</p>
+  ${estado}
+  ${conf?"":`<h3>1. Faça o PIX</h3>
+  <div class="pix"><div class="qr">${qrSvg(pay)}</div><div><p>Aponte a câmera do aplicativo do seu banco para o QR Code ou use a chave PIX:</p><p class="chave">${esc(cf.chavePix)}</p>
+  <div class="row"><button class="btn sm ghost" onclick="W.pix('chave')">Copiar chave</button><button class="btn sm ghost" onclick="W.pix('copia')">Copiar PIX copia e cola</button></div>
+  <p class="nota">Valor: ${brl(cf.valorContribuicao)}. Recebedor: ${esc(cf.nomeRecebedor)}.</p></div></div>
+  <h3 style="margin-top:26px">2. Envie o comprovante</h3>
+  <form onsubmit="W.enviarComprovante(event)"><label for="vl">Valor pago (R$) ${R}</label><input id="vl" name="valor" type="number" step="any" min="1" required value="${c?.valor||cf.valorContribuicao}">
+  <label for="ar">Comprovante (foto, print ou PDF) ${R}</label><input id="ar" name="arquivo" type="file" accept="image/*,application/pdf" required>
+  <p class="nota">${R} Campos obrigatórios</p>
+  <div class="row"><button class="btn">${c?"Reenviar comprovante":"Enviar comprovante"}</button>${c?.comprovanteNome?`<button type="button" class="btn ghost" onclick="W.verComp('${id}')">Ver comprovante enviado</button>`:""}</div></form>`}
+  </div>`;
 }
 
 /* ---------------- PAINEL ADMIN ---------------- */
 async function admin(p){
   if(!S.admin){location.hash="#/entrar";return ""}
   await loadAdmin();
-  const A=S.adm,s=stats();
-  const nomeS=id=>A.serv.find(x=>x.id===id)?.nome||"?";
-  const afil=id=>A.aps.filter(x=>x.padrinhoId===id);
+  const A=S.adm,C=A.contrib,cmap=Object.fromEntries(C.map(x=>[x.servidorId,x]));
+  const soma=st=>C.filter(x=>x.status===st).reduce((a,x)=>a+(+x.valor||0),0),nConf=C.filter(x=>x.status==="confirmado").length,nAn=C.filter(x=>x.status==="em_analise").length;
+  const semC=A.serv.filter(x=>!cmap[x.id]);
   const pend=A.conv.filter(c=>!c.multi&&!c.usado),solP=(A.sol||[]).filter(x=>x.status==="pendente");
-  const padrinhosIds=[...new Set(A.aps.map(x=>x.padrinhoId))];
-  const tabs=[["resumo","Resumo",1],["apadrinhados","Terceirizados",S.perms.terceirizados],["servidores","Servidores",S.perms.servidores],["convites","Convites"+(solP.length?" ("+solP.length+")":""),S.perms.convites],["entregas","Presentes e mensagens",S.perms.entregas],["campanha","Campanha",S.perms.campanha],["qr","QR Code",S.perms.convites],["logs","Registro de atividades",S.perms.logs],["admins","Administradores",S.super]].filter(t=>t[2]);
+  const tabs=[["resumo","Resumo",1],["contribuicoes","Contribuições"+(nAn?" ("+nAn+")":""),S.perms.contribuicoes],["compras","Comparativo de compra",S.perms.contribuicoes],["terceirizados","Terceirizados",S.perms.terceirizados],["servidores","Servidores",S.perms.servidores],["convites","Convites"+(solP.length?" ("+solP.length+")":""),S.perms.convites],["qr","QR Code",S.perms.convites],["campanha","Campanha",S.perms.campanha],["logs","Registro de atividades",S.perms.logs],["admins","Administradores",S.super]].filter(t=>t[2]);
   const tab=tabs.some(t=>t[0]===(p[1]||"resumo"))?(p[1]||"resumo"):"resumo";
   if(tab==="logs"){try{S.logErr="";S.logs=(await getDocs(query(collection(db,"logs"),orderBy("criadoEm","desc"),limit(1000)))).docs.map(d=>({id:d.id,...d.data()}))}catch(e){S.logs=[];S.logErr=e.code||e.message}}
   const solHtml=`<h3>Solicitações de acesso (${solP.length})</h3><div class="tw"><table><tr><th>Nome</th><th>E-mail / Telefone</th><th>Área / Lotação</th><th>Mensagem</th><th>Ações</th></tr>${solP.map(x=>`<tr><td>${esc(x.nome)}</td><td>${esc(x.email)}<br><small>${esc(x.fone||"sem telefone")}</small></td><td>${esc(x.area)}<br><small>${esc(x.lotacao||"")}</small></td><td>${esc(x.mensagem||"")}</td><td><button class="btn sm" onclick="W.atender('${x.id}')">Gerar convite</button>${x.fone?`<a class="btn sm ghost" target="_blank" rel="noopener" href="https://wa.me/${waNum(x.fone)}">WhatsApp</a>`:""}<button class="btn sm danger" onclick="W.descartarSol('${x.id}')">Descartar</button></td></tr>`).join("")||'<tr><td colspan="5">Nenhuma solicitação pendente.</td></tr>'}</table></div>`;
-  const norm=t=>String(t||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
-  const has=(txt,q)=>!q||norm(txt).includes(norm(q));
   const cmp=(a,b)=>a.nome.localeCompare(b.nome,"pt-BR",{sensitivity:"base"});
-  const rowAp=a=>{const pv=A.priv[a.id]||{},aps=A.aps.filter(x=>x.apadrinhadoId===a.id),livresS=A.serv.filter(x=>!aps.some(y=>y.padrinhoId===x.id));
+  const pill=x=>{const [lb,cl]=ST[x.status]||[x.status,"an"];return `<span class="pill ${cl}">${lb}</span>`};
+  const rowAp=a=>{const pv=A.priv[a.id]||{};
     return `<tr><td>${av(a,"sm")}</td><td>${esc(a.nome)}<br><small>${a.idade?a.idade+" anos":""}</small></td><td>${esc(a.profissao)}<br><small>${esc(a.lotacao)}</small></td><td>${esc(pv.email||"")}</td>
-     <td>${aps.length?aps.map(x=>`<div><span class="pill ok">${esc(x.padrinhoNome)}${x.entregue?" ✔ entregue":""}</span> <button class="btn sm danger" aria-label="Remover padrinho ${esc(x.padrinhoNome)}" onclick="W.desistir('${x.id}')">×</button></div>`).join(""):`<span class="pill no">Sem padrinho</span>`}</td>
-     <td><button class="btn sm ghost" onclick="W.editAp('${a.id}')">Editar</button><button class="btn sm danger" onclick="W.delAp('${a.id}')">Excluir</button>
-     <br><select id="as_${a.id}" style="width:150px;padding:5px" aria-label="Servidor"><option value="">Servidor…</option>${livresS.map(x=>`<option value="${x.id}">${esc(x.nome)}</option>`).join("")}</select><button class="btn sm" onclick="W.assign('${a.id}')">Vincular</button></td></tr>`};
-  const listAp=()=>{const f=S.fa,l=S.ap.filter(a=>has(a.nome,f.q)&&(!f.prof||a.profissao===f.prof)&&has(a.lotacao,f.lot)&&(!f.sit||(f.sit==="com"?tem(a):!tem(a)))).sort(cmp);
-    return {txt:`${l.length} de ${S.ap.length} terceirizados`,h:l.map(rowAp).join("")||'<tr><td colspan="6">Nenhum terceirizado encontrado.</td></tr>'}};
-  const rowServ=x=>`<tr><td>${av(x,"sm")}</td><td>${esc(x.nome)}</td><td>${esc(x.area)}<br><small>${esc(x.lotacao)}</small></td><td>${esc(x.email||"")}</td><td>${afil(x.id).map(a=>esc(a.apadrinhadoNome)).join(", ")||"-"}</td><td><button class="btn sm ghost" onclick="W.editServ('${x.id}')">Editar</button><button class="btn sm danger" onclick="W.delServ('${x.id}')">Excluir</button></td></tr>`;
-  const listServ=()=>{const f=S.fs,l=A.serv.filter(x=>has(x.nome,f.q)&&has(x.area,f.area)&&has(x.lotacao,f.lot)&&(!f.sit||(f.sit==="pad"?afil(x.id).length>0:afil(x.id).length===0))).sort(cmp);
+     <td><button class="btn sm ghost" onclick="W.editAp('${a.id}')">Editar</button><button class="btn sm danger" onclick="W.delAp('${a.id}')">Excluir</button></td></tr>`};
+  const listAp=()=>{const f=S.fa,l=S.ap.filter(a=>has(a.nome,f.q)&&(!f.prof||a.profissao===f.prof)&&has(a.lotacao,f.lot)).sort(cmp);
+    return {txt:`${l.length} de ${S.ap.length} terceirizados`,h:l.map(rowAp).join("")||'<tr><td colspan="5">Nenhum terceirizado encontrado.</td></tr>'}};
+  const rowServ=x=>{const c=cmap[x.id];return `<tr><td>${av(x,"sm")}</td><td>${esc(x.nome)}</td><td>${esc(x.area)}<br><small>${esc(x.lotacao)}</small></td><td>${esc(x.email||"")}</td><td>${c?pill(c)+"<br><small>"+brl(c.valor)+"</small>":'<span class="pill no">Sem contribuição</span>'}</td><td><button class="btn sm ghost" onclick="W.editServ('${x.id}')">Editar</button><button class="btn sm danger" onclick="W.delServ('${x.id}')">Excluir</button></td></tr>`};
+  const listServ=()=>{const f=S.fs,l=A.serv.filter(x=>has(x.nome,f.q)&&has(x.area,f.area)&&has(x.lotacao,f.lot)&&(!f.sit||(f.sit==="sem"?!cmap[x.id]:cmap[x.id]?.status===f.sit))).sort(cmp);
     return {txt:`${l.length} de ${A.serv.length} servidores`,h:l.map(rowServ).join("")||'<tr><td colspan="6">Nenhum servidor encontrado.</td></tr>'}};
+  const rowC=x=>`<tr><td>${esc(x.servidorNome)}<br><small>${esc(x.area||"")} / ${esc(x.lotacao||"")}</small></td><td>${brl(x.valor)}${x.manual?"<br><small>registrado pelo adm</small>":""}</td><td>${pill(x)}${x.status==="recusada"&&x.obsAdmin?`<br><small>${esc(x.obsAdmin)}</small>`:""}</td><td>${esc(dh(x.enviadoEm||x.criadoEm))}</td><td>${x.comprovanteNome?`<button class="btn sm ghost" onclick="W.verComp('${x.id}')">Ver</button>`:"-"}</td>
+    <td>${x.status!=="confirmado"?`<button class="btn sm" onclick="W.confirmar('${x.id}')">Confirmar</button>`:`<button class="btn sm ghost" onclick="W.desfazerConf('${x.id}')">Desfazer</button>`}${x.status!=="recusada"?`<button class="btn sm danger" onclick="W.recusar('${x.id}')">Recusar</button>`:""}<button class="btn sm danger" aria-label="Excluir contribuição" onclick="W.delContrib('${x.id}')">×</button></td></tr>`;
+  const listC=()=>{const f=S.fc,l=C.filter(x=>has(x.servidorNome,f.q)&&(!f.st||x.status===f.st)&&(has(x.area,f.lot)||has(x.lotacao,f.lot))).sort((a,b)=>a.servidorNome.localeCompare(b.servidorNome,"pt-BR",{sensitivity:"base"}));
+    const n=semC.filter(x=>has(x.nome,f.q)&&(has(x.area,f.lot)||has(x.lotacao,f.lot))).sort(cmp);
+    return {txt:`${l.length} de ${C.length} contribuições`,h:l.map(rowC).join("")||'<tr><td colspan="6">Nenhuma contribuição encontrada.</td></tr>',
+      txt2:`${n.length} de ${semC.length} servidores`,h2:n.map(x=>`<tr><td>${esc(x.nome)}</td><td>${esc(x.area||"")} / ${esc(x.lotacao||"")}</td><td>${esc(x.email||"")}</td><td><button class="btn sm ghost" onclick="W.regManual('${x.id}')">Registrar pagamento</button></td></tr>`).join("")||'<tr><td colspan="4">Todos os servidores filtrados já contribuíram.</td></tr>'}};
   const listLog=()=>{const f=S.fl,all=S.logs||[],l=all.filter(x=>(has(x.usuarioNome,f.q)||has(x.usuarioEmail,f.q)||has(x.detalhe,f.q)||has(x.alvoNome,f.q))&&(!f.acao||x.acao===f.acao)&&(!f.de||dia(x.criadoEm)>=f.de)&&(!f.ate||dia(x.criadoEm)<=f.ate));return {txt:`${l.length} de ${all.length} registros`,h:logRows(l,true)}};
-  S.rows={fa:listAp,fs:listServ,fl:listLog};
+  S.rows={fa:listAp,fs:listServ,fl:listLog,fc:listC};
   let body="";
   if(tab==="resumo")body=`<div class="dash">
-    <div class="stat"><b>${s.t}</b><span>terceirizados cadastrados</span></div><div class="stat ok"><b>${s.d}</b><span>apadrinhados</span></div><div class="stat falta"><b>${s.f}</b><span>sem padrinho</span></div>
-    <div class="stat"><b>${A.serv.length}</b><span>servidores cadastrados</span></div><div class="stat ok"><b>${padrinhosIds.length}</b><span>servidores padrinhos</span></div><div class="stat falta"><b>${pend.length}</b><span>convidados que não se cadastraram</span></div><div class="stat falta"><b>${solP.length}</b><span>pedidos de acesso pendentes</span></div><div class="stat ok"><b>${A.aps.filter(x=>x.entregue).length}/${A.aps.length}</b><span>presentes entregues</span></div></div>
-    <div class="bar"><i style="width:${s.pct}%"></i></div><p>${s.pct}% dos terceirizados já têm padrinho. Entrega em ${fmt(S.cfg.dataEntrega)} (${diasRestantes()} dias).</p>
-    <div class="two"><div><h3>Sem padrinho (${s.f})</h3>${S.ap.filter(a=>!tem(a)).map(a=>`<div>${esc(a.nome)} <small>(${esc(a.profissao)}, ${esc(a.lotacao)})</small></div>`).join("")||"<p>Todos apadrinhados.</p>"}</div>
-    <div><h3>Convidados sem cadastro (${pend.length})</h3>${pend.map(c=>`<div>${esc(c.nome)} <small>${esc(c.email||"")}</small></div>`).join("")||"<p>Nenhum pendente.</p>"}</div></div>`;
-  if(tab==="apadrinhados"){const r=listAp(),f=S.fa;body=`<div class="row"><button class="btn" onclick="W.editAp()">+ Cadastrar terceirizado</button><button class="btn ghost" onclick="W.csvAp()">Baixar lista (CSV)</button></div>
+    <div class="stat ok"><b>${brl(soma("confirmado"))}</b><span>arrecadado (${nConf} confirmadas)</span></div><div class="stat"><b>${brl(soma("em_analise"))}</b><span>em análise (${nAn})</span></div>
+    <div class="stat"><b>${A.serv.length}</b><span>servidores cadastrados</span></div><div class="stat falta"><b>${semC.length}</b><span>ainda não contribuíram</span></div>
+    <div class="stat falta"><b>${pend.length}</b><span>convidados sem cadastro</span></div><div class="stat"><b>${S.ap.length}</b><span>colegas a presentear</span></div><div class="stat falta"><b>${solP.length}</b><span>pedidos de acesso pendentes</span></div></div>
+    <p>Café da manhã de Natal em ${fmt(S.cfg.dataEntrega)} (${diasRestantes()} dias). Contribuição de ${brl(S.cfg.valorContribuicao)} por servidor.</p>
+    <div class="two"><div><h3>Aguardando conferência (${nAn})</h3>${C.filter(x=>x.status==="em_analise").map(x=>`<div>${esc(x.servidorNome)} <small>${brl(x.valor)}</small></div>`).join("")||"<p>Nenhum comprovante pendente.</p>"}${nAn?'<p><a href="#/admin/contribuicoes">Conferir agora</a></p>':""}</div>
+    <div><h3>Ainda não contribuíram (${semC.length})</h3>${semC.slice(0,40).map(x=>`<div>${esc(x.nome)} <small>${esc(x.area||"")}</small></div>`).join("")||"<p>Todos os cadastrados já contribuíram.</p>"}${semC.length>40?`<p>e mais ${semC.length-40}…</p>`:""}</div></div>
+    <h3 style="margin-top:20px">Convidados sem cadastro (${pend.length})</h3>${pend.map(c=>`<div>${esc(c.nome)} <small>${esc(c.email||"")}</small></div>`).join("")||"<p>Nenhum pendente.</p>"}`;
+  if(tab==="contribuicoes"){const r=listC(),f=S.fc;body=`<div class="dash"><div class="stat ok"><b>${brl(soma("confirmado"))}</b><span>confirmado (${nConf})</span></div><div class="stat"><b>${brl(soma("em_analise"))}</b><span>em análise (${nAn})</span></div><div class="stat falta"><b>${semC.length}</b><span>servidores sem contribuição</span></div></div>
+    <div class="row"><button class="btn" onclick="W.regManual()">+ Registrar contribuição</button><button class="btn ghost" onclick="W.csvContrib()">Baixar lista (CSV)</button></div>
+    <div class="filtros"><input type="search" placeholder="Buscar por nome" aria-label="Buscar por nome" value="${esc(f.q)}" oninput="W.filtrar('fc','q',this.value)">
+    <select aria-label="Status" onchange="W.filtrar('fc','st',this.value)"><option value="">Todos os status</option>${Object.entries(ST).map(([k,[l]])=>`<option value="${k}" ${f.st===k?"selected":""}>${l}</option>`).join("")}</select>
+    <input type="search" placeholder="Buscar por área ou lotação" aria-label="Buscar por área ou lotação" value="${esc(f.lot)}" oninput="W.filtrar('fc','lot',this.value)"><button class="btn sm ghost" onclick="W.limpar('fc')">Limpar filtros</button></div>
+    <h3>Contribuições</h3><p class="cnt" id="cntC" aria-live="polite">${r.txt}</p>
+    <div class="tw"><table><thead><tr><th>Servidor</th><th>Valor</th><th>Status</th><th>Enviado em</th><th>Comprovante</th><th>Ações</th></tr></thead><tbody id="tbC">${r.h}</tbody></table></div>
+    <h3>Ainda não contribuíram</h3><p class="cnt" id="cntN" aria-live="polite">${r.txt2}</p>
+    <div class="tw"><table><thead><tr><th>Servidor</th><th>Área / Lotação</th><th>E-mail</th><th>Ação</th></tr></thead><tbody id="tbN">${r.h2}</tbody></table></div>`}
+  if(tab==="compras"){const arr=soma("confirmado"),arrAn=soma("em_analise"),res=+S.cfg.reservaCafe||0,disp=Math.max(0,arr-res),disp2=Math.max(0,arr+arrAn-res),n=S.ap.length;
+    const lin=S.cfg.itens.map(it=>{const p=+it.preco||0,q=p>0?Math.floor(disp/p):0,q2=p>0?Math.floor(disp2/p):0,sal=disp-p*n;
+      return `<tr><td><b>${esc(it.nome)}</b><br><small>${esc(it.detalhe||"")}</small></td><td>${p?brl(p):"informe o preço"}</td><td>${p?q:"-"}</td><td>${p?q2:"-"}</td><td>${p?brl(p*n):"-"}</td><td>${p?(sal>=0?`<span class="pill ok">sobra ${brl(sal)}</span>`:`<span class="pill no">faltam ${brl(-sal)}</span>`):"-"}</td></tr>`}).join("");
+    body=`<div class="dash"><div class="stat ok"><b>${brl(arr)}</b><span>arrecadado e confirmado</span></div><div class="stat"><b>${brl(res)}</b><span>reserva para o café da manhã</span></div><div class="stat ok"><b>${brl(disp)}</b><span>disponível para presentes</span></div><div class="stat"><b>${n}</b><span>colegas a presentear</span></div><div class="stat"><b>${n?brl(disp/n):"-"}</b><span>disponível por colega</span></div></div>
+    <p>Compare quantas unidades cada opção permite comprar. As colunas usam o valor confirmado e, na segunda, também as contribuições ainda em análise (${brl(arrAn)}).</p>
+    <div class="tw"><table><thead><tr><th>Opção</th><th>Preço unitário</th><th>Unidades (confirmado)</th><th>Unidades (com em análise)</th><th>Custo para os ${n} colegas</th><th>Resultado</th></tr></thead><tbody>${lin}</tbody></table></div>
+    <p class="msg-info">Os preços dos itens e a reserva do café são informados em <a href="#/admin/campanha">Campanha</a>${S.perms.campanha?"":" (peça a um administrador com essa permissão)"}.</p>`}
+  if(tab==="terceirizados"){const r=listAp(),f=S.fa;body=`<div class="row"><button class="btn" onclick="W.editAp()">+ Cadastrar terceirizado</button><button class="btn ghost" onclick="W.csvAp()">Baixar lista (CSV)</button></div>
     <div class="filtros"><input type="search" placeholder="Buscar por nome" aria-label="Buscar por nome" value="${esc(f.q)}" oninput="W.filtrar('fa','q',this.value)">
     <select aria-label="Profissão" onchange="W.filtrar('fa','prof',this.value)"><option value="">Todas as profissões</option>${PROFS.map(x=>`<option ${f.prof===x?"selected":""}>${x}</option>`).join("")}</select>
     <input type="search" placeholder="Buscar por lotação" aria-label="Buscar por lotação" value="${esc(f.lot)}" oninput="W.filtrar('fa','lot',this.value)">
-    <select aria-label="Situação" onchange="W.filtrar('fa','sit',this.value)"><option value="">Todas as situações</option><option value="sem" ${f.sit==="sem"?"selected":""}>Sem padrinho</option><option value="com" ${f.sit==="com"?"selected":""}>Com padrinho</option></select>
     <button class="btn sm ghost" onclick="W.limpar('fa')">Limpar filtros</button></div><p class="cnt" id="cntA" aria-live="polite">${r.txt}</p>
-    <div class="tw"><table><thead><tr><th>Foto</th><th>Nome</th><th>Profissão / Lotação</th><th>E-mail</th><th>Situação</th><th>Ações</th></tr></thead><tbody id="tbA">${r.h}</tbody></table></div>`}
+    <div class="tw"><table><thead><tr><th>Foto</th><th>Nome</th><th>Profissão / Lotação</th><th>E-mail</th><th>Ações</th></tr></thead><tbody id="tbA">${r.h}</tbody></table></div>`}
   if(tab==="servidores"){const r=listServ(),f=S.fs;body=`<div class="row"><button class="btn" onclick="W.editServ()">+ Cadastrar servidor</button><a class="btn ghost" href="#/admin/convites">Enviar convites</a><button class="btn ghost" onclick="W.csvServ()">Baixar lista (CSV)</button></div>
     <div class="filtros"><input type="search" placeholder="Buscar por nome" aria-label="Buscar por nome" value="${esc(f.q)}" oninput="W.filtrar('fs','q',this.value)">
     <input type="search" placeholder="Buscar por área" aria-label="Buscar por área" value="${esc(f.area)}" oninput="W.filtrar('fs','area',this.value)">
     <input type="search" placeholder="Buscar por lotação" aria-label="Buscar por lotação" value="${esc(f.lot)}" oninput="W.filtrar('fs','lot',this.value)">
-    <select aria-label="Situação" onchange="W.filtrar('fs','sit',this.value)"><option value="">Todos os servidores</option><option value="pad" ${f.sit==="pad"?"selected":""}>Padrinhos</option><option value="sem" ${f.sit==="sem"?"selected":""}>Sem afilhado</option></select>
+    <select aria-label="Contribuição" onchange="W.filtrar('fs','sit',this.value)"><option value="">Todas as situações</option><option value="confirmado" ${f.sit==="confirmado"?"selected":""}>Contribuição confirmada</option><option value="em_analise" ${f.sit==="em_analise"?"selected":""}>Em análise</option><option value="recusada" ${f.sit==="recusada"?"selected":""}>Comprovante recusado</option><option value="sem" ${f.sit==="sem"?"selected":""}>Sem contribuição</option></select>
     <button class="btn sm ghost" onclick="W.limpar('fs')">Limpar filtros</button></div><p class="cnt" id="cntS" aria-live="polite">${r.txt}</p>
-    <div class="tw"><table><thead><tr><th>Foto</th><th>Nome</th><th>Área / Lotação</th><th>E-mail</th><th>Afilhados</th><th>Ações</th></tr></thead><tbody id="tbS">${r.h}</tbody></table></div>`}
+    <div class="tw"><table><thead><tr><th>Foto</th><th>Nome</th><th>Área / Lotação</th><th>E-mail</th><th>Contribuição</th><th>Ações</th></tr></thead><tbody id="tbS">${r.h}</tbody></table></div>`}
   if(tab==="qr"){const open=A.conv.filter(c=>c.multi),cid=open.some(c=>c.id===S.qrConv)?S.qrConv:open[0]?.id;S.qrUrls={site:location.origin+location.pathname,cad:cid?linkConvite(cid):""};
     const box=(k,tit,desc)=>`<div class="box" style="margin:0;max-width:none;text-align:center"><h3>${tit}</h3><p>${desc}</p>${S.qrUrls[k]?`<div class="qr">${qrSvg(S.qrUrls[k])}</div><p class="urlq">${esc(S.qrUrls[k])}</p><div class="row" style="justify-content:center"><button class="btn sm ghost" onclick="W.qr('copiar','${k}')">Copiar link</button><button class="btn sm ghost" onclick="W.qr('png','${k}')">Baixar imagem (PNG)</button><button class="btn sm" onclick="W.qr('cartaz','${k}')">Imprimir cartaz</button></div>`:`<div class="msg-info">Ainda não há link aberto de cadastro.</div><button class="btn" onclick="W.convidarAberto()">Gerar link aberto</button>`}</div>`;
     body=`<p>Imprima ou mostre os QR Codes para que os servidores acessem o site ou se cadastrem direto pelo celular.</p>${open.length>1?`<label for="qc">Link de cadastro usado no QR Code</label><select id="qc" onchange="W.qrConv(this.value)" style="max-width:420px">${open.map((c,i)=>`<option value="${c.id}" ${c.id===cid?"selected":""}>Link ${i+1}${c.criadoEm?" (criado em "+dt(c.criadoEm)+")":""}</option>`).join("")}</select>`:""}<div class="two" style="margin-top:16px">${box("site","Acessar o site","Leva direto à página da campanha.")}${box("cad","Cadastro de servidor","Abre o formulário de cadastro, sem precisar de convite individual.")}</div>`}
@@ -1362,10 +1408,19 @@ async function admin(p){
     <div class="box" style="margin:0;max-width:none"><h3>Convidar em lote</h3><p>Uma pessoa por linha, no formato <code>Nome;email</code>.</p><form onsubmit="W.lote(event)"><textarea name="lote" style="min-height:150px" placeholder="Maria Silva;maria@dataprev.gov.br"></textarea><div class="row"><button class="btn">Gerar convites</button></div></form></div></div>
     <h3 style="margin-top:30px">Aguardando cadastro (${pend.length})</h3><div class="tw"><table><tr><th>Nome</th><th>E-mail</th><th>Enviar</th></tr>${pend.map(c=>{const l=linkConvite(c.id),t=`Olá ${c.nome.split(" ")[0]}! Participe da campanha Padrinhos Dataprev: ${l}`;return `<tr><td>${esc(c.nome)}</td><td>${esc(c.email||"")}</td><td><button class="btn sm ghost" onclick="W.copiar('${l}')">Copiar link</button><a class="btn sm ghost" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(t)}">WhatsApp</a><a class="btn sm ghost" href="mailto:${esc(c.email||"")}?subject=${encodeURIComponent("Padrinhos Dataprev: seu convite")}&body=${encodeURIComponent(t)}">E-mail</a><button class="btn sm danger" onclick="W.delConv('${c.id}')">Excluir</button></td></tr>`}).join("")||'<tr><td colspan="3">Nenhum convite pendente.</td></tr>'}</table></div>
     <h3>Links abertos</h3><div class="tw"><table>${A.conv.filter(c=>c.multi).map(c=>`<tr><td style="word-break:break-all">${linkConvite(c.id)}</td><td><button class="btn sm ghost" onclick="W.copiar('${linkConvite(c.id)}')">Copiar</button><button class="btn sm danger" onclick="W.delConv('${c.id}')">Excluir</button></td></tr>`).join("")||"<tr><td>Nenhum.</td></tr>"}</table></div>`;
-  if(tab==="entregas")body=`<div class="row"><button class="btn" onclick="W.imprimir('all')">Imprimir todos os cartões</button><button class="btn ghost" onclick="W.csvEnt()">Baixar CSV</button>${WORKER_URL?`<button class="btn gold" onclick="W.enviarEmails()">Enviar mensagens por e-mail</button>`:""}</div>
-    <p class="cnt">${A.aps.filter(x=>x.entregue).length} de ${A.aps.length} presentes entregues</p><div class="tw"><table><tr><th>Apadrinhado / E-mail</th><th>Padrinho</th><th>Presente</th><th>Mensagem</th><th>Entregue</th></tr>${A.aps.map(x=>`<tr><td>${esc(x.apadrinhadoNome)}<br><small>${esc(A.priv[x.apadrinhadoId]?.email||"")}</small></td><td>${esc(x.padrinhoNome)}</td><td>${esc(x.presente)}</td><td>${esc(x.mensagem)}</td><td><input type="checkbox" style="width:auto" ${x.entregue?"checked":""} onchange="W.entregue('${x.id}',this.checked)" aria-label="Entregue"> <small>${dt(x.entregueEm)}</small></td></tr>`).join("")||'<tr><td colspan="5">Nenhum apadrinhamento ainda.</td></tr>'}</table></div>`;
-  if(tab==="campanha")body=`<div class="box" style="margin:0"><h3>Dados da campanha</h3><form onsubmit="W.salvarCfg(event)"><label>Ano da campanha</label><input name="ano" type="number" value="${S.cfg.ano}" required><label>Data limite de entrega</label><input name="dataEntrega" type="date" value="${S.cfg.dataEntrega}" required><label>Mensagem de Natal padrão (use {nome} para o primeiro nome do apadrinhado)</label><textarea name="mensagemPadrao" maxlength="600" placeholder="Deixe em branco para usar o texto original">${esc(S.cfg.mensagemPadrao||"")}</textarea><p class="nota">Texto original: ${esc(MSG_PADRAO)}</p><div class="row"><button class="btn">Salvar</button></div></form>
-    <p class="msg-info">Para iniciar uma nova campanha, altere o ano. Os dados do ano anterior ficam guardados e a lista de terceirizados começa vazia.</p></div>`;
+  if(tab==="campanha")body=`<div class="two"><div class="box" style="margin:0;max-width:none"><h3>Dados da campanha</h3><form onsubmit="W.salvarCfg(event)">
+    <label>Ano da campanha</label><input name="ano" type="number" value="${S.cfg.ano}" required>
+    <label>Data do café da manhã de Natal</label><input name="dataEntrega" type="date" value="${S.cfg.dataEntrega}" required>
+    <label>Valor da contribuição por servidor (R$)</label><input name="valorContribuicao" type="number" step="any" min="1" value="${S.cfg.valorContribuicao}" required>
+    <label>Meta de arrecadação (R$)</label><input name="meta" type="number" step="any" min="0" value="${S.cfg.meta||0}">
+    <label>Reserva para o café da manhã (R$)</label><input name="reservaCafe" type="number" step="any" min="0" value="${S.cfg.reservaCafe||0}">
+    <label>Tipo da chave PIX</label><select name="tipoChave">${["Telefone","CPF/CNPJ","E-mail","Chave aleatória"].map(o=>`<option ${o===S.cfg.tipoChave?"selected":""}>${o}</option>`).join("")}</select>
+    <label>Chave PIX</label><input name="chavePix" required value="${esc(S.cfg.chavePix)}">
+    <label>Nome do recebedor (aparece no PIX)</label><input name="nomeRecebedor" maxlength="25" value="${esc(S.cfg.nomeRecebedor)}">
+    <label>Cidade do recebedor</label><input name="cidadeRecebedor" maxlength="15" value="${esc(S.cfg.cidadeRecebedor)}">
+    <div class="row"><button class="btn">Salvar</button></div></form></div>
+    <div class="box" style="margin:0;max-width:none"><h3>Itens da compra</h3><p>Aparecem na página inicial e no comparativo de compra.</p>${S.cfg.itens.map((it,i)=>`<div class="row" style="justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:10px"><div><b>${esc(it.nome)}</b><br><small>${esc(it.detalhe||"")}</small><br>${+it.preco>0?brl(it.preco):"preço não informado"}</div><button class="btn sm ghost" onclick="W.editItem(${i})">Editar</button></div>`).join("")}
+    <p class="msg-info">Para uma nova campanha, altere o ano: as contribuições e a lista de terceirizados recomeçam vazias e os dados antigos ficam guardados.</p></div></div>`;
   if(tab==="admins")body=`<div class="two"><div class="box" style="margin:0;max-width:none"><h3>Novo administrador</h3><p>Informe o e-mail da conta Google da pessoa. Ela entra pelo botão "Sou administrador: entrar com Google".</p>
     <form onsubmit="W.addAdmin(event)"><label>Nome</label><input name="nome" required><label>E-mail Google</label><input name="email" type="email" required><label>Permissões</label>${Object.entries(PERMS).map(([k,l])=>`<label style="font-weight:400"><input type="checkbox" name="p_${k}" style="width:auto" checked> ${l}</label>`).join("")}<div class="row"><button class="btn">Adicionar administrador</button></div></form></div>
     <div class="msg-info" style="align-self:start">O administrador principal (${ADMIN_EMAIL}) tem todas as permissões e é o único que gerencia administradores. Todo administrador vê o Resumo.</div></div>
@@ -1374,8 +1429,6 @@ async function admin(p){
 }
 
 /* ===================== AÇÕES ===================== */
-const MSG_PADRAO="Querido(a) {nome},\nQue o Natal traga paz, saúde e muita alegria a você e à sua família, e que o Ano Novo venha cheio de conquistas e esperança.\nObrigado por cuidar de nós o ano inteiro!";
-const msgPadrao=nome=>(S.cfg.mensagemPadrao||MSG_PADRAO).replace(/\{nome\}/g,String(nome||"").split(" ")[0]);
 const RAMO='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 215 150"><path d="M0 8 Q90 20 175 118" fill="none" stroke="#6b4a2b" stroke-width="3.2" stroke-linecap="round"/><g stroke-linecap="round" fill="none"><path d="M10.8 9.7 L23.0 36.3" stroke="#1f7a4d" stroke-width="3.2"/><path d="M10.8 9.7 L24.8 21.3" stroke="#1f7a4d" stroke-width="2.6"/><path d="M10.8 9.7 L31.9 -10.4" stroke="#1f7a4d" stroke-width="3.2"/><path d="M10.8 9.7 L28.0 4.2" stroke="#1f7a4d" stroke-width="2.6"/><path d="M24.7 12.9 L34.6 39.3" stroke="#2e9b5f" stroke-width="3.2"/><path d="M24.7 12.9 L37.3 25.0" stroke="#2e9b5f" stroke-width="2.6"/><path d="M24.7 12.9 L46.4 -5.0" stroke="#2e9b5f" stroke-width="3.2"/><path d="M24.7 12.9 L41.6 8.8" stroke="#2e9b5f" stroke-width="2.6"/><path d="M38.5 17.1 L46.2 43.1" stroke="#1f7a4d" stroke-width="3.2"/><path d="M38.5 17.1 L49.8 29.5" stroke="#1f7a4d" stroke-width="2.6"/><path d="M38.5 17.1 L60.5 1.4" stroke="#1f7a4d" stroke-width="3.2"/><path d="M38.5 17.1 L55.0 14.3" stroke="#1f7a4d" stroke-width="2.6"/><path d="M52.2 22.4 L58.0 47.8" stroke="#2e9b5f" stroke-width="3.2"/><path d="M52.2 22.4 L62.3 35.0" stroke="#2e9b5f" stroke-width="2.6"/><path d="M52.2 22.4 L74.4 8.7" stroke="#2e9b5f" stroke-width="3.2"/><path d="M52.2 22.4 L68.3 20.7" stroke="#2e9b5f" stroke-width="2.6"/><path d="M65.9 28.7 L69.9 53.3" stroke="#1f7a4d" stroke-width="3.2"/><path d="M65.9 28.7 L74.8 41.4" stroke="#1f7a4d" stroke-width="2.6"/><path d="M65.9 28.7 L88.0 16.9" stroke="#1f7a4d" stroke-width="3.2"/><path d="M65.9 28.7 L81.4 28.1" stroke="#1f7a4d" stroke-width="2.6"/><path d="M79.5 36.0 L81.9 59.8" stroke="#2e9b5f" stroke-width="3.2"/><path d="M79.5 36.0 L87.3 48.6" stroke="#2e9b5f" stroke-width="2.6"/><path d="M79.5 36.0 L101.3 26.0" stroke="#2e9b5f" stroke-width="3.2"/><path d="M79.5 36.0 L94.4 36.3" stroke="#2e9b5f" stroke-width="2.6"/><path d="M93.1 44.3 L94.1 67.2" stroke="#1f7a4d" stroke-width="3.2"/><path d="M93.1 44.3 L99.8 56.8" stroke="#1f7a4d" stroke-width="2.6"/><path d="M93.1 44.3 L114.5 36.0" stroke="#1f7a4d" stroke-width="3.2"/><path d="M93.1 44.3 L107.3 45.4" stroke="#1f7a4d" stroke-width="2.6"/><path d="M106.6 53.7 L106.4 75.5" stroke="#2e9b5f" stroke-width="3.2"/><path d="M106.6 53.7 L112.4 66.0" stroke="#2e9b5f" stroke-width="2.6"/><path d="M106.6 53.7 L127.4 46.9" stroke="#2e9b5f" stroke-width="3.2"/><path d="M106.6 53.7 L120.1 55.5" stroke="#2e9b5f" stroke-width="2.6"/><path d="M120.1 64.1 L118.8 84.9" stroke="#1f7a4d" stroke-width="3.2"/><path d="M120.1 64.1 L125.0 76.0" stroke="#1f7a4d" stroke-width="2.6"/><path d="M120.1 64.1 L140.2 58.6" stroke="#1f7a4d" stroke-width="3.2"/><path d="M120.1 64.1 L132.8 66.4" stroke="#1f7a4d" stroke-width="2.6"/><path d="M133.5 75.5 L131.3 95.2" stroke="#2e9b5f" stroke-width="3.2"/><path d="M133.5 75.5 L137.6 87.1" stroke="#2e9b5f" stroke-width="2.6"/><path d="M133.5 75.5 L152.8 71.2" stroke="#2e9b5f" stroke-width="3.2"/><path d="M133.5 75.5 L145.4 78.3" stroke="#2e9b5f" stroke-width="2.6"/><path d="M146.8 88.0 L144.0 106.5" stroke="#1f7a4d" stroke-width="3.2"/><path d="M146.8 88.0 L150.2 99.1" stroke="#1f7a4d" stroke-width="2.6"/><path d="M146.8 88.0 L165.3 84.7" stroke="#1f7a4d" stroke-width="3.2"/><path d="M146.8 88.0 L158.0 91.1" stroke="#1f7a4d" stroke-width="2.6"/><path d="M160.1 101.5 L156.7 118.9" stroke="#2e9b5f" stroke-width="3.2"/><path d="M160.1 101.5 L162.9 112.1" stroke="#2e9b5f" stroke-width="2.6"/><path d="M160.1 101.5 L177.6 99.1" stroke="#2e9b5f" stroke-width="3.2"/><path d="M160.1 101.5 L170.5 104.9" stroke="#2e9b5f" stroke-width="2.6"/><path d="M173.3 116.0 L169.5 132.2" stroke="#1f7a4d" stroke-width="3.2"/><path d="M173.3 116.0 L175.5 126.1" stroke="#1f7a4d" stroke-width="2.6"/><path d="M173.3 116.0 L189.9 114.4" stroke="#1f7a4d" stroke-width="3.2"/><path d="M173.3 116.0 L183.0 119.6" stroke="#1f7a4d" stroke-width="2.6"/></g><rect x="42.8" y="29.3" width="5" height="5" fill="#d9a82e"/><circle cx="45.3" cy="42.3" r="8.5" fill="#c62839"/><circle cx="42.7" cy="39.5" r="2.2" fill="#fff" opacity=".55"/><rect x="101.2" y="13.1" width="5" height="5" fill="#d9a82e"/><circle cx="103.7" cy="26.1" r="8.5" fill="#f1c75b"/><circle cx="101.1" cy="23.3" r="2.2" fill="#fff" opacity=".55"/><rect x="114.1" y="75.6" width="5" height="5" fill="#d9a82e"/><circle cx="116.6" cy="88.6" r="8.5" fill="#2b6cb0"/><circle cx="114.0" cy="85.8" r="2.2" fill="#fff" opacity=".55"/><rect x="23.5" y="22.2" width="5" height="5" fill="#d9a82e"/><circle cx="26.0" cy="35.2" r="8.5" fill="#f1c75b"/><circle cx="23.4" cy="32.4" r="2.2" fill="#fff" opacity=".55"/><rect x="94.6" y="59.7" width="5" height="5" fill="#d9a82e"/><circle cx="97.1" cy="72.7" r="8.5" fill="#c62839"/><circle cx="94.5" cy="69.9" r="2.2" fill="#fff" opacity=".55"/></svg>';
 const luzes=w=>{const n=8,sw=w/n,cs=["#c62839","#f1c75b","#2e8b57","#2b6cb0"];let d="M0 2",b="";for(let k=0;k<n;k++){d+=` Q${(k+.5)*sw} 14 ${(k+1)*sw} 2`;b+=`<circle cx="${(k+.5)*sw}" cy="9.5" r="2.1" fill="${cs[k%4]}"/><rect x="${(k+.5)*sw-.5}" y="6.2" width="1" height="1.6" fill="#8a6d1d"/>`}return `<svg class="lz" viewBox="0 0 ${w} 16"><path d="${d}" fill="none" stroke="#2f6b4f" stroke-width=".7"/>${b}</svg>`};
 const cardCssPrint=`<style>@page{size:A5 landscape;margin:0}*{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}body{margin:0;background:#e6ede8;font-family:Georgia,"Times New Roman",serif;color:#3b2a20}
@@ -1390,25 +1443,20 @@ h1{margin:1mm 0 0;font-size:11.5mm;line-height:1.05;color:#b3202f}h1 span{displa
 .m{margin:0;font-style:italic;line-height:1.45;white-space:pre-line;max-width:135mm}
 .s{margin-top:3mm;font-size:4.4mm}.s b{color:#b3202f;font-size:5.4mm}
 .rod{position:absolute;bottom:3mm;left:0;right:0;font-size:2.8mm;letter-spacing:.3mm;color:#9a8672}</style>`;
-function cartaoPrint(x){const nome=x.apadrinhadoNome,msg=x.mensagem||msgPadrao(nome),tam=msg.length<=140?5.4:msg.length<=260?4.5:3.8;
-  return `<div class="c"><div class="f">${luzes(210)}<div class="r1">${RAMO}</div><div class="r2">${RAMO}</div><div class="st">★</div><h1>Feliz Natal<span>e um Próspero Ano Novo!</span></h1><div class="fita">Para <b>${esc(nome)}</b></div><p class="m" style="font-size:${tam}mm">${esc(msg)}</p><div class="s">Com carinho,<br><b>${esc(x.padrinhoNome)}</b></div><div class="rod">Campanha Padrinhos Dataprev ${esc(x.ano||S.cfg.ano)}</div></div></div>`}
-function cartaoEmail(x){const nome=x.apadrinhadoNome,msg=x.mensagem||msgPadrao(nome);
-  return `<div style="max-width:600px;margin:0 auto;border:6px solid #176b45;border-radius:18px;background:#fff7e8;padding:28px 24px;text-align:center;font-family:Georgia,'Times New Roman',serif;color:#3b2a20"><div style="font-size:30px">🎄 ⭐ 🎁</div><h1 style="color:#b3202f;margin:8px 0 4px;font-size:30px;line-height:1.1">Feliz Natal<br><span style="font-size:20px;color:#176b45;font-style:italic;font-weight:normal">e um Próspero Ano Novo!</span></h1><p style="display:inline-block;background:#176b45;color:#fff;padding:6px 22px;border-radius:99px;font-size:18px;margin:10px 0">Para <b>${esc(nome)}</b></p><p style="font-size:18px;font-style:italic;line-height:1.5;margin:8px 0">${esc(msg).replace(/\n/g,"<br>")}</p><p style="font-size:16px;margin:14px 0 0">Com carinho,<br><b style="color:#b3202f;font-size:18px">${esc(x.padrinhoNome)}</b></p><p style="font-size:12px;color:#9a8672;margin:14px 0 0">Campanha Padrinhos Dataprev ${esc(x.ano||S.cfg.ano)}</p></div>`}
 const qrSvg=t=>{try{const q=window.QRLib.make(t),n=q.getModuleCount(),m=4;let d="";for(let r=0;r<n;r++)for(let c=0;c<n;c++)if(q.isDark(r,c))d+=`M${c+m},${r+m}h1v1h-1z`;return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${n+2*m} ${n+2*m}" shape-rendering="crispEdges"><rect width="100%" height="100%" fill="#fff"/><path d="${d}" fill="#123628"/></svg>`}catch(e){return `<p>Não foi possível gerar o QR Code.</p>`}};
 const svgPng=(svg,px)=>new Promise((ok,no)=>{const i=new Image();i.onload=()=>{const c=document.createElement("canvas");c.width=c.height=px;const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,px,px);x.imageSmoothingEnabled=false;x.drawImage(i,0,0,px,px);c.toBlob(ok,"image/png")};i.onerror=no;i.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svg)});
+function resumoDe(b,list){const conf=list.filter(z=>z.status==="confirmado");b.set(doc(db,"config","resumo"),{arrecadado:conf.reduce((a,z)=>a+(+z.valor||0),0),confirmados:conf.length,atualizadoEm:serverTimestamp()})}
 function posterQR(k,url){
-  const T=k==="site"?["Conheça e apadrinhe!","Escaneie o QR Code com a câmera do celular e escolha um colega para apadrinhar neste Natal e Ano Novo."]:["Servidor, cadastre-se!","Escaneie o QR Code com a câmera do celular para criar seu cadastro e apadrinhar um colega: recepção, segurança, brigada, serviços ou estágio."];
+  const T=k==="site"?["Natal solidário Dataprev","Escaneie o QR Code com a câmera do celular e veja como participar do nosso café da manhã de Natal."]:["Servidor, participe!","Escaneie o QR Code para se cadastrar, fazer o PIX de "+brl(S.cfg.valorContribuicao)+" e enviar o comprovante. Juntos vamos presentear quem cuida de nós."];
   const w=window.open("","_blank");if(!w)return toast("O navegador bloqueou a janela. Libere pop-ups para este site.");
-  const css=cardCssPrint.replace("A5 landscape","A4 portrait").replace("height:148mm","height:297mm").replace(".r1,.r2{position:absolute;width:50mm}",".r1,.r2{position:absolute;width:46mm}")+`<style>.f{padding:40mm 26mm 22mm}h1{font-size:13mm;margin:3mm 0 3mm;text-wrap:balance}.k{color:#176b45;font-size:5mm;letter-spacing:.6mm;text-transform:uppercase;margin-top:2mm}.d{font-size:6.2mm;font-style:italic;max-width:150mm;margin:0 0 7mm;line-height:1.4}.qb{width:112mm;padding:4mm;background:#fff;border:1.6mm solid #176b45;border-radius:6mm;box-shadow:0 0 0 1mm #f1c75b}.qb svg{display:block;width:100%;height:auto}.u{font-family:Arial,sans-serif;font-size:3.6mm;word-break:break-all;max-width:125mm;margin:6mm 0 2mm;color:#176b45}.e{font-size:5mm;color:#b3202f;font-weight:bold;margin:2mm 0 0}</style>`;
-  w.document.write(`<!DOCTYPE html><meta charset="utf-8"><title>Cartaz QR Code</title>${css}<div class="c"><div class="f">${luzes(210)}<div class="r1">${RAMO}</div><div class="r2">${RAMO}</div><div class="st">★</div><div class="k">Natal e Ano Novo Solidário Dataprev ${S.cfg.ano}</div><h1>${T[0]}</h1><p class="d">${T[1]}</p><div class="qb">${qrSvg(url)}</div><p class="u">${esc(url)}</p><p class="e">Presentes entregues até ${fmt(S.cfg.dataEntrega)}</p></div></div>`);
+  const css=cardCssPrint.replace("A5 landscape","A4 portrait").replace("height:148mm","height:297mm").replace(".r1,.r2{position:absolute;width:50mm}",".r1,.r2{position:absolute;width:46mm}")+`<style>.f{padding:40mm 26mm 22mm}h1{font-size:13mm;margin:3mm 0 3mm;text-wrap:balance}.k{color:#176b45;font-size:5mm;letter-spacing:.6mm;text-transform:uppercase;margin-top:2mm}.d{font-size:6.2mm;font-style:italic;max-width:150mm;margin:0 0 7mm;line-height:1.4}.qb{width:112mm;padding:4mm;background:#fff;border:1.6mm solid #176b45;border-radius:6mm;box-shadow:0 0 0 1mm #f1c75b}.qb svg{display:block;width:100%;height:auto}.u{font-family:Arial,sans-serif;font-size:3.6mm;word-break:break-all;max-width:125mm;margin:6mm 0 2mm;color:#176b45}.e{font-size:5mm;color:#b3202f;font-weight:bold;margin:2mm 0 0;line-height:1.5}</style>`;
+  w.document.write(`<!DOCTYPE html><meta charset="utf-8"><title>Cartaz QR Code</title>${css}<div class="c"><div class="f">${luzes(210)}<div class="r1">${RAMO}</div><div class="r2">${RAMO}</div><div class="st">★</div><div class="k">Café da manhã de Natal Dataprev ${S.cfg.ano}</div><h1>${T[0]}</h1><p class="d">${T[1]}</p><div class="qb">${qrSvg(url)}</div><p class="u">${esc(url)}</p><p class="e">Contribuição: ${brl(S.cfg.valorContribuicao)}<br>Café da manhã em ${fmt(S.cfg.dataEntrega)}</p></div></div>`);
   w.document.close();w.focus();setTimeout(()=>w.print(),500)}
 const csv=(rows,name)=>{const t=rows.map(r=>r.map(c=>`"${String(c??"").replace(/"/g,'""')}"`).join(";")).join("\n"),a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+t],{type:"text/csv"}));a.download=name;a.click()};
-async function liberar(x,motivo=""){const b=writeBatch(db);b.delete(doc(db,"apadrinhamentos",x.id));b.update(doc(db,"apadrinhados",x.apadrinhadoId),{padrinhos:increment(-1)});lg(b,"desfazer_apadrinhamento",`Desfez o apadrinhamento de ${x.apadrinhadoNome} (padrinho: ${x.padrinhoNome})${motivo?". Motivo: "+motivo:""}`,x.apadrinhadoNome);await b.commit()}
-
 const W={
   filtro(f){S.filtro=f;render(true)},
   sair:async()=>{await signOut(auth);S.admin=false;S.perfil=null;await refreshProfile();location.hash="#/";render()},
-  async login(e){e.preventDefault();try{await signInWithEmailAndPassword(auth,$("#le").value,$("#ls").value);await refreshProfile();const n=sessionStorage.next;sessionStorage.removeItem("next");location.hash=S.admin?"#/admin":(n||"#/meus");if(!S.admin&&!S.perfil)toast("Conta sem cadastro de servidor: use o link de convite.")}catch(x){console.error(x);toast(erroAuth(x))}},
+  async login(e){e.preventDefault();try{await signInWithEmailAndPassword(auth,$("#le").value,$("#ls").value);await refreshProfile();const n=sessionStorage.next;sessionStorage.removeItem("next");location.hash=S.admin?"#/admin":(n||"#/contribuir");if(!S.admin&&!S.perfil)toast("Conta sem cadastro de servidor: use o link de convite.")}catch(x){console.error(x);toast(erroAuth(x))}},
   async google(){try{const r=await signInWithPopup(auth,new GoogleAuthProvider());await refreshProfile();if(!S.admin){await signOut(auth);await refreshProfile();return toast("Esta conta Google não tem acesso de administrador.")}location.hash="#/admin"}catch(x){console.error(x);toast(erroAuth(x))}},
   async reset(){const m=$("#le").value;if(!m)return toast("Digite seu e-mail no campo acima.");try{await sendPasswordResetEmail(auth,m);toast("Enviamos um e-mail para redefinir a senha.")}catch(x){toast("Erro: "+x.message)}},
   foto:async i=>{const f=i.files[0];if(!f)return;const d=await resize(f),im=i.parentElement.querySelector("img");im.src=d;im.dataset.v=d},
@@ -1417,53 +1465,75 @@ const W={
       const c=await createUserWithEmailAndPassword(auth,v.email,senha),bt=writeBatch(db);
       bt.set(doc(db,"servidores",c.user.uid),{...perfil,convite:conv,criadoEm:serverTimestamp()});
       if(!multi)bt.update(doc(db,"convites",conv),{usado:true,usadoPor:c.user.uid,usadoEm:serverTimestamp()});
-      lg(bt,"cadastro","Cadastro de servidor concluído ("+(v.area||"")+", "+(v.lotacao||"")+")","",c.user,v.nome);await bt.commit();S.busy=false;await refreshProfile();toast("Cadastro concluído! Escolha seu afilhado.");location.hash="#/"+(sessionStorage.next?.slice(2)||"");render()
+      lg(bt,"cadastro","Cadastro de servidor concluído ("+(v.area||"")+", "+(v.lotacao||"")+")","",c.user,v.nome);await bt.commit();S.busy=false;await refreshProfile();toast("Cadastro concluído! Agora faça o PIX e envie o comprovante.");location.hash="#/contribuir";render()
     }catch(x){S.busy=false;b.disabled=false;toast(x.code==="auth/email-already-in-use"?"Este e-mail já tem cadastro. Faça login.":"Erro: "+x.message)}},
-  async apadrinhar(e,id){e.preventDefault();const a=S.ap.find(x=>x.id===id),b=writeBatch(db),aid=id+"_"+S.user.uid;e.submitter.disabled=true;
-    b.set(doc(db,"apadrinhamentos",aid),{apadrinhadoId:id,apadrinhadoNome:a.nome,padrinhoId:S.user.uid,padrinhoNome:S.perfil.nome,ano:S.cfg.ano,presente:$("#pr").value.trim(),mensagem:$("#ms").value.trim(),entregue:false,criadoEm:serverTimestamp()});
-    b.update(doc(db,"apadrinhados",id),{padrinhos:increment(1)});
-    lg(b,"apadrinhar",`Apadrinhou ${a.nome}. Presente: ${$("#pr").value.trim()}`,a.nome);
-    try{await b.commit();toast("Obrigado! Você é padrinho de "+a.nome.split(" ")[0]+".");location.hash="#/meus"}catch(x){console.error(x);toast(x.code==="permission-denied"?"O Firebase negou o apadrinhamento (permissão). Avise o administrador para republicar as regras do Firestore.":"Não foi possível apadrinhar: "+(x.code||x.message));e.submitter.disabled=false}},
   async salvarPerfil(e){e.preventDefault();const b=e.submitter;b.disabled=true;
     try{const v=read(e.target,S.perfil?FS:FP);
       if(S.perfil){const bt=writeBatch(db);bt.update(doc(db,"servidores",S.user.uid),v);
-        if(v.nome!==S.perfil.nome){const q=await getDocs(query(collection(db,"apadrinhamentos"),where("padrinhoId","==",S.user.uid)));q.docs.forEach(d=>bt.update(d.ref,{padrinhoNome:v.nome}))}
+        if(v.nome!==S.perfil.nome){const q=await getDocs(query(collection(db,"contribuicoes"),where("servidorId","==",S.user.uid)));q.docs.forEach(d=>bt.update(d.ref,{servidorNome:v.nome}))}
         const ch=Object.keys(v).filter(k=>(v[k]??"")!==(S.perfil[k]??""));lg(bt,"perfil_alterado",ch.length?"Alterou: "+ch.join(", "):"Salvou o perfil sem alterações","",auth.currentUser,v.nome);await bt.commit()}
       else{const bt=writeBatch(db);bt.set(doc(db,"admins",S.user.email.toLowerCase()),v,{merge:true});lg(bt,"perfil_alterado","Atualizou o perfil de administrador","",auth.currentUser,v.nome);await bt.commit()}
       await refreshProfile();toast("Perfil atualizado!");render(true)}
     catch(x){toast("Erro: "+x.message)}b.disabled=false},
-  filtrar(k,campo,val){S[k][campo]=val;const r=S.rows[k](),ids={fa:["#tbA","#cntA"],fs:["#tbS","#cntS"],fl:["#tbL","#cntL"]}[k];$(ids[0]).innerHTML=r.h;$(ids[1]).textContent=r.txt+(k==="fl"?" (últimos 1000 registros)":"")},
   csvLog(){csv([["Data e hora","Usuário","E-mail","Ação","Detalhe"],...(S.logs||[]).map(x=>[dh(x.criadoEm),x.usuarioNome,x.usuarioEmail,ACOES[x.acao]||x.acao,x.detalhe])],"registro-atividades.csv")},
-  limpar(k){S[k]={fa:{q:"",prof:"",lot:"",sit:""},fs:{q:"",area:"",lot:"",sit:""},fl:{q:"",acao:"",de:"",ate:""}}[k];render(true)},
-  csvServ(){csv([["Nome","Área","Lotação","E-mail","Afilhados"],...S.adm.serv.map(x=>[x.nome,x.area,x.lotacao,x.email,S.adm.aps.filter(a=>a.padrinhoId===x.id).map(a=>a.apadrinhadoNome).join(", ")])],"servidores.csv")},
+  filtrar(k,campo,val){S[k][campo]=val;const r=S.rows[k](),ids={fa:["#tbA","#cntA"],fs:["#tbS","#cntS"],fl:["#tbL","#cntL"],fc:["#tbC","#cntC"]}[k];$(ids[0]).innerHTML=r.h;$(ids[1]).textContent=r.txt+(k==="fl"?" (últimos 1000 registros)":"");if(r.h2!==undefined){$("#tbN").innerHTML=r.h2;$("#cntN").textContent=r.txt2}},
+  limpar(k){S[k]={fa:{q:"",prof:"",lot:""},fs:{q:"",area:"",lot:"",sit:""},fl:{q:"",acao:"",de:"",ate:""},fc:{q:"",st:"",lot:""}}[k];render(true)},
+  pix(k){W.copiar(k==="chave"?S.cfg.chavePix:S.pay)},
+  async enviarComprovante(e){e.preventDefault();const f=e.target,b=e.submitter;b.disabled=true;
+    try{const file=f.arquivo.files[0];if(!file)throw new Error("Anexe o comprovante do PIX.");const valor=+f.valor.value;if(!(valor>0))throw new Error("Informe o valor pago.");
+      const novo=!S.minha,cp=await lerComprovante(file),id=S.cfg.ano+"_"+S.user.uid,bt=writeBatch(db);
+      const base={valor,status:"em_analise",comprovanteNome:cp.nome.slice(0,120),enviadoEm:serverTimestamp(),obsAdmin:""};
+      if(novo)bt.set(doc(db,"contribuicoes",id),{servidorId:S.user.uid,servidorNome:S.perfil.nome,area:S.perfil.area||"",lotacao:S.perfil.lotacao||"",ano:S.cfg.ano,...base,criadoEm:serverTimestamp()});
+      else bt.update(doc(db,"contribuicoes",id),base);
+      bt.set(doc(db,"comprovantes",id),{servidorId:S.user.uid,ano:S.cfg.ano,dados:cp.dados,tipo:cp.tipo,nome:cp.nome.slice(0,120),enviadoEm:serverTimestamp()});
+      lg(bt,novo?"contribuicao_enviada":"contribuicao_reenviada",`${novo?"Enviou":"Reenviou"} o comprovante do PIX de ${brl(valor)}`,"");
+      await bt.commit();toast("Comprovante enviado! Aguarde a conferência.");render(true)}
+    catch(x){toast(x.code==="permission-denied"?"O Firebase negou o envio. Avise o administrador para republicar as regras do Firestore.":(x.message||"Não foi possível enviar."))}b.disabled=false},
+  async verComp(id){try{const d=await getDoc(doc(db,"comprovantes",id));if(!d.exists())return toast("Não há comprovante anexado.");const c=d.data();
+    if(c.tipo==="application/pdf"){const blob=await (await fetch(c.dados)).blob();window.open(URL.createObjectURL(blob),"_blank");return}
+    const dl=$("#dlg");dl.innerHTML=`<h2>Comprovante</h2><p>${esc(c.nome||"")}</p><img src="${c.dados}" alt="Comprovante do PIX" style="max-width:100%;border:1px solid var(--line);border-radius:8px"><div class="row"><button class="btn ghost" onclick="dlg.close()">Fechar</button></div>`;dl.showModal()}catch(x){toast("Erro: "+(x.code||x.message))}},
+  async mudarStatus(id,status,motivo,acao,det){const x=S.adm.contrib.find(z=>z.id===id),b=writeBatch(db);
+    b.update(doc(db,"contribuicoes",id),{status,obsAdmin:motivo||"",confirmadoPor:S.user.email,confirmadoEm:serverTimestamp()});
+    resumoDe(b,S.adm.contrib.map(z=>z.id===id?{...z,status}:z));
+    lg(b,acao,`${det} de ${x.servidorNome} (${brl(x.valor)})${motivo?". Motivo: "+motivo:""}`,x.servidorNome);await b.commit()},
+  async confirmar(id){if(!confirm("Confirmar o recebimento desta contribuição?"))return;try{await W.mudarStatus(id,"confirmado","","contribuicao_confirmada","Confirmou a contribuição");toast("Contribuição confirmada.");render(true)}catch(x){toast("Erro: "+(x.code||x.message))}},
+  async recusar(id){const x=S.adm.contrib.find(z=>z.id===id);const m=await pedirMotivo("Recusar comprovante",`Informe por que o comprovante de <b>${esc(x.servidorNome)}</b> não pode ser aceito. O servidor verá o motivo e poderá enviar outro.`,"Recusar");if(m===null)return;
+    try{await W.mudarStatus(id,"recusada",m,"contribuicao_recusada","Recusou o comprovante");toast("Comprovante recusado.");render(true)}catch(e){toast("Erro: "+(e.code||e.message))}},
+  async desfazerConf(id){const x=S.adm.contrib.find(z=>z.id===id);const m=await pedirMotivo("Desfazer confirmação",`A contribuição de <b>${esc(x.servidorNome)}</b> voltará para "Em análise".`,"Desfazer confirmação");if(m===null)return;
+    try{await W.mudarStatus(id,"em_analise",m,"contribuicao_desfeita","Desfez a confirmação");toast("Confirmação desfeita.");render(true)}catch(e){toast("Erro: "+(e.code||e.message))}},
+  async delContrib(id){const x=S.adm.contrib.find(z=>z.id===id);const m=await pedirMotivo("Excluir contribuição",`Você vai excluir a contribuição de <b>${esc(x.servidorNome)}</b> (${brl(x.valor)}) e o comprovante enviado.`,"Excluir");if(m===null)return;
+    try{const b=writeBatch(db);b.delete(doc(db,"contribuicoes",id));b.delete(doc(db,"comprovantes",id));resumoDe(b,S.adm.contrib.filter(z=>z.id!==id));lg(b,"contribuicao_excluida",`Excluiu a contribuição de ${x.servidorNome} (${brl(x.valor)}). Motivo: ${m}`,x.servidorNome);await b.commit();toast("Contribuição excluída.");render(true)}catch(e){toast("Erro: "+(e.code||e.message))}},
+  regManual(sid){const lab=s=>s.nome+" ("+(s.area||"sem área")+")",s0=sid?S.adm.serv.find(x=>x.id===sid):null;
+    const FC=[{k:"servidor",l:"Servidor",t:"select",o:S.adm.serv.map(lab),req:1},{k:"valor",l:"Valor recebido (R$)",t:"number",req:1},{k:"obs",l:"Observação (ex.: pago em dinheiro)"}];
+    modal("Registrar contribuição",FC,{servidor:s0?lab(s0):"",valor:S.cfg.valorContribuicao,obs:""},async v=>{const s=S.adm.serv.find(x=>lab(x)===v.servidor);if(!s)throw new Error("Escolha o servidor.");if(!(v.valor>0))throw new Error("Informe o valor.");
+      const id=S.cfg.ano+"_"+s.id,b=writeBatch(db),dados={servidorId:s.id,servidorNome:s.nome,area:s.area||"",lotacao:s.lotacao||"",ano:S.cfg.ano,valor:v.valor,status:"confirmado",obsAdmin:v.obs||"",comprovanteNome:"",manual:true,confirmadoPor:S.user.email};
+      b.set(doc(db,"contribuicoes",id),{...dados,criadoEm:serverTimestamp(),confirmadoEm:serverTimestamp()});
+      resumoDe(b,[...S.adm.contrib.filter(z=>z.id!==id),{id,...dados}]);
+      lg(b,"contribuicao_manual",`Registrou contribuição de ${brl(v.valor)} de ${s.nome}${v.obs?". Obs.: "+v.obs:""}`,s.nome);await b.commit()})},
+  csvContrib(){csv([["Servidor","Área","Lotação","Valor","Status","Enviado em","Observação"],...[...S.adm.contrib].sort((a,b)=>a.servidorNome.localeCompare(b.servidorNome,"pt-BR",{sensitivity:"base"})).map(x=>[x.servidorNome,x.area,x.lotacao,x.valor,(ST[x.status]||[x.status])[0],dh(x.enviadoEm||x.criadoEm),x.obsAdmin||""])],"contribuicoes.csv")},
+  csvAp(){csv([["Nome","Profissão","Lotação","Idade","E-mail"],...[...S.ap].sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR",{sensitivity:"base"})).map(a=>[a.nome,a.profissao,a.lotacao,a.idade,(S.adm.priv[a.id]||{}).email||""])],"terceirizados.csv")},
+  csvServ(){csv([["Nome","Área","Lotação","E-mail","Contribuição","Valor"],...S.adm.serv.map(x=>{const c=S.adm.contrib.find(z=>z.servidorId===x.id);return [x.nome,x.area,x.lotacao,x.email,c?(ST[c.status]||[c.status])[0]:"Sem contribuição",c?c.valor:""]})],"servidores.csv")},
+  async delAp(id){if(!confirm("Excluir este terceirizado?"))return;const b=writeBatch(db),n0=S.ap.find(y=>y.id===id)?.nome||"";b.delete(doc(db,"apadrinhados",id));b.delete(doc(db,"apadrinhados_privado",id));lg(b,"terceirizado_excluido","Excluiu o terceirizado "+n0,n0);await b.commit();render(true)},
+  editItem(i){const it=S.cfg.itens[i]||{};modal("Editar item",FI,it,async v=>{const itens=S.cfg.itens.map((x,j)=>j===i?{...x,...v,preco:+v.preco||0}:x);await setDoc(doc(db,"config","campanha"),{itens},{merge:true})})},
+  async salvarCfg(e){e.preventDefault();const f=e.target,n=k=>+f[k].value||0;
+    try{await setDoc(doc(db,"config","campanha"),{ano:+f.ano.value,dataEntrega:f.dataEntrega.value,valorContribuicao:n("valorContribuicao"),meta:n("meta"),reservaCafe:n("reservaCafe"),tipoChave:f.tipoChave.value,chavePix:f.chavePix.value.trim(),nomeRecebedor:f.nomeRecebedor.value.trim(),cidadeRecebedor:f.cidadeRecebedor.value.trim(),itens:S.cfg.itens},{merge:true});toast("Campanha atualizada.");render(true)}catch(x){toast("Erro: "+(x.code||x.message))}},
   buscar(c,v){S.busca[c]=v;$("#gridH").innerHTML=gridHome();$("#cntH").textContent=cntHome()},
   limparBusca(){S.busca={q:"",lot:""};S.filtro="Todos";render(true)},
-  msgPadrao(el,afId){$("#"+el).value=msgPadrao(S.ap.find(x=>x.id===afId).nome)},
-  msgDe(id){return msgPadrao(S.my.find(x=>x.id===id).apadrinhadoNome)},
   qrConv(id){S.qrConv=id;render(true)},
   qr(a,k){const u=S.qrUrls[k];if(a==="copiar")return W.copiar(u);
     if(a==="png")return svgPng(qrSvg(u),1000).then(b=>{const l=document.createElement("a");l.href=URL.createObjectURL(b);l.download=k==="site"?"qrcode-site.png":"qrcode-cadastro.png";l.click()}).catch(()=>toast("Não foi possível gerar a imagem."));
     if(a==="cartaz")posterQR(k,u)},
-  aba(v){S.aba=v;render(true)},
   async solicitar(e){e.preventDefault();const f=e.target;if(f.site.value)return;e.submitter.disabled=true;
     try{await setDoc(doc(collection(db,"solicitacoes")),{nome:f.nome.value.trim(),email:f.email.value.trim(),area:f.area.value.trim(),lotacao:f.lotacao.value.trim(),fone:f.fone.value.trim(),mensagem:f.mensagem.value.trim(),status:"pendente",criadoEm:serverTimestamp()});
       $("#app").innerHTML=`<div class="box"><h2>Solicitação enviada</h2><p>O administrador recebeu sua mensagem. Assim que o convite for gerado, você receberá o link de cadastro no e-mail informado.</p><a class="btn" href="#/">Voltar à campanha</a></div>`}
     catch(x){toast("Não foi possível enviar: "+x.message);e.submitter.disabled=false}},
   async atender(id){const x=S.adm.sol.find(z=>z.id===id),r=doc(collection(db,"convites")),b=writeBatch(db);b.set(r,{nome:x.nome,email:x.email,fone:x.fone||"",area:x.area||"",lotacao:x.lotacao||"",usado:false,multi:false,criadoEm:serverTimestamp()});b.update(doc(db,"solicitacoes",id),{status:"atendida",conviteId:r.id});await b.commit();await W.copiar(linkConvite(r.id));toast("Convite gerado e link copiado. Envie-o pela lista abaixo.");render(true)},
   async descartarSol(id){if(!confirm("Descartar esta solicitação?"))return;await deleteDoc(doc(db,"solicitacoes",id));render(true)},
-  async salvarPresente(e,id){e.preventDefault();const f=e.target;await updateDoc(doc(db,"apadrinhamentos",id),{presente:f.presente.value.trim(),mensagem:f.mensagem.value.trim()});toast("Salvo!")},
-  async desistir(id){const x=[...S.my,...(S.adm?.aps||[])].find(z=>z.id===id);const m=await pedirMotivo("Desfazer apadrinhamento",`Você vai remover o apadrinhamento de <b>${esc(x.apadrinhadoNome)}</b> (padrinho: ${esc(x.padrinhoNome)}). Se o colega não tiver outro padrinho, voltará para a lista de quem espera.`,"Desfazer apadrinhamento");if(m===null)return;
-    try{await liberar(x,m);toast("Apadrinhamento removido.");render(true)}catch(e){toast("Erro: "+(e.code||e.message))}},
-  imprimir(id){const l=id==="all"?S.adm.aps:[...S.my,...(S.adm?.aps||[])].filter(x=>x.id===id).slice(0,1);if(!l.length)return toast("Nada para imprimir.");const w=window.open("","_blank");w.document.write(`<!DOCTYPE html><meta charset="utf-8"><title>Cartões</title>${cardCssPrint}${l.map(cartaoPrint).join("")}`);w.document.close();w.focus();setTimeout(()=>w.print(),400)},
   /* admin */
   editAp(id){const a=S.ap.find(x=>x.id===id)||{},pv=id?S.adm.priv[id]||{}:{};
     modal(id?"Editar terceirizado":"Cadastrar terceirizado",FA,{...a,...pv},async v=>{const {email,...pub}=v,b=writeBatch(db),novo=!id;
-      if(id){b.update(doc(db,"apadrinhados",id),pub)}else{const r=doc(collection(db,"apadrinhados"));id=r.id;b.set(r,{...pub,ano:S.cfg.ano,padrinhos:0,criadoEm:serverTimestamp()})}
+      if(id){b.update(doc(db,"apadrinhados",id),pub)}else{const r=doc(collection(db,"apadrinhados"));id=r.id;b.set(r,{...pub,ano:S.cfg.ano,criadoEm:serverTimestamp()})}
       b.set(doc(db,"apadrinhados_privado",id),{email});lg(b,novo?"terceirizado_cadastrado":"terceirizado_alterado",(novo?"Cadastrou o terceirizado ":"Alterou os dados de ")+pub.nome,pub.nome);await b.commit()})},
-  async delAp(id){if(!confirm("Excluir este terceirizado?"))return;const b=writeBatch(db);b.delete(doc(db,"apadrinhados",id));b.delete(doc(db,"apadrinhados_privado",id));S.adm.aps.filter(x=>x.apadrinhadoId===id).forEach(x=>b.delete(doc(db,"apadrinhamentos",x.id)));{const n0=S.ap.find(y=>y.id===id)?.nome||"";lg(b,"terceirizado_excluido","Excluiu o terceirizado "+n0,n0)}await b.commit();render(true)},
-  async assign(id){const sid=$("#as_"+id).value;if(!sid)return toast("Escolha um servidor.");const s=S.adm.serv.find(x=>x.id===sid),a=S.ap.find(x=>x.id===id),b=writeBatch(db);
-    b.set(doc(db,"apadrinhamentos",id+"_"+sid),{apadrinhadoId:id,apadrinhadoNome:a.nome,padrinhoId:sid,padrinhoNome:s.nome,ano:S.cfg.ano,presente:"",mensagem:"",entregue:false,criadoEm:serverTimestamp()});
-    b.update(doc(db,"apadrinhados",id),{padrinhos:increment(1)});lg(b,"apadrinhar",`Administrador vinculou ${s.nome} como padrinho de ${a.nome}`,a.nome);await b.commit();toast("Padrinho vinculado.");render(true)},
   editServ(id){const s=S.adm.serv.find(x=>x.id===id)||{};
     modal(id?"Editar servidor":"Cadastrar servidor",FS,s,async v=>{const b=writeBatch(db);if(id)b.update(doc(db,"servidores",id),v);else b.set(doc(collection(db,"servidores")),{...v,convite:"admin",criadoEm:serverTimestamp()});lg(b,id?"servidor_alterado":"servidor_cadastrado",(id?"Alterou os dados de ":"Cadastrou o servidor ")+v.nome,v.nome);await b.commit()})},
   async delServ(id){if(!confirm("Excluir este servidor? (A conta de login dele continua existindo, mas sem acesso.)"))return;{const n0=S.adm.serv.find(y=>y.id===id)?.nome||"",b=writeBatch(db);b.delete(doc(db,"servidores",id));lg(b,"servidor_excluido","Excluiu o servidor "+n0,n0);await b.commit()}render(true)},
@@ -1475,19 +1545,6 @@ const W={
   async perm(id,k,v){try{await updateDoc(doc(db,"admins",id),{["perms."+k]:v});toast("Permissão atualizada.")}catch(x){toast("Erro: "+x.message)}},
   async delAdmin(id){if(!confirm("Remover este administrador?"))return;await deleteDoc(doc(db,"admins",id));render(true)},
   copiar:async l=>{try{await navigator.clipboard.writeText(l);toast("Link copiado!")}catch{prompt("Copie o link:",l)}},
-  async setEntrega(id,v,motivo=""){const x=[...S.my,...(S.adm?.aps||[])].find(z=>z.id===id),b=writeBatch(db);b.update(doc(db,"apadrinhamentos",id),{entregue:v,entregueEm:v?serverTimestamp():null});lg(b,v?"entrega_registrada":"entrega_desfeita",`${v?"Registrou a entrega":"Desfez a entrega"} do presente para ${x.apadrinhadoNome} (padrinho: ${x.padrinhoNome})${motivo?". Motivo: "+motivo:""}`,x.apadrinhadoNome);await b.commit()},
-  async entregue(id,v){let m="";if(!v){const x=[...S.my,...(S.adm?.aps||[])].find(z=>z.id===id);m=await pedirMotivo("Desfazer entrega",`Você vai desfazer o registro de entrega do presente para <b>${esc(x.apadrinhadoNome)}</b>.`,"Desfazer entrega");if(m===null){render(true);return}}
-    try{await W.setEntrega(id,v,m);render(true)}catch(x){toast("Erro: "+(x.code||x.message));render(true)}},
-  async entregar(id,v){if(v&&!confirm("Confirmar que o presente já foi entregue?"))return;let m="";if(!v){const x=S.my.find(z=>z.id===id);m=await pedirMotivo("Desfazer entrega",`Você vai desfazer o registro de entrega do presente para <b>${esc(x.apadrinhadoNome)}</b>.`,"Desfazer entrega");if(m===null)return}
-    try{await W.setEntrega(id,v,m);toast(v?"Entrega registrada. Obrigado!":"Entrega desfeita.");render(true)}catch(x){toast("Erro: "+(x.code||x.message))}},
-  async salvarCfg(e){e.preventDefault();const f=e.target;await setDoc(doc(db,"config","campanha"),{ano:+f.ano.value,dataEntrega:f.dataEntrega.value,mensagemPadrao:f.mensagemPadrao.value.trim()});toast("Campanha atualizada.");render(true)},
-  csvAp(){csv([["Nome","Profissão","Lotação","Idade","E-mail","Situação","Padrinho"],...[...S.ap].sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR",{sensitivity:"base"})).map(a=>{const p=S.adm.priv[a.id]||{},x=S.adm.aps.filter(y=>y.apadrinhadoId===a.id);return [a.nome,a.profissao,a.lotacao,a.idade,p.email,tem(a)?"Apadrinhado":"Sem padrinho",x.map(z=>z.padrinhoNome).join(", ")]})],"terceirizados.csv")},
-  csvEnt(){csv([["Apadrinhado","E-mail","Padrinho","Presente","Mensagem","Entregue","Data da entrega"],...S.adm.aps.map(x=>[x.apadrinhadoNome,S.adm.priv[x.apadrinhadoId]?.email||"",x.padrinhoNome,x.presente,x.mensagem,x.entregue?"Sim":"Não",dt(x.entregueEm)])],"presentes.csv")},
-  async enviarEmails(){if(!confirm("Enviar a mensagem de Natal por e-mail para todos os afilhados que têm e-mail cadastrado?"))return;
-    const tok=await auth.currentUser.getIdToken();let ok=0,fail=0,sem=0;
-    for(const x of S.adm.aps){const em=S.adm.priv[x.apadrinhadoId]?.email;if(!em){sem++;continue}
-      try{const r=await fetch(WORKER_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({idToken:tok,to:em,subject:"Feliz Natal, "+x.apadrinhadoNome.split(" ")[0]+"!",html:cartaoEmail(x)})});r.ok?ok++:fail++}catch{fail++}}
-    toast(`Enviados: ${ok}. Falhas: ${fail}. Sem e-mail: ${sem}.`)}
 };
 window.W=W;
 
