@@ -23,10 +23,10 @@ service cloud.firestore {
       return signed() && exists(/databases/$(database)/documents/servidores/$(request.auth.uid));
     }
 
-    // Configuração da campanha (campanha) e resumo público de arrecadação (resumo)
+    // Configuração da campanha (campanha), resumo público de arrecadação (resumo) e prestação de contas (prestacao)
     match /config/{d} {
       allow read: if true;
-      allow write: if can('campanha') || (d == 'resumo' && can('contribuicoes'));
+      allow write: if can('campanha') || (d in ['resumo','prestacao'] && can('contribuicoes'));
     }
 
     // Administradores e permissões (apenas o administrador principal gerencia)
@@ -49,12 +49,11 @@ service cloud.firestore {
       allow read, write: if can('terceirizados');
     }
 
-    // Contribuições: um documento por servidor e ano (id = ano_uid)
+    // Contribuições: cada PIX enviado é um documento (um servidor pode fazer vários)
     match /contribuicoes/{id} {
       allow read: if isStaff() || (signed() && resource.data.servidorId == request.auth.uid);
       allow create: if can('contribuicoes') || (isServidor()
         && request.resource.data.servidorId == request.auth.uid
-        && id == string(request.resource.data.ano) + '_' + request.auth.uid
         && request.resource.data.status == 'em_analise'
         && request.resource.data.valor is number
         && request.resource.data.valor > 0 && request.resource.data.valor <= 100000);
@@ -77,13 +76,26 @@ service cloud.firestore {
       allow read: if can('contribuicoes') || (signed() && resource.data.servidorId == request.auth.uid);
       allow create, update: if can('contribuicoes') || (isServidor()
         && request.resource.data.servidorId == request.auth.uid
-        && id == string(request.resource.data.ano) + '_' + request.auth.uid
+        && existsAfter(/databases/$(database)/documents/contribuicoes/$(id))
+        && getAfter(/databases/$(database)/documents/contribuicoes/$(id)).data.servidorId == request.auth.uid
         && request.resource.data.keys().hasOnly(['servidorId','ano','dados','tipo','nome','enviadoEm'])
         && request.resource.data.dados is string && request.resource.data.dados.size() <= 900000
         && request.resource.data.tipo in ['image/jpeg','application/pdf']
         && (!exists(/databases/$(database)/documents/contribuicoes/$(id))
             || get(/databases/$(database)/documents/contribuicoes/$(id)).data.status != 'confirmado'));
       allow delete: if can('contribuicoes');
+    }
+
+    // Prestação de contas: gastos e comprovantes. Só são lidos por todos depois que os administradores disponibilizam (config/prestacao.publicada)
+    match /gastos/{id} {
+      allow read: if can('contribuicoes') || (exists(/databases/$(database)/documents/config/prestacao)
+        && get(/databases/$(database)/documents/config/prestacao).data.get('publicada', false) == true);
+      allow create, update, delete: if can('contribuicoes');
+    }
+    match /gastosArq/{id} {
+      allow read: if can('contribuicoes') || (exists(/databases/$(database)/documents/config/prestacao)
+        && get(/databases/$(database)/documents/config/prestacao).data.get('publicada', false) == true);
+      allow create, update, delete: if can('contribuicoes');
     }
 
     // Registro de atividades (imutável): cada usuário grava e lê os próprios registros; admins com permissão "logs" leem todos
@@ -108,7 +120,7 @@ service cloud.firestore {
         && request.resource.data.nome is string && request.resource.data.nome.size() > 0 && request.resource.data.nome.size() <= 120
         && request.resource.data.email is string && request.resource.data.email.size() > 3 && request.resource.data.email.size() <= 160
         && request.resource.data.area is string && request.resource.data.area.size() > 0 && request.resource.data.area.size() <= 120
-        && request.resource.data.lotacao is string && request.resource.data.lotacao.size() > 0 && request.resource.data.lotacao.size() <= 120
+        && request.resource.data.lotacao is string && request.resource.data.lotacao.size() <= 120
         && request.resource.data.fone is string && request.resource.data.fone.size() <= 30
         && request.resource.data.mensagem is string && request.resource.data.mensagem.size() <= 800;
       allow read, update, delete: if can('convites');
@@ -117,7 +129,7 @@ service cloud.firestore {
     // Servidores
     match /servidores/{uid} {
       allow read: if isStaff() || (signed() && request.auth.uid == uid);
-      allow create: if can('servidores') || (signed() && request.auth.uid == uid
+      allow create: if can('servidores') || (isStaff() && request.auth.uid == uid) || (signed() && request.auth.uid == uid
         && exists(/databases/$(database)/documents/convites/$(request.resource.data.convite))
         && (get(/databases/$(database)/documents/convites/$(request.resource.data.convite)).data.multi == true
             || get(/databases/$(database)/documents/convites/$(request.resource.data.convite)).data.usado == false));
