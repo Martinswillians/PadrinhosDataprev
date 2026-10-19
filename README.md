@@ -10,7 +10,8 @@ Site estático (GitHub Pages) + Firebase (Auth e Firestore). Os servidores contr
 
 ## Administradores
 - Um administrador também pode contribuir: em **Minha contribuição** há o botão "Criar meu cadastro de servidor".
-- **Painel > Contribuições:** confirmar, recusar (com motivo), desfazer, ver comprovante, registrar pagamento feito fora do site e baixar CSV. Um servidor pode ter várias contribuições.
+- **Painel > Contribuições:** confirmar, recusar (com motivo), desfazer, ver comprovante, registrar pagamento feito fora do site (já com o comprovante anexado, em foto, print ou PDF), anexar ou trocar o comprovante de uma contribuição já registrada e baixar CSV. Um servidor pode ter várias contribuições.
+- **Quem já contribuiu:** a seção "Como está a campanha" mostra o nome e a foto (miniatura) dos servidores com contribuição confirmada, sem valores. Atualiza ao confirmar, desfazer ou excluir; o botão **Atualizar lista**, em Contribuições, sincroniza as já confirmadas. Em Campanha dá para desligar essa exibição.
 - **Painel > Comparativo de compra:** quantas unidades de cada item o valor confirmado compra e se cobre todos os colegas.
 - **Painel > Prestação de contas:** registre as compras dos Chocottones e cestas e os gastos do café, com comprovante em foto. O que foi registrado **só aparece para os servidores quando você clica em Disponibilizar para todos** (e pode ser ocultado de novo).
 - **Painel > Campanha:** ano, data e horário do café, valor sugerido, meta, reserva do café, dados do PIX e os itens (nome, descrição, preço e foto).
@@ -18,7 +19,7 @@ Site estático (GitHub Pages) + Firebase (Auth e Firestore). Os servidores contr
 
 ## Publicação
 1. **Firebase > Firestore > Regras:** cole o `firestore.rules` e publique (obrigatório: há regras novas para contribuições, comprovantes e prestação de contas).
-2. **GitHub:** envie o `index.html` e atualize o site com Ctrl+F5. O rodapé mostra a versão (2026.10.15-k).
+2. **GitHub:** envie o `index.html` e atualize o site com Ctrl+F5. O rodapé mostra a versão (2026.10.19-l).
 3. **Authentication:** E-mail/senha e Google ativados, com `martinswillians.github.io` em Authorized domains.
 4. Em **Painel > Campanha**, confira a chave PIX, o horário e, se quiser, a meta e a reserva do café. Os itens já vêm com as fotos e os preços do Chocottone (R$ 54,99) e da Cesta (R$ 73,49); ajuste se mudarem.
 

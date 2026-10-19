@@ -118,6 +118,7 @@ footer{background:var(--pine);color:#a9c2b5;padding:28px 0;text-align:center;fon
 .prod .ph{aspect-ratio:4/3;display:grid;place-items:center;background:var(--frost);border-radius:10px;font-size:3.4rem}
 .prod h3{margin:6px 0 0;font-size:1.25rem}.prod p{margin:0;color:var(--mute);flex:1}.prod .preco{font:700 1.5rem var(--serif);color:var(--berry)}
 .itens.mini{grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}.itens.mini .prod{padding:10px}.itens.mini .prod img{max-height:130px}.itens.mini .prod h3{font-size:1rem}
+.doadores{display:flex;flex-wrap:wrap;gap:16px;margin:14px 0}.doador{display:flex;flex-direction:column;align-items:center;width:92px;text-align:center;font-size:.85rem;gap:6px;line-height:1.2}.av.md{width:64px;height:64px;font-size:1.3rem}
 .pix{display:grid;grid-template-columns:260px 1fr;gap:22px;align-items:center;margin:10px 0}.chave{font:700 1.5rem var(--serif);word-break:break-all;margin:6px 0}
 @media(max-width:700px){.pix{grid-template-columns:1fr}}
 .cnt{color:var(--mute);margin:4px 0 0;font-size:.92rem}
@@ -133,7 +134,7 @@ footer{background:var(--pine);color:#a9c2b5;padding:28px 0;text-align:center;fon
   <nav class="n" id="nav"></nav>
 </div></header>
 <main id="app"><p class="load">Carregando…</p></main>
-<footer><div class="wrap">Natal Solidário Datacenter 1º andar<br><small id="ver">versão 2026.10.15-k</small></div></footer>
+<footer><div class="wrap">Natal Solidário Datacenter 1º andar<br><small id="ver">versão 2026.10.19-l</small></div></footer>
 <dialog id="dlg"></dialog>
 <div id="toast" role="status"></div>
 
@@ -1081,7 +1082,7 @@ const erroAuth=x=>{const c=x?.code||"";const M={
 const toast=m=>{const t=$("#toast");t.textContent=m;t.style.display="block";clearTimeout(toast.h);toast.h=setTimeout(()=>t.style.display="none",8000)};
 const av=(a,c="")=>a?.foto?`<img class="av ${c}" src="${a.foto}" alt="Foto de ${esc(a.nome)}">`:`<div class="av ${c}" aria-hidden="true">${esc(ini(a?.nome))}</div>`;
 const g=async n=>(await getDocs(collection(db,n))).docs.map(d=>({id:d.id,...d.data()}));
-const ACOES={gasto_registrado:"Gasto registrado",gasto_alterado:"Gasto alterado",gasto_excluido:"Gasto excluído",prestacao_publicada:"Prestação de contas disponibilizada",prestacao_ocultada:"Prestação de contas ocultada",contribuicao_enviada:"Comprovante enviado",contribuicao_reenviada:"Comprovante reenviado",contribuicao_confirmada:"Contribuição confirmada",contribuicao_recusada:"Contribuição recusada",contribuicao_desfeita:"Confirmação desfeita",contribuicao_manual:"Contribuição registrada (adm)",contribuicao_excluida:"Contribuição excluída",cadastro:"Cadastro de servidor",perfil_alterado:"Perfil alterado",terceirizado_cadastrado:"Terceirizado cadastrado",terceirizado_alterado:"Terceirizado alterado",terceirizado_excluido:"Terceirizado excluído",servidor_cadastrado:"Servidor cadastrado (adm)",servidor_alterado:"Servidor alterado (adm)",servidor_excluido:"Servidor excluído (adm)",apadrinhar:"Apadrinhamento (versão anterior)",desfazer_apadrinhamento:"Apadrinhamento desfeito (versão anterior)",entrega_registrada:"Entrega registrada (versão anterior)",entrega_desfeita:"Entrega desfeita (versão anterior)"};
+const ACOES={contribuicao_comprovante:"Comprovante anexado (adm)",gasto_registrado:"Gasto registrado",gasto_alterado:"Gasto alterado",gasto_excluido:"Gasto excluído",prestacao_publicada:"Prestação de contas disponibilizada",prestacao_ocultada:"Prestação de contas ocultada",contribuicao_enviada:"Comprovante enviado",contribuicao_reenviada:"Comprovante reenviado",contribuicao_confirmada:"Contribuição confirmada",contribuicao_recusada:"Contribuição recusada",contribuicao_desfeita:"Confirmação desfeita",contribuicao_manual:"Contribuição registrada (adm)",contribuicao_excluida:"Contribuição excluída",cadastro:"Cadastro de servidor",perfil_alterado:"Perfil alterado",terceirizado_cadastrado:"Terceirizado cadastrado",terceirizado_alterado:"Terceirizado alterado",terceirizado_excluido:"Terceirizado excluído",servidor_cadastrado:"Servidor cadastrado (adm)",servidor_alterado:"Servidor alterado (adm)",servidor_excluido:"Servidor excluído (adm)",apadrinhar:"Apadrinhamento (versão anterior)",desfazer_apadrinhamento:"Apadrinhamento desfeito (versão anterior)",entrega_registrada:"Entrega registrada (versão anterior)",entrega_desfeita:"Entrega desfeita (versão anterior)"};
 function lg(b,acao,detalhe,alvo="",u=auth.currentUser,nome=null){
   b.set(doc(collection(db,"logs")),{acao,detalhe:String(detalhe).slice(0,380),usuarioId:u.uid,usuarioNome:String(nome||S.perfil?.nome||u.displayName||u.email||"").slice(0,150),usuarioEmail:u.email||"",alvoNome:String(alvo||"").slice(0,150),criadoEm:serverTimestamp()});
 }
@@ -1099,11 +1100,12 @@ const FS=[{k:"nome",l:"Nome",req:1},{k:"area",l:"Área",req:1},{k:"email",l:"E-m
 function fld(f,v=""){
   const id="f_"+f.k,r=f.req?"required":"";
   if(f.t==="foto")return `<label>${f.l}${f.req?` <span class="req" aria-hidden="true">*</span>`:""}</label><div class="fotobox"><img data-foto data-v="${esc(v)}" src="${v||"data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="}" alt=""><input type="file" accept="image/*" data-max="${f.max||480}" onchange="W.foto(this)"></div>`;
+  if(f.t==="arquivo")return `<label for="${id}">${f.l}${f.req?` <span class="req" aria-hidden="true">*</span>`:""}</label><input id="${id}" name="${f.k}" type="file" accept="image/*,application/pdf" ${r}>`;
   if(f.t==="select")return `<label for="${id}">${f.l}${f.req?` <span class="req" aria-hidden="true">*</span>`:""}</label><select id="${id}" name="${f.k}" ${r}>${f.o.map(o=>`<option ${o===v?"selected":""}>${o}</option>`).join("")}</select>`;
   if(f.t==="textarea")return `<label for="${id}">${f.l}${f.req?` <span class="req" aria-hidden="true">*</span>`:""}</label><textarea id="${id}" name="${f.k}">${esc(v)}</textarea>`;
   return `<label for="${id}">${f.l}${f.req?` <span class="req" aria-hidden="true">*</span>`:""}</label><input id="${id}" name="${f.k}" type="${f.t||"text"}" value="${esc(v)}" ${r} ${f.t==="number"?'step="any"':""} ${f.t==="password"?'minlength="6" autocomplete="new-password"':""}>`;
 }
-function read(form,fields){const v={};fields.forEach(f=>{if(f.t==="foto")v.foto=form.querySelector("[data-foto]").dataset.v||"";else{v[f.k]=form.elements[f.k].value.trim();if(f.t==="number")v[f.k]=v[f.k]?+v[f.k]:null}});return v}
+function read(form,fields){const v={};fields.forEach(f=>{if(f.t==="arquivo")v[f.k]=form.elements[f.k].files[0]||null;else if(f.t==="foto")v.foto=form.querySelector("[data-foto]").dataset.v||"";else{v[f.k]=form.elements[f.k].value.trim();if(f.t==="number")v[f.k]=v[f.k]?+v[f.k]:null}});return v}
 function resize(file,max=480){return new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>{const i=new Image();i.onload=()=>{const s=Math.min(1,max/Math.max(i.width,i.height)),c=document.createElement("canvas");c.width=i.width*s;c.height=i.height*s;c.getContext("2d").drawImage(i,0,0,c.width,c.height);ok(c.toDataURL("image/jpeg",.72))};i.onerror=no;i.src=r.result};r.readAsDataURL(file)})}
 function pedirMotivo(titulo,msg,btn){
   return new Promise(res=>{const d=$("#dlg");let ok=false;
@@ -1155,6 +1157,7 @@ function painelCampanha(){
     <div class="stat ok"><b>${brl(r.arrecadado)}</b><span>arrecadado até agora</span></div>
     <div class="stat"><b>${S.ap.length}</b><span>colegas que vamos presentear</span></div></div>
     ${meta>0?`<div class="bar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div><p class="cnt">${pct}% da meta de ${brl(meta)}</p>`:""}
+    ${S.cfg.mostrarDoadores!==false&&(S.doadores||[]).length?`<h3 style="margin-top:22px">Quem já contribuiu</h3><div class="doadores">${S.doadores.map(d=>`<div class="doador">${av(d,"md")}<span>${esc(d.nome)}</span></div>`).join("")}</div><p class="cnt">Obrigado a cada um de vocês!</p>`:""}
     ${cap.length?`<p class="msg-info">Com o valor arrecadado até agora já dá para comprar ${cap.map(c=>`<b>${c.q}</b> ${esc(c.nome)}`).join(" ou ")}. Precisamos de ${S.ap.length} para presentear todos os colegas.</p>`:""}`;
 }
 function prestacaoHtml(){
@@ -1164,11 +1167,17 @@ function prestacaoHtml(){
   <div class="dash"><div class="stat ok"><b>${brl(arr)}</b><span>arrecadado</span></div><div class="stat"><b>${brl(por(TIPOS[0]))}</b><span>${TIPOS[0]}</span></div><div class="stat"><b>${brl(por(TIPOS[1]))}</b><span>${TIPOS[1]}</span></div><div class="stat"><b>${brl(tot)}</b><span>total gasto</span></div><div class="stat ${arr-tot>=0?"ok":"falta"}"><b>${brl(arr-tot)}</b><span>saldo</span></div></div>
   <div class="tw"><table><thead><tr><th>Data</th><th>Descrição</th><th>Qtd.</th><th>Valor</th><th>Comprovante</th></tr></thead><tbody>${G.map(g=>`<tr><td>${fmt(g.data)}</td><td>${esc(g.descricao)}<br><small>${esc(g.tipo)}</small></td><td>${g.quantidade||""}</td><td>${brl(g.valor)}</td><td>${g.comprovanteNome?`<button class="btn sm ghost" onclick="W.verGasto('${g.id}')">Ver</button>`:"-"}</td></tr>`).join("")||'<tr><td colspan="5">Nenhum gasto registrado.</td></tr>'}</tbody></table></div></div></section>`;
 }
+
+function thumb(src,px=96){return new Promise(ok=>{if(!src)return ok("");const i=new Image();i.onload=()=>{const s=Math.max(px/i.width,px/i.height),w=i.width*s,h=i.height*s,c=document.createElement("canvas");c.width=c.height=px;c.getContext("2d").drawImage(i,(px-w)/2,(px-h)/2,w,h);ok(c.toDataURL("image/jpeg",.7))};i.onerror=()=>ok("");i.src=src})}
+async function doadoresSync(b,list,ids){for(const sid of new Set(ids)){const ref=doc(db,"doadores",sid);
+  if(list.some(z=>z.servidorId===sid&&z.status==="confirmado")){const s=S.adm.serv.find(x=>x.id===sid)||{};b.set(ref,{nome:String(s.nome||list.find(z=>z.servidorId===sid)?.servidorNome||"").slice(0,120),foto:await thumb(s.foto),ano:S.cfg.ano,atualizadoEm:serverTimestamp()})}
+  else b.delete(ref)}}
 async function loadPublic(){
   const c=await getDoc(doc(db,"config","campanha"));
   if(c.exists())S.cfg={...S.cfg,...c.data()};
   if(!c.exists()||c.data().itensVersao!==2||!Array.isArray(S.cfg.itens)||!S.cfg.itens.length)S.cfg.itens=DEFAULT_ITENS;
   try{const p=await getDoc(doc(db,"config","prestacao"));S.prest=p.exists()?p.data():{}}catch{S.prest={}}
+  S.doadores=[];try{S.doadores=(await getDocs(query(collection(db,"doadores"),where("ano","==",S.cfg.ano)))).docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR",{sensitivity:"base"}))}catch{}
   S.gastos=[];if(S.prest.publicada){try{S.gastos=(await getDocs(query(collection(db,"gastos"),where("ano","==",S.cfg.ano)))).docs.map(d=>({id:d.id,...d.data()}))}catch{}}
   try{const r=await getDoc(doc(db,"config","resumo"));S.resumo=r.exists()?{arrecadado:0,confirmados:0,...r.data()}:{arrecadado:0,confirmados:0}}catch{}
   const q=await getDocs(query(collection(db,"apadrinhados"),where("ano","==",S.cfg.ano)));
@@ -1378,7 +1387,7 @@ async function admin(p){
   const rowServ=x=>{const st=stSrv(x.id),[lb,cl]=SRVPILL[st],n=(por[x.id]||[]).length;return `<tr><td>${av(x,"sm")}</td><td>${esc(x.nome)}</td><td>${esc(x.area||"")}</td><td>${esc(x.email||"")}</td><td><span class="pill ${cl}">${lb}</span>${n?`<br><small>${brl(totSrv(x.id))} confirmados em ${n} ${n===1?"contribuição":"contribuições"}</small>`:""}</td><td><button class="btn sm ghost" onclick="W.editServ('${x.id}')">Editar</button><button class="btn sm danger" onclick="W.delServ('${x.id}')">Excluir</button></td></tr>`};
   const listServ=()=>{const f=S.fs,l=A.serv.filter(x=>has(x.nome,f.q)&&has(x.area,f.area)&&(!f.sit||stSrv(x.id)===f.sit)).sort(cmp);
     return {txt:`${l.length} de ${A.serv.length} servidores`,h:l.map(rowServ).join("")||'<tr><td colspan="6">Nenhum servidor encontrado.</td></tr>'}};
-  const rowC=x=>`<tr><td>${esc(x.servidorNome)}<br><small>${esc(x.area||"")}</small></td><td>${brl(x.valor)}${x.manual?"<br><small>registrado pelo adm</small>":""}</td><td>${pill(x)}${x.status==="recusada"&&x.obsAdmin?`<br><small>${esc(x.obsAdmin)}</small>`:""}</td><td>${esc(dh(x.enviadoEm||x.criadoEm))}</td><td>${x.comprovanteNome?`<button class="btn sm ghost" onclick="W.verComp('${x.id}')">Ver</button>`:"-"}</td>
+  const rowC=x=>`<tr><td>${esc(x.servidorNome)}<br><small>${esc(x.area||"")}</small></td><td>${brl(x.valor)}${x.manual?"<br><small>registrado pelo adm</small>":""}</td><td>${pill(x)}${x.status==="recusada"&&x.obsAdmin?`<br><small>${esc(x.obsAdmin)}</small>`:""}</td><td>${esc(dh(x.enviadoEm||x.criadoEm))}</td><td>${x.comprovanteNome?`<button class="btn sm ghost" onclick="W.verComp('${x.id}')">Ver</button>`:""}<button class="btn sm ghost" onclick="W.anexar('${x.id}')">${x.comprovanteNome?"Trocar":"Anexar"}</button></td>
     <td>${x.status!=="confirmado"?`<button class="btn sm" onclick="W.confirmar('${x.id}')">Confirmar</button>`:`<button class="btn sm ghost" onclick="W.desfazerConf('${x.id}')">Desfazer</button>`}${x.status!=="recusada"?`<button class="btn sm danger" onclick="W.recusar('${x.id}')">Recusar</button>`:""}<button class="btn sm danger" aria-label="Excluir contribuição" onclick="W.delContrib('${x.id}')">×</button></td></tr>`;
   const listC=()=>{const f=S.fc,l=C.filter(x=>has(x.servidorNome,f.q)&&(!f.st||x.status===f.st)&&has(x.area,f.lot)).sort((a,b)=>a.servidorNome.localeCompare(b.servidorNome,"pt-BR",{sensitivity:"base"}));
     const n=semC.filter(x=>has(x.nome,f.q)&&has(x.area,f.lot)).sort(cmp);
@@ -1396,6 +1405,7 @@ async function admin(p){
     <div><h3>Ainda não contribuíram (${semC.length})</h3>${semC.slice(0,40).map(x=>`<div>${esc(x.nome)} <small>${esc(x.area||"")}</small></div>`).join("")||"<p>Todos os cadastrados já contribuíram.</p>"}${semC.length>40?`<p>e mais ${semC.length-40}…</p>`:""}</div></div>
     <h3 style="margin-top:20px">Convidados sem cadastro (${pend.length})</h3>${pend.map(c=>`<div>${esc(c.nome)} <small>${esc(c.email||"")}</small></div>`).join("")||"<p>Nenhum pendente.</p>"}`;
   if(tab==="contribuicoes"){const r=listC(),f=S.fc;body=`<div class="dash"><div class="stat ok"><b>${brl(soma("confirmado"))}</b><span>confirmado (${nConf})</span></div><div class="stat"><b>${brl(soma("em_analise"))}</b><span>em análise (${nAn})</span></div><div class="stat falta"><b>${semC.length}</b><span>servidores sem contribuição</span></div></div>
+    <div class="${(S.doadores||[]).length===nContrib?"msg-ok":"msg-info"}">Na página da campanha aparecem ${(S.doadores||[]).length} de ${nContrib} servidores com contribuição confirmada. <button class="btn sm ghost" onclick="W.sincDoadores()">Atualizar lista</button></div>
     <div class="row"><button class="btn" onclick="W.regManual()">+ Registrar contribuição</button><button class="btn ghost" onclick="W.csvContrib()">Baixar lista (CSV)</button></div>
     <div class="filtros"><input type="search" placeholder="Buscar por nome" aria-label="Buscar por nome" value="${esc(f.q)}" oninput="W.filtrar('fc','q',this.value)">
     <select aria-label="Status" onchange="W.filtrar('fc','st',this.value)"><option value="">Todos os status</option>${Object.entries(ST).map(([k,[l]])=>`<option value="${k}" ${f.st===k?"selected":""}>${l}</option>`).join("")}</select>
@@ -1451,6 +1461,7 @@ async function admin(p){
     <label>Valor sugerido de contribuição (R$)</label><input name="valorContribuicao" type="number" step="any" min="1" value="${S.cfg.valorContribuicao}" required>
     <label>Meta de arrecadação (R$)</label><input name="meta" type="number" step="any" min="0" value="${S.cfg.meta||0}">
     <label>Reserva para o café da manhã (R$)</label><input name="reservaCafe" type="number" step="any" min="0" value="${S.cfg.reservaCafe||0}">
+    <label style="font-weight:500"><input type="checkbox" name="mostrarDoadores" style="width:auto" ${S.cfg.mostrarDoadores!==false?"checked":""}> Mostrar nome e foto de quem contribuiu na página da campanha</label>
     <label>Tipo da chave PIX</label><select name="tipoChave">${["Telefone","CPF/CNPJ","E-mail","Chave aleatória"].map(o=>`<option ${o===S.cfg.tipoChave?"selected":""}>${o}</option>`).join("")}</select>
     <label>Chave PIX</label><input name="chavePix" required value="${esc(S.cfg.chavePix)}">
     <label>Nome do recebedor (aparece no PIX)</label><input name="nomeRecebedor" maxlength="25" value="${esc(S.cfg.nomeRecebedor)}">
@@ -1538,7 +1549,7 @@ const W={
     const dl=$("#dlg");dl.innerHTML=`<h2>${tit}</h2><p>${esc(c.nome||"")}</p><img src="${c.dados}" alt="${tit}" style="max-width:100%;border:1px solid var(--line);border-radius:8px"><div class="row"><button class="btn ghost" onclick="dlg.close()">Fechar</button></div>`;dl.showModal()},
   async mudarStatus(id,status,motivo,acao,det){const x=S.adm.contrib.find(z=>z.id===id),b=writeBatch(db);
     b.update(doc(db,"contribuicoes",id),{status,obsAdmin:motivo||"",confirmadoPor:S.user.email,confirmadoEm:serverTimestamp()});
-    resumoDe(b,S.adm.contrib.map(z=>z.id===id?{...z,status}:z));
+    {const nova=S.adm.contrib.map(z=>z.id===id?{...z,status}:z);resumoDe(b,nova);await doadoresSync(b,nova,[x.servidorId])}
     lg(b,acao,`${det} de ${x.servidorNome} (${brl(x.valor)})${motivo?". Motivo: "+motivo:""}`,x.servidorNome);await b.commit()},
   async confirmar(id){if(!confirm("Confirmar o recebimento desta contribuição?"))return;try{await W.mudarStatus(id,"confirmado","","contribuicao_confirmada","Confirmou a contribuição");toast("Contribuição confirmada.");render(true)}catch(x){toast("Erro: "+(x.code||x.message))}},
   async recusar(id){const x=S.adm.contrib.find(z=>z.id===id);const m=await pedirMotivo("Recusar comprovante",`Informe por que o comprovante de <b>${esc(x.servidorNome)}</b> não pode ser aceito. O servidor verá o motivo e poderá reenviar.`,"Recusar");if(m===null)return;
@@ -1546,13 +1557,14 @@ const W={
   async desfazerConf(id){const x=S.adm.contrib.find(z=>z.id===id);const m=await pedirMotivo("Desfazer confirmação",`A contribuição de <b>${esc(x.servidorNome)}</b> voltará para "Em análise".`,"Desfazer confirmação");if(m===null)return;
     try{await W.mudarStatus(id,"em_analise",m,"contribuicao_desfeita","Desfez a confirmação");toast("Confirmação desfeita.");render(true)}catch(e){toast("Erro: "+(e.code||e.message))}},
   async delContrib(id){const x=S.adm.contrib.find(z=>z.id===id);const m=await pedirMotivo("Excluir contribuição",`Você vai excluir a contribuição de <b>${esc(x.servidorNome)}</b> (${brl(x.valor)}) e o comprovante enviado.`,"Excluir");if(m===null)return;
-    try{const b=writeBatch(db);b.delete(doc(db,"contribuicoes",id));b.delete(doc(db,"comprovantes",id));resumoDe(b,S.adm.contrib.filter(z=>z.id!==id));lg(b,"contribuicao_excluida",`Excluiu a contribuição de ${x.servidorNome} (${brl(x.valor)}). Motivo: ${m}`,x.servidorNome);await b.commit();toast("Contribuição excluída.");render(true)}catch(e){toast("Erro: "+(e.code||e.message))}},
+    try{const b=writeBatch(db);b.delete(doc(db,"contribuicoes",id));b.delete(doc(db,"comprovantes",id));{const nova=S.adm.contrib.filter(z=>z.id!==id);resumoDe(b,nova);await doadoresSync(b,nova,[x.servidorId])}lg(b,"contribuicao_excluida",`Excluiu a contribuição de ${x.servidorNome} (${brl(x.valor)}). Motivo: ${m}`,x.servidorNome);await b.commit();toast("Contribuição excluída.");render(true)}catch(e){toast("Erro: "+(e.code||e.message))}},
   regManual(sid){const lab=s=>s.nome+" ("+(s.area||"sem área")+")",s0=sid?S.adm.serv.find(x=>x.id===sid):null;
-    const FC=[{k:"servidor",l:"Servidor",t:"select",o:S.adm.serv.map(lab),req:1},{k:"valor",l:"Valor recebido (R$)",t:"number",req:1},{k:"obs",l:"Observação (ex.: pago em dinheiro)"}];
+    const FC=[{k:"servidor",l:"Servidor",t:"select",o:S.adm.serv.map(lab),req:1},{k:"valor",l:"Valor recebido (R$)",t:"number",req:1},{k:"obs",l:"Observação (ex.: pago em dinheiro)"},{k:"comprovante",l:"Comprovante de pagamento (foto, print ou PDF)",t:"arquivo"}];
     modal("Registrar contribuição",FC,{servidor:s0?lab(s0):"",valor:S.cfg.valorContribuicao,obs:""},async v=>{const s=S.adm.serv.find(x=>lab(x)===v.servidor);if(!s)throw new Error("Escolha o servidor.");if(!(v.valor>0))throw new Error("Informe o valor.");
-      const ref=doc(collection(db,"contribuicoes")),b=writeBatch(db),dados={servidorId:s.id,servidorNome:s.nome,area:s.area||"",ano:S.cfg.ano,valor:v.valor,status:"confirmado",obsAdmin:v.obs||"",comprovanteNome:"",manual:true,confirmadoPor:S.user.email};
+      const cp=v.comprovante?await lerComprovante(v.comprovante):null,ref=doc(collection(db,"contribuicoes")),b=writeBatch(db),dados={servidorId:s.id,servidorNome:s.nome,area:s.area||"",ano:S.cfg.ano,valor:v.valor,status:"confirmado",obsAdmin:v.obs||"",comprovanteNome:cp?cp.nome.slice(0,120):"",manual:true,confirmadoPor:S.user.email};
       b.set(ref,{...dados,criadoEm:serverTimestamp(),confirmadoEm:serverTimestamp()});
-      resumoDe(b,[...S.adm.contrib,{id:ref.id,...dados}]);
+      if(cp)b.set(doc(db,"comprovantes",ref.id),{servidorId:s.id,ano:S.cfg.ano,dados:cp.dados,tipo:cp.tipo,nome:cp.nome.slice(0,120),enviadoEm:serverTimestamp()});
+      {const nova=[...S.adm.contrib,{id:ref.id,...dados}];resumoDe(b,nova);await doadoresSync(b,nova,[s.id])}
       lg(b,"contribuicao_manual",`Registrou contribuição de ${brl(v.valor)} de ${s.nome}${v.obs?". Obs.: "+v.obs:""}`,s.nome);await b.commit()})},
   editGasto(id){const g=id?S.adm.gastos.find(x=>x.id===id):null;
     const FG=[{k:"tipo",l:"Tipo",t:"select",o:TIPOS,req:1},{k:"descricao",l:"Descrição (ex.: 7 Chocottones Bauducco)",req:1},{k:"quantidade",l:"Quantidade",t:"number"},{k:"valor",l:"Valor total (R$)",t:"number",req:1},{k:"data",l:"Data",t:"date",req:1},{k:"foto",l:"Comprovante (foto ou print da nota)",t:"foto",max:1400}];
@@ -1565,13 +1577,18 @@ const W={
   async delGasto(id){const g=S.adm.gastos.find(x=>x.id===id);if(!confirm("Excluir este gasto e o comprovante?"))return;try{const b=writeBatch(db);b.delete(doc(db,"gastos",id));b.delete(doc(db,"gastosArq",id));lg(b,"gasto_excluido",`Excluiu o gasto "${g.descricao}" de ${brl(g.valor)}`,"");await b.commit();render(true)}catch(x){toast("Erro: "+(x.code||x.message))}},
   async publicarPrestacao(pub){if(pub&&!confirm("Disponibilizar a prestação de contas para todos os servidores?"))return;try{const b=writeBatch(db);b.set(doc(db,"config","prestacao"),{publicada:pub,...(pub?{publicadaEm:serverTimestamp()}:{})},{merge:true});lg(b,pub?"prestacao_publicada":"prestacao_ocultada",pub?"Disponibilizou a prestação de contas":"Ocultou a prestação de contas","");await b.commit();toast(pub?"Prestação de contas disponível.":"Prestação de contas oculta.");render(true)}catch(x){toast("Erro: "+(x.code||x.message))}},
   async salvarObs(e){e.preventDefault();try{await setDoc(doc(db,"config","prestacao"),{observacao:e.target.obs.value.trim()},{merge:true});toast("Mensagem salva.");render(true)}catch(x){toast("Erro: "+(x.code||x.message))}},
+  async anexar(id){const x=S.adm.contrib.find(z=>z.id===id);const f=await pedirArquivo(x.comprovanteNome?"Trocar comprovante":"Anexar comprovante",`Comprovante da contribuição de <b>${esc(x.servidorNome)}</b> (${brl(x.valor)}).`);if(!f)return;
+    try{const cp=await lerComprovante(f),b=writeBatch(db);b.update(doc(db,"contribuicoes",id),{comprovanteNome:cp.nome.slice(0,120)});
+      b.set(doc(db,"comprovantes",id),{servidorId:x.servidorId,ano:S.cfg.ano,dados:cp.dados,tipo:cp.tipo,nome:cp.nome.slice(0,120),enviadoEm:serverTimestamp()});
+      lg(b,"contribuicao_comprovante",`Anexou o comprovante da contribuição de ${x.servidorNome} (${brl(x.valor)})`,x.servidorNome);await b.commit();toast("Comprovante anexado.");render(true)}catch(e){toast(e.message||"Erro ao anexar.")}},
+  async sincDoadores(){try{const b=writeBatch(db),C=S.adm.contrib;await doadoresSync(b,C,[...C.filter(z=>z.status==="confirmado").map(z=>z.servidorId),...(S.doadores||[]).map(d=>d.id)]);await b.commit();toast("Lista de quem contribuiu atualizada.");render(true)}catch(x){toast("Erro: "+(x.code||x.message))}},
   csvContrib(){csv([["Servidor","Área","Valor","Status","Enviado em","Observação"],...[...S.adm.contrib].sort((a,b)=>a.servidorNome.localeCompare(b.servidorNome,"pt-BR",{sensitivity:"base"})).map(x=>[x.servidorNome,x.area,x.valor,(ST[x.status]||[x.status])[0],dh(x.enviadoEm||x.criadoEm),x.obsAdmin||""])],"contribuicoes.csv")},
   csvAp(){csv([["Nome","Profissão","Lotação","Idade","E-mail"],...[...S.ap].sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR",{sensitivity:"base"})).map(a=>[a.nome,a.profissao,a.lotacao,a.idade,(S.adm.priv[a.id]||{}).email||""])],"terceirizados.csv")},
   csvServ(){csv([["Nome","Área","E-mail","Contribuições","Total confirmado"],...S.adm.serv.map(x=>{const l=S.adm.contrib.filter(z=>z.servidorId===x.id);return [x.nome,x.area,x.email,l.length,l.filter(z=>z.status==="confirmado").reduce((a,z)=>a+(+z.valor||0),0)]})],"servidores.csv")},
   async delAp(id){if(!confirm("Excluir este terceirizado?"))return;const b=writeBatch(db),n0=S.ap.find(y=>y.id===id)?.nome||"";b.delete(doc(db,"apadrinhados",id));b.delete(doc(db,"apadrinhados_privado",id));lg(b,"terceirizado_excluido","Excluiu o terceirizado "+n0,n0);await b.commit();render(true)},
   editItem(i){const it=S.cfg.itens[i]||{};modal("Editar item",FI,it,async v=>{const itens=S.cfg.itens.map((x,j)=>j===i?{...x,...v,preco:+v.preco||0}:x);await setDoc(doc(db,"config","campanha"),{itens,itensVersao:2},{merge:true})})},
   async salvarCfg(e){e.preventDefault();const f=e.target,n=k=>+f[k].value||0;
-    try{await setDoc(doc(db,"config","campanha"),{ano:+f.ano.value,dataEntrega:f.dataEntrega.value,horaEvento:f.horaEvento.value||"10:00",valorContribuicao:n("valorContribuicao"),meta:n("meta"),reservaCafe:n("reservaCafe"),tipoChave:f.tipoChave.value,chavePix:f.chavePix.value.trim(),nomeRecebedor:f.nomeRecebedor.value.trim(),cidadeRecebedor:f.cidadeRecebedor.value.trim(),itens:S.cfg.itens,itensVersao:2},{merge:true});toast("Campanha atualizada.");render(true)}catch(x){toast("Erro: "+(x.code||x.message))}},
+    try{await setDoc(doc(db,"config","campanha"),{ano:+f.ano.value,dataEntrega:f.dataEntrega.value,horaEvento:f.horaEvento.value||"10:00",valorContribuicao:n("valorContribuicao"),meta:n("meta"),reservaCafe:n("reservaCafe"),tipoChave:f.tipoChave.value,chavePix:f.chavePix.value.trim(),nomeRecebedor:f.nomeRecebedor.value.trim(),cidadeRecebedor:f.cidadeRecebedor.value.trim(),itens:S.cfg.itens,itensVersao:2,mostrarDoadores:f.mostrarDoadores.checked},{merge:true});toast("Campanha atualizada.");render(true)}catch(x){toast("Erro: "+(x.code||x.message))}},
   buscar(c,v){S.busca[c]=v;$("#gridH").innerHTML=gridHome();$("#cntH").textContent=cntHome()},
   limparBusca(){S.busca={q:"",lot:""};S.filtro="Todos";render(true)},
   qrConv(id){S.qrConv=id;render(true)},
