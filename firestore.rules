@@ -86,12 +86,6 @@ service cloud.firestore {
       allow delete: if can('contribuicoes');
     }
 
-    // Quem já contribuiu (nome e miniatura da foto), exibido na página da campanha. Mantido pelos administradores ao confirmar contribuições
-    match /doadores/{id} {
-      allow read: if true;
-      allow write: if can('contribuicoes');
-    }
-
     // Prestação de contas: gastos e comprovantes. Só são lidos por todos depois que os administradores disponibilizam (config/prestacao.publicada)
     match /gastos/{id} {
       allow read: if can('contribuicoes') || (exists(/databases/$(database)/documents/config/prestacao)

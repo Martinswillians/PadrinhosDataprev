@@ -134,7 +134,7 @@ footer{background:var(--pine);color:#a9c2b5;padding:28px 0;text-align:center;fon
   <nav class="n" id="nav"></nav>
 </div></header>
 <main id="app"><p class="load">Carregando…</p></main>
-<footer><div class="wrap">Natal Solidário Datacenter 1º andar<br><small id="ver">versão 2026.10.19-l</small></div></footer>
+<footer><div class="wrap">Natal Solidário Datacenter 1º andar<br><small id="ver">versão 2026.10.19-m</small></div></footer>
 <dialog id="dlg"></dialog>
 <div id="toast" role="status"></div>
 
@@ -1169,15 +1169,14 @@ function prestacaoHtml(){
 }
 
 function thumb(src,px=96){return new Promise(ok=>{if(!src)return ok("");const i=new Image();i.onload=()=>{const s=Math.max(px/i.width,px/i.height),w=i.width*s,h=i.height*s,c=document.createElement("canvas");c.width=c.height=px;c.getContext("2d").drawImage(i,(px-w)/2,(px-h)/2,w,h);ok(c.toDataURL("image/jpeg",.7))};i.onerror=()=>ok("");i.src=src})}
-async function doadoresSync(b,list,ids){for(const sid of new Set(ids)){const ref=doc(db,"doadores",sid);
-  if(list.some(z=>z.servidorId===sid&&z.status==="confirmado")){const s=S.adm.serv.find(x=>x.id===sid)||{};b.set(ref,{nome:String(s.nome||list.find(z=>z.servidorId===sid)?.servidorNome||"").slice(0,120),foto:await thumb(s.foto),ano:S.cfg.ano,atualizadoEm:serverTimestamp()})}
-  else b.delete(ref)}}
+function ajustarStats(){document.querySelectorAll(".stat b").forEach(b=>{b.style.fontSize="";b.style.whiteSpace="nowrap";let fs=parseFloat(getComputedStyle(b).fontSize);while(b.scrollWidth>b.clientWidth+0.5&&fs>13){fs-=1;b.style.fontSize=fs+"px"}})}
+window.addEventListener("resize",ajustarStats);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(ajustarStats);
 async function loadPublic(){
   const c=await getDoc(doc(db,"config","campanha"));
   if(c.exists())S.cfg={...S.cfg,...c.data()};
   if(!c.exists()||c.data().itensVersao!==2||!Array.isArray(S.cfg.itens)||!S.cfg.itens.length)S.cfg.itens=DEFAULT_ITENS;
   try{const p=await getDoc(doc(db,"config","prestacao"));S.prest=p.exists()?p.data():{}}catch{S.prest={}}
-  S.doadores=[];try{S.doadores=(await getDocs(query(collection(db,"doadores"),where("ano","==",S.cfg.ano)))).docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR",{sensitivity:"base"}))}catch{}
+  S.doadores=Array.isArray(S.resumo.doadores)?S.resumo.doadores:[];
   S.gastos=[];if(S.prest.publicada){try{S.gastos=(await getDocs(query(collection(db,"gastos"),where("ano","==",S.cfg.ano)))).docs.map(d=>({id:d.id,...d.data()}))}catch{}}
   try{const r=await getDoc(doc(db,"config","resumo"));S.resumo=r.exists()?{arrecadado:0,confirmados:0,...r.data()}:{arrecadado:0,confirmados:0}}catch{}
   const q=await getDocs(query(collection(db,"apadrinhados"),where("ano","==",S.cfg.ano)));
@@ -1211,7 +1210,7 @@ async function render(keep){
   try{
     await loadPublic();
     const views={home,entrar,cadastro,acesso,contribuir,perfil,atividades,admin};
-    $("#app").innerHTML=await (views[p[0]||"home"]||home)(p,q);
+    $("#app").innerHTML=await (views[p[0]||"home"]||home)(p,q);ajustarStats();
     if(p[0]==="#presentear")document.getElementById("presentear")?.scrollIntoView();else if(!keep)window.scrollTo(0,0);
   }catch(e){console.error(e);const neg=e.code==="permission-denied"||/permission/i.test(e.message);$("#app").innerHTML=`<div class="box"><h2>Não foi possível carregar</h2><p>${neg?"O Firebase negou o acesso aos dados. As regras publicadas no Firestore não correspondem a esta versão do site: publique o arquivo firestore.rules mais recente em Firestore > Regras.":"Verifique a conexão e se o Firestore foi criado no projeto."}</p><p><small>Detalhe técnico: ${esc(e.code||"")} ${esc(e.message)}</small></p><button class="btn" onclick="location.reload()">Tentar novamente</button></div>`}
 }
@@ -1369,6 +1368,8 @@ async function admin(p){
   const stSrv=id=>{const l=por[id]||[];return l.some(x=>x.status==="confirmado")?"confirmado":l.some(x=>x.status==="em_analise")?"em_analise":l.length?"recusada":"sem"};
   const totSrv=id=>(por[id]||[]).filter(x=>x.status==="confirmado").reduce((a,x)=>a+(+x.valor||0),0);
   const nContrib=new Set(C.filter(x=>x.status==="confirmado").map(x=>x.servidorId)).size;
+  if(S.perms.contribuicoes&&!S.autoSync){S.autoSync=true;const ids=new Set(C.filter(x=>x.status==="confirmado").map(x=>x.servidorId)),cur=new Set((S.resumo.doadores||[]).map(d=>d.id));
+    if(ids.size!==cur.size||[...ids].some(i=>!cur.has(i))){try{const b=writeBatch(db);await resumoDe(b,C);await b.commit();await loadPublic()}catch(e){console.warn("sync doadores",e)}}}
   const soma=st=>C.filter(x=>x.status===st).reduce((a,x)=>a+(+x.valor||0),0),nConf=C.filter(x=>x.status==="confirmado").length,nAn=C.filter(x=>x.status==="em_analise").length;
   const semC=A.serv.filter(x=>!por[x.id]);
   const pend=A.conv.filter(c=>!c.multi&&!c.usado),solP=(A.sol||[]).filter(x=>x.status==="pendente");
@@ -1493,7 +1494,11 @@ h1{margin:1mm 0 0;font-size:11.5mm;line-height:1.05;color:#b3202f}h1 span{displa
 .rod{position:absolute;bottom:3mm;left:0;right:0;font-size:2.8mm;letter-spacing:.3mm;color:#9a8672}</style>`;
 const qrSvg=t=>{try{const q=window.QRLib.make(t),n=q.getModuleCount(),m=4;let d="";for(let r=0;r<n;r++)for(let c=0;c<n;c++)if(q.isDark(r,c))d+=`M${c+m},${r+m}h1v1h-1z`;return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${n+2*m} ${n+2*m}" shape-rendering="crispEdges"><rect width="100%" height="100%" fill="#fff"/><path d="${d}" fill="#123628"/></svg>`}catch(e){return `<p>Não foi possível gerar o QR Code.</p>`}};
 const svgPng=(svg,px)=>new Promise((ok,no)=>{const i=new Image();i.onload=()=>{const c=document.createElement("canvas");c.width=c.height=px;const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,px,px);x.imageSmoothingEnabled=false;x.drawImage(i,0,0,px,px);c.toBlob(ok,"image/png")};i.onerror=no;i.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svg)});
-function resumoDe(b,list){const conf=list.filter(z=>z.status==="confirmado");b.set(doc(db,"config","resumo"),{arrecadado:conf.reduce((a,z)=>a+(+z.valor||0),0),confirmados:conf.length,contribuintes:new Set(conf.map(z=>z.servidorId)).size,atualizadoEm:serverTimestamp()})}
+async function resumoDe(b,list){const conf=list.filter(z=>z.status==="confirmado"),ids=[...new Set(conf.map(z=>z.servidorId))],doadores=[];
+  for(const sid of ids){const s=S.adm.serv.find(x=>x.id===sid)||{};doadores.push({id:sid,nome:String(s.nome||conf.find(z=>z.servidorId===sid)?.servidorNome||"").slice(0,120),foto:await thumb(s.foto,72)})}
+  doadores.sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR",{sensitivity:"base"}));
+  if(JSON.stringify(doadores).length>800000)doadores.forEach(d=>d.foto="");
+  b.set(doc(db,"config","resumo"),{arrecadado:conf.reduce((a,z)=>a+(+z.valor||0),0),confirmados:conf.length,contribuintes:ids.length,doadores,atualizadoEm:serverTimestamp()})}
 function posterQR(k,url){
   const T=k==="site"?["Natal Solidário Datacenter 1º andar","Escaneie o QR Code com a câmera do celular e saiba como participar. Sugestão de "+brl(S.cfg.valorContribuicao)+" ou o valor que o seu coração mandar."]:["Servidor, participe!","Escaneie o QR Code para se cadastrar (nome, área, e-mail, senha e foto), fazer o PIX e enviar o comprovante. Juntos vamos presentear quem cuida de nós."];
   const w=window.open("","_blank");if(!w)return toast("O navegador bloqueou a janela. Libere pop-ups para este site.");
@@ -1549,7 +1554,7 @@ const W={
     const dl=$("#dlg");dl.innerHTML=`<h2>${tit}</h2><p>${esc(c.nome||"")}</p><img src="${c.dados}" alt="${tit}" style="max-width:100%;border:1px solid var(--line);border-radius:8px"><div class="row"><button class="btn ghost" onclick="dlg.close()">Fechar</button></div>`;dl.showModal()},
   async mudarStatus(id,status,motivo,acao,det){const x=S.adm.contrib.find(z=>z.id===id),b=writeBatch(db);
     b.update(doc(db,"contribuicoes",id),{status,obsAdmin:motivo||"",confirmadoPor:S.user.email,confirmadoEm:serverTimestamp()});
-    {const nova=S.adm.contrib.map(z=>z.id===id?{...z,status}:z);resumoDe(b,nova);await doadoresSync(b,nova,[x.servidorId])}
+    await resumoDe(b,S.adm.contrib.map(z=>z.id===id?{...z,status}:z));
     lg(b,acao,`${det} de ${x.servidorNome} (${brl(x.valor)})${motivo?". Motivo: "+motivo:""}`,x.servidorNome);await b.commit()},
   async confirmar(id){if(!confirm("Confirmar o recebimento desta contribuição?"))return;try{await W.mudarStatus(id,"confirmado","","contribuicao_confirmada","Confirmou a contribuição");toast("Contribuição confirmada.");render(true)}catch(x){toast("Erro: "+(x.code||x.message))}},
   async recusar(id){const x=S.adm.contrib.find(z=>z.id===id);const m=await pedirMotivo("Recusar comprovante",`Informe por que o comprovante de <b>${esc(x.servidorNome)}</b> não pode ser aceito. O servidor verá o motivo e poderá reenviar.`,"Recusar");if(m===null)return;
@@ -1557,14 +1562,14 @@ const W={
   async desfazerConf(id){const x=S.adm.contrib.find(z=>z.id===id);const m=await pedirMotivo("Desfazer confirmação",`A contribuição de <b>${esc(x.servidorNome)}</b> voltará para "Em análise".`,"Desfazer confirmação");if(m===null)return;
     try{await W.mudarStatus(id,"em_analise",m,"contribuicao_desfeita","Desfez a confirmação");toast("Confirmação desfeita.");render(true)}catch(e){toast("Erro: "+(e.code||e.message))}},
   async delContrib(id){const x=S.adm.contrib.find(z=>z.id===id);const m=await pedirMotivo("Excluir contribuição",`Você vai excluir a contribuição de <b>${esc(x.servidorNome)}</b> (${brl(x.valor)}) e o comprovante enviado.`,"Excluir");if(m===null)return;
-    try{const b=writeBatch(db);b.delete(doc(db,"contribuicoes",id));b.delete(doc(db,"comprovantes",id));{const nova=S.adm.contrib.filter(z=>z.id!==id);resumoDe(b,nova);await doadoresSync(b,nova,[x.servidorId])}lg(b,"contribuicao_excluida",`Excluiu a contribuição de ${x.servidorNome} (${brl(x.valor)}). Motivo: ${m}`,x.servidorNome);await b.commit();toast("Contribuição excluída.");render(true)}catch(e){toast("Erro: "+(e.code||e.message))}},
+    try{const b=writeBatch(db);b.delete(doc(db,"contribuicoes",id));b.delete(doc(db,"comprovantes",id));await resumoDe(b,S.adm.contrib.filter(z=>z.id!==id));lg(b,"contribuicao_excluida",`Excluiu a contribuição de ${x.servidorNome} (${brl(x.valor)}). Motivo: ${m}`,x.servidorNome);await b.commit();toast("Contribuição excluída.");render(true)}catch(e){toast("Erro: "+(e.code||e.message))}},
   regManual(sid){const lab=s=>s.nome+" ("+(s.area||"sem área")+")",s0=sid?S.adm.serv.find(x=>x.id===sid):null;
     const FC=[{k:"servidor",l:"Servidor",t:"select",o:S.adm.serv.map(lab),req:1},{k:"valor",l:"Valor recebido (R$)",t:"number",req:1},{k:"obs",l:"Observação (ex.: pago em dinheiro)"},{k:"comprovante",l:"Comprovante de pagamento (foto, print ou PDF)",t:"arquivo"}];
     modal("Registrar contribuição",FC,{servidor:s0?lab(s0):"",valor:S.cfg.valorContribuicao,obs:""},async v=>{const s=S.adm.serv.find(x=>lab(x)===v.servidor);if(!s)throw new Error("Escolha o servidor.");if(!(v.valor>0))throw new Error("Informe o valor.");
       const cp=v.comprovante?await lerComprovante(v.comprovante):null,ref=doc(collection(db,"contribuicoes")),b=writeBatch(db),dados={servidorId:s.id,servidorNome:s.nome,area:s.area||"",ano:S.cfg.ano,valor:v.valor,status:"confirmado",obsAdmin:v.obs||"",comprovanteNome:cp?cp.nome.slice(0,120):"",manual:true,confirmadoPor:S.user.email};
       b.set(ref,{...dados,criadoEm:serverTimestamp(),confirmadoEm:serverTimestamp()});
       if(cp)b.set(doc(db,"comprovantes",ref.id),{servidorId:s.id,ano:S.cfg.ano,dados:cp.dados,tipo:cp.tipo,nome:cp.nome.slice(0,120),enviadoEm:serverTimestamp()});
-      {const nova=[...S.adm.contrib,{id:ref.id,...dados}];resumoDe(b,nova);await doadoresSync(b,nova,[s.id])}
+      await resumoDe(b,[...S.adm.contrib,{id:ref.id,...dados}]);
       lg(b,"contribuicao_manual",`Registrou contribuição de ${brl(v.valor)} de ${s.nome}${v.obs?". Obs.: "+v.obs:""}`,s.nome);await b.commit()})},
   editGasto(id){const g=id?S.adm.gastos.find(x=>x.id===id):null;
     const FG=[{k:"tipo",l:"Tipo",t:"select",o:TIPOS,req:1},{k:"descricao",l:"Descrição (ex.: 7 Chocottones Bauducco)",req:1},{k:"quantidade",l:"Quantidade",t:"number"},{k:"valor",l:"Valor total (R$)",t:"number",req:1},{k:"data",l:"Data",t:"date",req:1},{k:"foto",l:"Comprovante (foto ou print da nota)",t:"foto",max:1400}];
@@ -1581,7 +1586,7 @@ const W={
     try{const cp=await lerComprovante(f),b=writeBatch(db);b.update(doc(db,"contribuicoes",id),{comprovanteNome:cp.nome.slice(0,120)});
       b.set(doc(db,"comprovantes",id),{servidorId:x.servidorId,ano:S.cfg.ano,dados:cp.dados,tipo:cp.tipo,nome:cp.nome.slice(0,120),enviadoEm:serverTimestamp()});
       lg(b,"contribuicao_comprovante",`Anexou o comprovante da contribuição de ${x.servidorNome} (${brl(x.valor)})`,x.servidorNome);await b.commit();toast("Comprovante anexado.");render(true)}catch(e){toast(e.message||"Erro ao anexar.")}},
-  async sincDoadores(){try{const b=writeBatch(db),C=S.adm.contrib;await doadoresSync(b,C,[...C.filter(z=>z.status==="confirmado").map(z=>z.servidorId),...(S.doadores||[]).map(d=>d.id)]);await b.commit();toast("Lista de quem contribuiu atualizada.");render(true)}catch(x){toast("Erro: "+(x.code||x.message))}},
+  async sincDoadores(){try{const b=writeBatch(db);await resumoDe(b,S.adm.contrib);await b.commit();await loadPublic();toast("Lista de quem contribuiu atualizada.");render(true)}catch(x){toast("Erro: "+(x.code||x.message))}},
   csvContrib(){csv([["Servidor","Área","Valor","Status","Enviado em","Observação"],...[...S.adm.contrib].sort((a,b)=>a.servidorNome.localeCompare(b.servidorNome,"pt-BR",{sensitivity:"base"})).map(x=>[x.servidorNome,x.area,x.valor,(ST[x.status]||[x.status])[0],dh(x.enviadoEm||x.criadoEm),x.obsAdmin||""])],"contribuicoes.csv")},
   csvAp(){csv([["Nome","Profissão","Lotação","Idade","E-mail"],...[...S.ap].sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR",{sensitivity:"base"})).map(a=>[a.nome,a.profissao,a.lotacao,a.idade,(S.adm.priv[a.id]||{}).email||""])],"terceirizados.csv")},
   csvServ(){csv([["Nome","Área","E-mail","Contribuições","Total confirmado"],...S.adm.serv.map(x=>{const l=S.adm.contrib.filter(z=>z.servidorId===x.id);return [x.nome,x.area,x.email,l.length,l.filter(z=>z.status==="confirmado").reduce((a,z)=>a+(+z.valor||0),0)]})],"servidores.csv")},
