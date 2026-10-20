@@ -1176,9 +1176,9 @@ async function loadPublic(){
   if(c.exists())S.cfg={...S.cfg,...c.data()};
   if(!c.exists()||c.data().itensVersao!==2||!Array.isArray(S.cfg.itens)||!S.cfg.itens.length)S.cfg.itens=DEFAULT_ITENS;
   try{const p=await getDoc(doc(db,"config","prestacao"));S.prest=p.exists()?p.data():{}}catch{S.prest={}}
-  S.doadores=Array.isArray(S.resumo.doadores)?S.resumo.doadores:[];
   S.gastos=[];if(S.prest.publicada){try{S.gastos=(await getDocs(query(collection(db,"gastos"),where("ano","==",S.cfg.ano)))).docs.map(d=>({id:d.id,...d.data()}))}catch{}}
   try{const r=await getDoc(doc(db,"config","resumo"));S.resumo=r.exists()?{arrecadado:0,confirmados:0,...r.data()}:{arrecadado:0,confirmados:0}}catch{}
+  S.doadores=Array.isArray(S.resumo.doadores)?S.resumo.doadores:[];
   const q=await getDocs(query(collection(db,"apadrinhados"),where("ano","==",S.cfg.ano)));
   S.ap=q.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR",{sensitivity:"base"}));
 }
