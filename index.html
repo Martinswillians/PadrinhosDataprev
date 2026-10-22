@@ -165,7 +165,7 @@ footer{background:var(--pine);color:#a9c2b5;padding:28px 0;text-align:center;fon
   <nav class="n" id="nav"></nav>
 </div></header>
 <main id="app"><p class="load">Carregando…</p></main>
-<footer><div class="wrap">Natal Solidário Datacenter 1º andar<br><small id="ver">versão 2026.10.21-o</small></div></footer>
+<footer><div class="wrap">Natal Solidário Datacenter 1º andar<br><small id="ver">versão 2026.10.22-p</small></div></footer>
 <dialog id="dlg"></dialog>
 <div id="toast" role="status"></div>
 
@@ -1072,8 +1072,8 @@ window.QRLib={make:function(t){var q=new M.index(0,M.QRErrorCorrectLevel.M);q.ad
 </script>
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signInWithPopup,GoogleAuthProvider,signOut,sendPasswordResetEmail} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {getFirestore,collection,doc,getDoc,getDocs,setDoc,updateDoc,deleteDoc,query,where,orderBy,limit,writeBatch,serverTimestamp,increment} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signInWithPopup,GoogleAuthProvider,signOut,sendPasswordResetEmail,sendEmailVerification} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {getFirestore,initializeFirestore,collection,doc,getDoc,getDocs,setDoc,updateDoc,deleteDoc,query,where,orderBy,limit,writeBatch,serverTimestamp,increment} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 /* ===================== CONFIGURAÇÃO ===================== */
 const firebaseConfig={
@@ -1090,7 +1090,7 @@ const PERMS={terceirizados:"Terceirizados (cadastrar, editar e excluir)",servido
 const PERMS_SHORT={terceirizados:"Terceirizados",servidores:"Servidores",convites:"Convites",contribuicoes:"Contribuições",campanha:"Campanha",logs:"Registro"};
 /* ======================================================== */
 
-const fb=initializeApp(firebaseConfig),auth=getAuth(fb),db=getFirestore(fb);
+const fb=initializeApp(firebaseConfig),auth=getAuth(fb),db=initializeFirestore(fb,{experimentalAutoDetectLongPolling:true});
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmt=d=>d?d.split("-").reverse().join("/"):"";
@@ -1104,7 +1104,7 @@ const erroAuth=x=>{const c=x?.code||"";const M={
  "auth/invalid-credential":"E-mail ou senha incorretos.","auth/wrong-password":"E-mail ou senha incorretos.","auth/user-not-found":"E-mail ou senha incorretos.","auth/invalid-email":"E-mail inválido.",
  "auth/too-many-requests":"Muitas tentativas seguidas. Aguarde alguns minutos ou use \"Esqueci a senha\".",
  "auth/network-request-failed":"Sem conexão com o Firebase. Verifique a internet, bloqueadores de anúncios ou VPN.",
- "auth/operation-not-allowed":"Este tipo de login não está ativado no Firebase (Authentication > Sign-in method).",
+ "auth/operation-not-allowed":"O Firebase informou que este método de login não está disponível. Confirme em Authentication > Sign-in method se E-mail/senha e Google estão ativados.","auth/operation-not-supported-in-this-environment":"Este navegador (ou o app instalado) não permite esse tipo de login. Abra o site no Safari (iPhone) ou no Chrome e tente de novo.","auth/web-storage-unsupported":"O navegador está bloqueando o armazenamento necessário para entrar. Saia da navegação privada ou libere os cookies.","auth/internal-error":"Erro interno do Firebase. Tente de novo em instantes.",
  "auth/unauthorized-domain":"Este endereço do site não está autorizado no Firebase (Authentication > Settings > Authorized domains: adicione martinswillians.github.io).",
  "auth/invalid-api-key":"A chave (apiKey) do Firebase no index.html está incorreta.","auth/api-key-not-valid":"A chave (apiKey) do Firebase no index.html está incorreta.",
  "auth/popup-blocked":"O navegador bloqueou a janela do Google. Libere pop-ups para este site e tente de novo.","auth/popup-closed-by-user":"A janela do Google foi fechada antes de concluir.","auth/cancelled-popup-request":"Login cancelado. Tente de novo.",
@@ -1130,7 +1130,7 @@ const FP=[{k:"nome",l:"Nome",req:1},{k:"area",l:"Área"},{k:"foto",l:"Foto",t:"f
 const FS=[{k:"nome",l:"Nome",req:1},{k:"area",l:"Área",req:1},{k:"email",l:"E-mail",t:"email",req:1},{k:"foto",l:"Foto",t:"foto"},{k:"descricao",l:"Fale um pouco sobre você",t:"textarea"}];
 function fld(f,v=""){
   const id="f_"+f.k,r=f.req?"required":"";
-  if(f.t==="foto")return `<label>${f.l}${f.req?` <span class="req" aria-hidden="true">*</span>`:""}</label><div class="fotobox"><img data-foto data-v="${esc(v)}" src="${v||"data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="}" alt=""><input type="file" accept="image/*" data-max="${f.max||480}" onchange="W.foto(this)"></div>`;
+  if(f.t==="foto")return `<label>${f.l}${f.req?` <span class="req" aria-hidden="true">*</span>`:""}</label><div class="fotobox"><img data-foto data-v="${esc(v)}" src="${v||"data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="}" alt=""><input type="file" accept="image/*" data-max="${f.max||360}" onchange="W.foto(this)"></div>`;
   if(f.t==="arquivo")return `<label for="${id}">${f.l}${f.req?` <span class="req" aria-hidden="true">*</span>`:""}</label><input id="${id}" name="${f.k}" type="file" accept="image/*,application/pdf" ${r}>`;
   if(f.t==="select")return `<label for="${id}">${f.l}${f.req?` <span class="req" aria-hidden="true">*</span>`:""}</label><select id="${id}" name="${f.k}" ${r}>${f.o.map(o=>`<option ${o===v?"selected":""}>${o}</option>`).join("")}</select>`;
   if(f.t==="textarea")return `<label for="${id}">${f.l}${f.req?` <span class="req" aria-hidden="true">*</span>`:""}</label><textarea id="${id}" name="${f.k}">${esc(v)}</textarea>`;
@@ -1202,6 +1202,7 @@ function thumb(src,px=96){return new Promise(ok=>{if(!src)return ok("");const i=
 function ajustarStats(){document.querySelectorAll(".stat b").forEach(b=>{b.style.fontSize="";b.style.whiteSpace="nowrap";let fs=parseFloat(getComputedStyle(b).fontSize);while(b.scrollWidth>b.clientWidth+0.5&&fs>13){fs-=1;b.style.fontSize=fs+"px"}})}
 window.addEventListener("resize",ajustarStats);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(ajustarStats);
 async function loadPublic(){
+  if(S.pubOk&&Date.now()-S.pubTs<60000)return;
   const c=await getDoc(doc(db,"config","campanha"));
   if(c.exists())S.cfg={...S.cfg,...c.data()};
   if(!c.exists()||c.data().itensVersao!==2||!Array.isArray(S.cfg.itens)||!S.cfg.itens.length)S.cfg.itens=DEFAULT_ITENS;
@@ -1211,38 +1212,53 @@ async function loadPublic(){
   S.doadores=Array.isArray(S.resumo.doadores)?S.resumo.doadores:[];
   const q=await getDocs(query(collection(db,"apadrinhados"),where("ano","==",S.cfg.ano)));
   S.ap=q.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR",{sensitivity:"base"}));
+  S.pubTs=Date.now();S.pubOk=true;
 }
 async function refreshProfile(){
-  const u=auth.currentUser;S.user=u;S.admin=false;S.super=false;S.perms={};S.perfil=null;
+  const u=auth.currentUser;S.user=u;S.admin=false;S.super=false;S.perms={};S.perfil=null;S.admPend=false;S.adm=null;S.admTs=0;
   if(u){
     const em=(u.email||"").toLowerCase();
     if(u.emailVerified&&em===ADMIN_EMAIL){S.admin=S.super=true;Object.keys(PERMS).forEach(k=>S.perms[k]=true)}
     else if(u.emailVerified){try{const a=await getDoc(doc(db,"admins",em));if(a.exists()){S.admin=true;S.perms=a.data().perms||{}}}catch{}}
+    else{try{S.admPend=(await getDoc(doc(db,"admins",em))).exists()}catch{}}
     try{const p=await getDoc(doc(db,"servidores",u.uid));if(p.exists())S.perfil={id:p.id,...p.data()}}catch{}
   }
   renderNav();
 }
 async function loadAdmin(){
+  if(S.adm&&Date.now()-S.admTs<60000)return;
   const sg=n=>g(n).catch(()=>[]);
   const [serv,conv,contrib,priv,admins,sol,gastos]=await Promise.all([sg("servidores"),sg("convites"),sg("contribuicoes"),sg("apadrinhados_privado"),S.super?sg("admins"):[],sg("solicitacoes"),sg("gastos")]);
   S.adm={serv:serv.sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR",{sensitivity:"base"})),conv,admins:admins.filter(a=>a.id!==ADMIN_EMAIL),sol,contrib:contrib.filter(x=>x.ano===S.cfg.ano),gastos:gastos.filter(x=>x.ano===S.cfg.ano),priv:Object.fromEntries(priv.map(p=>[p.id,p]))};
+  S.admTs=Date.now();
 }
 const diasRestantes=()=>Math.ceil((new Date(S.cfg.dataEntrega+"T23:59:59")-new Date())/864e5);
 
 /* ---------- navegação ---------- */
 function renderNav(){
   const n=$("#nav");
-  n.innerHTML=`<a href="#/">Campanha</a><a href="#/contribuir">${S.perfil?"Minha contribuição":"Contribuir"}</a>`+(S.admin?`<a href="#/admin">Painel</a>`:"")+`<a href="#/instalar">${emApp()?"Compartilhar":"Instalar app"}</a>`+(S.user?`<a href="#/perfil">Meu perfil</a><a href="#/atividades">Minha atividade</a><button onclick="W.sair()">Sair</button>`:`<a href="#/entrar">Entrar</a>`);
+  n.innerHTML=`<a href="#/">Campanha</a><a href="#/contribuir">${S.perfil?"Minha contribuição":"Contribuir"}</a>`+(S.admin||S.admPend?`<a href="#/admin">Painel</a>`:"")+`<a href="#/instalar">${emApp()?"Compartilhar":"Instalar app"}</a>`+(S.user?`<a href="#/perfil">Meu perfil</a><a href="#/atividades">Minha atividade</a><button onclick="W.sair()">Sair</button>`:`<a href="#/entrar">Entrar</a>`);
 }
+const comTempo=(p,ms)=>Promise.race([p,new Promise((_,no)=>setTimeout(()=>no(Object.assign(new Error("O carregamento demorou mais que o esperado."),{code:"timeout"})),ms))]);
+let renderSeq=0;
 async function render(keep){
-  const [path,qs]=location.hash.slice(1).split("?"),p=(path||"/").split("/").filter(Boolean),q=new URLSearchParams(qs||"");
-  if(!keep)$("#app").innerHTML='<p class="load">Carregando…</p>';
+  const seq=++renderSeq;
+  if(keep===true){S.pubTs=0;S.admTs=0}
+  const [path,qs]=location.hash.slice(1).split("?"),p=(path||"/").split("/").filter(Boolean),q=new URLSearchParams(qs||""),tmo=window.__tmo||25000;
+  let lento;
+  if(!keep){$("#app").innerHTML='<p class="load">Carregando…</p>';lento=setTimeout(()=>{if(seq===renderSeq){const l=document.querySelector("#app .load");if(l)l.innerHTML='Ainda carregando… sua conexão pode estar lenta.<br><small>Se demorar, <a href="javascript:location.reload()">toque aqui para recarregar</a>.</small>'}},7000)}
   try{
-    await loadPublic();
+    await comTempo(loadPublic(),tmo);
     const views={home,entrar,cadastro,acesso,contribuir,perfil,atividades,instalar,admin};
-    $("#app").innerHTML=await (views[p[0]||"home"]||home)(p,q);ajustarStats();
+    const html=await comTempo((views[p[0]||"home"]||home)(p,q),tmo+5000);
+    if(seq!==renderSeq)return;
+    $("#app").innerHTML=html;ajustarStats();
     if(p[0]==="#presentear")document.getElementById("presentear")?.scrollIntoView();else if(!keep)window.scrollTo(0,0);
-  }catch(e){console.error(e);const neg=e.code==="permission-denied"||/permission/i.test(e.message);$("#app").innerHTML=`<div class="box"><h2>Não foi possível carregar</h2><p>${neg?"O Firebase negou o acesso aos dados. As regras publicadas no Firestore não correspondem a esta versão do site: publique o arquivo firestore.rules mais recente em Firestore > Regras.":"Verifique a conexão e se o Firestore foi criado no projeto."}</p><p><small>Detalhe técnico: ${esc(e.code||"")} ${esc(e.message)}</small></p><button class="btn" onclick="location.reload()">Tentar novamente</button></div>`}
+  }catch(e){
+    if(seq!==renderSeq)return;
+    console.error(e);const demora=e.code==="timeout",neg=e.code==="permission-denied"||/permission/i.test(e.message);
+    $("#app").innerHTML=`<div class="box"><h2>${demora?"Está demorando para carregar":"Não foi possível carregar"}</h2><p>${demora?"A conexão com o servidor está lenta ou instável. Verifique sua internet e tente novamente.":neg?"O Firebase negou o acesso aos dados. As regras publicadas no Firestore não correspondem a esta versão do site: publique o arquivo firestore.rules mais recente em Firestore > Regras.":"Verifique a conexão e se o Firestore foi criado no projeto."}</p><p><small>Detalhe técnico: ${esc(e.code||"")} ${esc(e.message)}</small></p><div class="row"><button class="btn" onclick="location.reload()">Tentar novamente</button><button class="btn ghost" onclick="W.limparApp()">Limpar dados do app e recarregar</button></div></div>`}
+  finally{clearTimeout(lento)}
 }
 window.addEventListener("hashchange",()=>render());
 
@@ -1319,7 +1335,7 @@ async function entrar(p,q){
   <label for="ls">Senha</label><input id="ls" type="password" required autocomplete="current-password">
   <div class="row"><button class="btn">Entrar</button><button type="button" class="btn ghost" onclick="W.reset()">Esqueci a senha</button></div></form>
   <p style="margin-top:22px">Ainda não tem cadastro? O cadastro de servidores é feito pelo link de convite enviado pela coordenação. Não recebeu o convite ou seu e-mail não está na lista? <a href="#/acesso">Peça acesso ao administrador</a>.</p>
-  <hr style="border:0;border-top:1px solid var(--line);margin:22px 0"><button class="btn ghost" onclick="W.google()">Sou administrador: entrar com Google</button></div>`;
+  <hr style="border:0;border-top:1px solid var(--line);margin:22px 0"><button class="btn ghost" onclick="W.google()">Sou administrador: entrar com Google</button>${emApp()&&ehIOS?`<p class="msg-info" style="margin-top:14px">Você está usando o app instalado no iPhone. Para entrar como administrador com o Google, abra este site no <b>Safari</b>: o login com Google não funciona dentro do app instalado.</p>`:""}</div>`;
 }
 
 async function cadastro(p,q){
@@ -1445,17 +1461,18 @@ function iniciarPWA(){
   setTimeout(mostrarBanner,2500);
 }
 iniciarPWA();
+function verificacaoHtml(){return `<div class="box"><h2>Confirme seu e-mail</h2><p>O e-mail <b>${esc(S.user.email)}</b> está cadastrado como administrador, mas ainda não foi confirmado. Para liberar o painel, confirme o e-mail:</p><ol class="passos"><li>Toque em <b>Enviar e-mail de confirmação</b>.</li><li>Abra a mensagem na sua caixa de entrada (veja também o spam) e toque no link.</li><li>Volte aqui e toque em <b>Já confirmei</b>.</li></ol><div class="row"><button class="btn" onclick="W.enviarVerificacao()">Enviar e-mail de confirmação</button><button class="btn ghost" onclick="W.atualizarVerif()">Já confirmei</button></div><p class="nota">Se este e-mail é uma conta Google, também dá para entrar pelo botão "Sou administrador: entrar com Google", que não precisa de confirmação.</p></div>`}
 
 /* ---------------- PAINEL ADMIN ---------------- */
 async function admin(p){
-  if(!S.admin){location.hash="#/entrar";return ""}
+  if(!S.admin){if(S.admPend)return verificacaoHtml();location.hash="#/entrar";return ""}
   await loadAdmin();
   const A=S.adm,C=A.contrib,por={};C.forEach(x=>{(por[x.servidorId]=por[x.servidorId]||[]).push(x)});
   const stSrv=id=>{const l=por[id]||[];return l.some(x=>x.status==="confirmado")?"confirmado":l.some(x=>x.status==="em_analise")?"em_analise":l.length?"recusada":"sem"};
   const totSrv=id=>(por[id]||[]).filter(x=>x.status==="confirmado").reduce((a,x)=>a+(+x.valor||0),0);
   const nContrib=new Set(C.filter(x=>x.status==="confirmado").map(x=>x.servidorId)).size;
   if(S.perms.contribuicoes&&!S.autoSync){S.autoSync=true;const ids=new Set(C.filter(x=>x.status==="confirmado").map(x=>x.servidorId)),cur=new Set((S.resumo.doadores||[]).map(d=>d.id));
-    if(ids.size!==cur.size||[...ids].some(i=>!cur.has(i))){try{const b=writeBatch(db);await resumoDe(b,C);await b.commit();await loadPublic()}catch(e){console.warn("sync doadores",e)}}}
+    if(ids.size!==cur.size||[...ids].some(i=>!cur.has(i))){(async()=>{try{const b=writeBatch(db);await resumoDe(b,C);await b.commit();S.pubTs=0;await loadPublic()}catch(e){console.warn("sync doadores",e)}})();}}
   const soma=st=>C.filter(x=>x.status===st).reduce((a,x)=>a+(+x.valor||0),0),nConf=C.filter(x=>x.status==="confirmado").length,nAn=C.filter(x=>x.status==="em_analise").length;
   const semC=A.serv.filter(x=>!por[x.id]);
   const pend=A.conv.filter(c=>!c.multi&&!c.usado),solP=(A.sol||[]).filter(x=>x.status==="pendente");
@@ -1591,12 +1608,12 @@ function posterQR(k,url){
   w.document.close();w.focus();setTimeout(()=>w.print(),500)}
 const csv=(rows,name)=>{const t=rows.map(r=>r.map(c=>`"${String(c??"").replace(/"/g,'""')}"`).join(";")).join("\n"),a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+t],{type:"text/csv"}));a.download=name;a.click()};
 const W={
-  filtro(f){S.filtro=f;render(true)},
+  filtro(f){S.filtro=f;render("c")},
   sair:async()=>{await signOut(auth);S.admin=false;S.perfil=null;await refreshProfile();location.hash="#/";render()},
-  async login(e){e.preventDefault();try{await signInWithEmailAndPassword(auth,$("#le").value,$("#ls").value);await refreshProfile();const n=sessionStorage.next;sessionStorage.removeItem("next");location.hash=S.admin?"#/admin":(n||"#/contribuir");if(!S.admin&&!S.perfil)toast("Conta sem cadastro de servidor: use o link de convite.")}catch(x){console.error(x);toast(erroAuth(x))}},
+  async login(e){e.preventDefault();try{await signInWithEmailAndPassword(auth,$("#le").value,$("#ls").value);await refreshProfile();const n=sessionStorage.next;sessionStorage.removeItem("next");location.hash=(S.admin||S.admPend)?"#/admin":(n||"#/contribuir");if(!S.admin&&!S.perfil)toast("Conta sem cadastro de servidor: use o link de convite.")}catch(x){console.error(x);toast(erroAuth(x))}},
   async google(){try{const r=await signInWithPopup(auth,new GoogleAuthProvider());await refreshProfile();if(!S.admin){await signOut(auth);await refreshProfile();return toast("Esta conta Google não tem acesso de administrador.")}location.hash="#/admin"}catch(x){console.error(x);toast(erroAuth(x))}},
   async reset(){const m=$("#le").value;if(!m)return toast("Digite seu e-mail no campo acima.");try{await sendPasswordResetEmail(auth,m);toast("Enviamos um e-mail para redefinir a senha.")}catch(x){toast("Erro: "+x.message)}},
-  foto:async i=>{const f=i.files[0];if(!f)return;const d=await resize(f,+i.dataset.max||480),im=i.parentElement.querySelector("img");im.src=d;im.dataset.v=d},
+  foto:async i=>{const f=i.files[0];if(!f)return;const d=await resize(f,+i.dataset.max||360),im=i.parentElement.querySelector("img");im.src=d;im.dataset.v=d},
   async cadastrar(e,conv,multi){e.preventDefault();const b=e.submitter;b.disabled=true;S.busy=true;
     try{const v=read(e.target,FS.concat([{k:"senha"}])),{senha,...perfil}=v;
       const c=await createUserWithEmailAndPassword(auth,v.email,senha),bt=writeBatch(db);
@@ -1670,7 +1687,7 @@ const W={
     try{const cp=await lerComprovante(f),b=writeBatch(db);b.update(doc(db,"contribuicoes",id),{comprovanteNome:cp.nome.slice(0,120)});
       b.set(doc(db,"comprovantes",id),{servidorId:x.servidorId,ano:S.cfg.ano,dados:cp.dados,tipo:cp.tipo,nome:cp.nome.slice(0,120),enviadoEm:serverTimestamp()});
       lg(b,"contribuicao_comprovante",`Anexou o comprovante da contribuição de ${x.servidorNome} (${brl(x.valor)})`,x.servidorNome);await b.commit();toast("Comprovante anexado.");render(true)}catch(e){toast(e.message||"Erro ao anexar.")}},
-  async sincDoadores(){try{const b=writeBatch(db);await resumoDe(b,S.adm.contrib);await b.commit();await loadPublic();toast("Lista de quem contribuiu atualizada.");render(true)}catch(x){toast("Erro: "+(x.code||x.message))}},
+  async sincDoadores(){try{const b=writeBatch(db);await resumoDe(b,S.adm.contrib);await b.commit();S.pubTs=0;await loadPublic();toast("Lista de quem contribuiu atualizada.");render(true)}catch(x){toast("Erro: "+(x.code||x.message))}},
   csvContrib(){csv([["Servidor","Área","Valor","Status","Enviado em","Observação"],...[...S.adm.contrib].sort((a,b)=>a.servidorNome.localeCompare(b.servidorNome,"pt-BR",{sensitivity:"base"})).map(x=>[x.servidorNome,x.area,x.valor,(ST[x.status]||[x.status])[0],dh(x.enviadoEm||x.criadoEm),x.obsAdmin||""])],"contribuicoes.csv")},
   csvAp(){csv([["Nome","Profissão","Lotação","Idade","E-mail"],...[...S.ap].sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR",{sensitivity:"base"})).map(a=>[a.nome,a.profissao,a.lotacao,a.idade,(S.adm.priv[a.id]||{}).email||""])],"terceirizados.csv")},
   csvServ(){csv([["Nome","Área","E-mail","Contribuições","Total confirmado"],...S.adm.serv.map(x=>{const l=S.adm.contrib.filter(z=>z.servidorId===x.id);return [x.nome,x.area,x.email,l.length,l.filter(z=>z.status==="confirmado").reduce((a,z)=>a+(+z.valor||0),0)]})],"servidores.csv")},
@@ -1682,8 +1699,11 @@ const W={
   instalarBanner(){if(S.deferred)return W.instalar();document.getElementById("inst")?.remove();location.hash="#/instalar"},
   fecharBanner(){try{localStorage.instDispensado=Date.now()}catch{}document.getElementById("inst")?.remove()},
   async compartilhar(k){const url=k?S.qrUrls?.[k]:siteUrl();if(navigator.share){try{await navigator.share({title:"Natal Solidário Datacenter 1º andar",text:msgZap(url).replace(url,"").trim(),url})}catch{}}else{W.copiar(url);toast("Link copiado. Cole na conversa do WhatsApp.")}},
+  async enviarVerificacao(){try{await sendEmailVerification(auth.currentUser);toast("E-mail de confirmação enviado para "+auth.currentUser.email+". Veja também o spam.")}catch(x){toast(x.code==="auth/too-many-requests"?"Muitos pedidos. Aguarde alguns minutos e tente de novo.":"Erro: "+(x.code||x.message))}},
+  async atualizarVerif(){try{await auth.currentUser.reload();await auth.currentUser.getIdToken(true);await refreshProfile();if(S.admin){toast("E-mail confirmado! Acesso de administrador liberado.");location.hash="#/admin";render()}else toast("Ainda não consta como confirmado. Abra o link do e-mail e tente de novo.")}catch(x){toast("Erro: "+(x.code||x.message))}},
+  async limparApp(){try{const rs=(await navigator.serviceWorker?.getRegistrations?.())||[];await Promise.all(rs.map(r=>r.unregister()));if(window.caches){const ks=await caches.keys();await Promise.all(ks.map(k=>caches.delete(k)))}}catch{}location.reload()},
   buscar(c,v){S.busca[c]=v;$("#gridH").innerHTML=gridHome();$("#cntH").textContent=cntHome()},
-  limparBusca(){S.busca={q:"",lot:""};S.filtro="Todos";render(true)},
+  limparBusca(){S.busca={q:"",lot:""};S.filtro="Todos";render("c")},
   qrConv(id){S.qrConv=id;render(true)},
   qr(a,k){const u=S.qrUrls[k];if(a==="copiar")return W.copiar(u);
     if(a==="png")return svgPng(qrSvg(u),1000).then(b=>{const l=document.createElement("a");l.href=URL.createObjectURL(b);l.download=k==="site"?"qrcode-site.png":"qrcode-cadastro.png";l.click()}).catch(()=>toast("Não foi possível gerar a imagem."));

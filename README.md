@@ -25,9 +25,14 @@ Site estático (GitHub Pages) + Firebase (Auth e Firestore). Os servidores contr
 - A descrição da pré-visualização (data e valor) e a do `manifest.webmanifest` são texto fixo; se mudar a data ou o valor, ajuste também esses textos no `index.html` (procure por `og:description`) e no manifesto.
 - O app instalado sempre busca a versão mais nova pela internet e só usa a cópia guardada se o celular estiver sem conexão.
 
+## Acesso de administradores e carregamento
+- **Google:** o administrador adicionado em Painel > Administradores entra por **Sou administrador: entrar com Google**, com o mesmo e-mail Gmail cadastrado. No iPhone, faça esse login pelo **Safari**, não pelo app instalado na tela inicial (o login com Google não funciona dentro do app instalado; a tela de entrada avisa).
+- **E-mail e senha:** quem tem conta por e-mail e senha (por exemplo, criada pelo QR Code) e foi adicionado como administrador precisa **confirmar o e-mail uma vez**. Ao entrar, o menu mostra **Painel**; a tela pede para tocar em **Enviar e-mail de confirmação**, abrir o link recebido e voltar para tocar em **Já confirmei**.
+- **Carregamento:** os dados são guardados por 1 minuto ao navegar entre telas (a lista só é buscada de novo depois de alterações), a conexão com o Firebase usa o modo automático para redes móveis instáveis, e, se algo passar de 7 segundos, aparece um aviso. Se passar de 25 segundos, a tela mostra **Tentar novamente** e **Limpar dados do app e recarregar**.
+
 ## Publicação
 1. **Firebase > Firestore > Regras:** cole o `firestore.rules` e publique (obrigatório: há regras novas para contribuições, comprovantes e prestação de contas).
-2. **GitHub:** envie **todos os arquivos desta pasta** (o `index.html` e os de ícone, manifesto, imagem de compartilhamento e `sw.js`) e atualize o site com Ctrl+F5. O rodapé mostra a versão (2026.10.21-o).
+2. **GitHub:** envie **todos os arquivos desta pasta** (o `index.html` e os de ícone, manifesto, imagem de compartilhamento e `sw.js`) e atualize o site com Ctrl+F5. O rodapé mostra a versão (2026.10.22-p).
 3. **Authentication:** E-mail/senha e Google ativados, com `martinswillians.github.io` em Authorized domains.
 4. Em **Painel > Campanha**, confira a chave PIX e a data de entrega e, se quiser, defina a meta. Os itens já vêm com as fotos e os preços do Chocottone (R$ 54,99) e da Cesta (R$ 73,49); ajuste se mudarem.
 
