@@ -144,7 +144,8 @@ footer{background:var(--pine);color:#a9c2b5;padding:28px 0;text-align:center;fon
 .prod .ph{aspect-ratio:4/3;display:grid;place-items:center;background:var(--frost);border-radius:10px;font-size:3.4rem}
 .prod h3{margin:6px 0 0;font-size:1.25rem}.prod p{margin:0;color:var(--mute);flex:1}.prod .preco{font:700 1.5rem var(--serif);color:var(--berry)}
 .itens.mini{grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}.itens.mini .prod{padding:10px}.itens.mini .prod img{max-height:130px}.itens.mini .prod h3{font-size:1rem}
-.doadores{display:flex;flex-wrap:wrap;gap:16px;margin:14px 0}.doador{display:flex;flex-direction:column;align-items:center;width:92px;text-align:center;font-size:.85rem;gap:6px;line-height:1.2}.av.md{width:64px;height:64px;font-size:1.3rem}
+.doadores{display:flex;flex-wrap:wrap;gap:16px;margin:14px 0}.doador{display:flex;flex-direction:column;align-items:center;width:108px;text-align:center;font-size:.85rem;gap:6px;line-height:1.2}.doador b{font-size:.85rem;color:var(--pine2)}.doador .pend{color:#7a5800;background:#fbf0c9;border-radius:99px;padding:0 8px;font-size:.72rem}.badge{background:#c62839;color:#fff;border-radius:99px;padding:0 7px;font-size:.78rem;font-weight:700}tr.pendente td{background:#fff8e1}.pend-aviso{border-left:5px solid var(--gold)}
+.av.md{width:64px;height:64px;font-size:1.3rem}
 .instbar{position:fixed;left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:40;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.28);padding:10px 12px;display:flex;gap:10px;align-items:center;max-width:560px;margin:0 auto}
 .instbar img{border-radius:10px}.instbar div{flex:1;line-height:1.25;font-size:.92rem}.instbar .x{background:none;border:0;font-size:1.7rem;cursor:pointer;color:var(--mute);padding:0 4px;line-height:1}
 .passosgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:18px;margin-top:18px}.passos{padding-left:20px;margin:8px 0}.passos li{margin:9px 0}
@@ -165,7 +166,7 @@ footer{background:var(--pine);color:#a9c2b5;padding:28px 0;text-align:center;fon
   <nav class="n" id="nav"></nav>
 </div></header>
 <main id="app"><p class="load">Carregando…</p></main>
-<footer><div class="wrap">Natal Solidário Datacenter 1º andar<br><small id="ver">versão 2026.10.22-p</small></div></footer>
+<footer><div class="wrap">Natal Solidário Datacenter 1º andar<br><small id="ver">versão 2026.10.23-q</small></div></footer>
 <dialog id="dlg"></dialog>
 <div id="toast" role="status"></div>
 
@@ -1109,11 +1110,11 @@ const erroAuth=x=>{const c=x?.code||"";const M={
  "auth/invalid-api-key":"A chave (apiKey) do Firebase no index.html está incorreta.","auth/api-key-not-valid":"A chave (apiKey) do Firebase no index.html está incorreta.",
  "auth/popup-blocked":"O navegador bloqueou a janela do Google. Libere pop-ups para este site e tente de novo.","auth/popup-closed-by-user":"A janela do Google foi fechada antes de concluir.","auth/cancelled-popup-request":"Login cancelado. Tente de novo.",
  "auth/user-disabled":"Esta conta está desativada."};
- return (M[c]||"Não foi possível entrar.")+(M[c]?"":" Código: "+(c||x?.message||"desconhecido"))};
+ return (M[c]||"Não foi possível entrar.")+" (código: "+(c||x?.message||"desconhecido")+")"};
 const toast=m=>{const t=$("#toast");t.textContent=m;t.style.display="block";clearTimeout(toast.h);toast.h=setTimeout(()=>t.style.display="none",8000)};
 const av=(a,c="")=>a?.foto?`<img class="av ${c}" src="${a.foto}" alt="Foto de ${esc(a.nome)}">`:`<div class="av ${c}" aria-hidden="true">${esc(ini(a?.nome))}</div>`;
 const g=async n=>(await getDocs(collection(db,n))).docs.map(d=>({id:d.id,...d.data()}));
-const ACOES={contribuicao_comprovante:"Comprovante anexado (adm)",gasto_registrado:"Gasto registrado",gasto_alterado:"Gasto alterado",gasto_excluido:"Gasto excluído",prestacao_publicada:"Prestação de contas disponibilizada",prestacao_ocultada:"Prestação de contas ocultada",contribuicao_enviada:"Comprovante enviado",contribuicao_reenviada:"Comprovante reenviado",contribuicao_confirmada:"Contribuição confirmada",contribuicao_recusada:"Contribuição recusada",contribuicao_desfeita:"Confirmação desfeita",contribuicao_manual:"Contribuição registrada (adm)",contribuicao_excluida:"Contribuição excluída",cadastro:"Cadastro de servidor",perfil_alterado:"Perfil alterado",terceirizado_cadastrado:"Terceirizado cadastrado",terceirizado_alterado:"Terceirizado alterado",terceirizado_excluido:"Terceirizado excluído",servidor_cadastrado:"Servidor cadastrado (adm)",servidor_alterado:"Servidor alterado (adm)",servidor_excluido:"Servidor excluído (adm)",apadrinhar:"Apadrinhamento (versão anterior)",desfazer_apadrinhamento:"Apadrinhamento desfeito (versão anterior)",entrega_registrada:"Entrega registrada (versão anterior)",entrega_desfeita:"Entrega desfeita (versão anterior)"};
+const ACOES={contribuicao_editada:"Contribuição editada (adm)",contribuicao_comprovante:"Comprovante anexado (adm)",gasto_registrado:"Gasto registrado",gasto_alterado:"Gasto alterado",gasto_excluido:"Gasto excluído",prestacao_publicada:"Prestação de contas disponibilizada",prestacao_ocultada:"Prestação de contas ocultada",contribuicao_enviada:"Comprovante enviado",contribuicao_reenviada:"Comprovante reenviado",contribuicao_confirmada:"Contribuição confirmada",contribuicao_recusada:"Contribuição recusada",contribuicao_desfeita:"Confirmação desfeita",contribuicao_manual:"Contribuição registrada (adm)",contribuicao_excluida:"Contribuição excluída",cadastro:"Cadastro de servidor",perfil_alterado:"Perfil alterado",terceirizado_cadastrado:"Terceirizado cadastrado",terceirizado_alterado:"Terceirizado alterado",terceirizado_excluido:"Terceirizado excluído",servidor_cadastrado:"Servidor cadastrado (adm)",servidor_alterado:"Servidor alterado (adm)",servidor_excluido:"Servidor excluído (adm)",apadrinhar:"Apadrinhamento (versão anterior)",desfazer_apadrinhamento:"Apadrinhamento desfeito (versão anterior)",entrega_registrada:"Entrega registrada (versão anterior)",entrega_desfeita:"Entrega desfeita (versão anterior)"};
 function lg(b,acao,detalhe,alvo="",u=auth.currentUser,nome=null){
   b.set(doc(collection(db,"logs")),{acao,detalhe:String(detalhe).slice(0,380),usuarioId:u.uid,usuarioNome:String(nome||S.perfil?.nome||u.displayName||u.email||"").slice(0,150),usuarioEmail:u.email||"",alvoNome:String(alvo||"").slice(0,150),criadoEm:serverTimestamp()});
 }
@@ -1178,21 +1179,24 @@ function agradecer(valor){const d=$("#dlg");d.innerHTML=`<h2 style="color:var(--
 function pedirArquivo(titulo,msg){return new Promise(res=>{const d=$("#dlg");let ok=false;
   d.innerHTML=`<form id="mm"><h2>${titulo}</h2><p>${msg}</p><label for="mf">Comprovante (foto, print ou PDF) <span class="req" aria-hidden="true">*</span></label><input id="mf" type="file" accept="image/*,application/pdf" required><p class="nota"><span class="req">*</span> Campo obrigatório</p><div class="row"><button type="button" class="btn ghost" id="mc">Cancelar</button><button class="btn">Enviar</button></div></form>`;
   $("#mm").onsubmit=e=>{e.preventDefault();ok=true;const f=$("#mf").files[0];d.close();res(f)};$("#mc").onclick=()=>d.close();d.onclose=()=>{d.onclose=null;if(!ok)res(null)};d.showModal()})}
-function capacidade(){const disp=Math.max(0,+S.resumo.arrecadado||0);return S.cfg.itens.filter(it=>+it.preco>0).map(it=>({nome:it.nome,q:Math.floor(disp/it.preco)}))}
+function totaisPub(){const D=S.doadores||[],soma=st=>D.filter(d=>!st||d.status===st).reduce((a,d)=>a+(+d.valor||0),0);return {total:soma(),conf:soma("confirmado"),analise:soma("em_analise"),n:new Set(D.map(d=>d.servidorId)).size,nAn:D.filter(d=>d.status==="em_analise").length}}
+function capacidade(){const disp=Math.max(0,totaisPub().total);return S.cfg.itens.filter(it=>+it.preco>0).map(it=>({nome:it.nome,q:Math.floor(disp/it.preco)}))}
 function painelCampanha(){
-  const r=S.resumo,meta=+S.cfg.meta||0,pct=meta>0?Math.min(100,Math.round((r.arrecadado||0)/meta*100)):0,cap=capacidade();
+  const t=totaisPub(),meta=+S.cfg.meta||0,pct=meta>0?Math.min(100,Math.round(t.total/meta*100)):0,cap=capacidade(),por={};
+  (S.doadores||[]).forEach(d=>{const x=por[d.servidorId]||(por[d.servidorId]={nome:d.nome,foto:d.foto,valor:0,pend:false});x.valor+=+d.valor||0;if(d.status==="em_analise")x.pend=true});
+  const lista=Object.values(por).sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR",{sensitivity:"base"}));
   return `<div class="dash">
     <div class="stat"><b>${brl(S.cfg.valorContribuicao)}</b><span>valor sugerido (pode ser mais)</span></div>
-    <div class="stat ok"><b>${r.contribuintes??r.confirmados??0}</b><span>servidores que já contribuíram</span></div>
-    <div class="stat ok"><b>${brl(r.arrecadado)}</b><span>arrecadado até agora</span></div>
+    <div class="stat ok"><b>${t.n}</b><span>servidores que já contribuíram</span></div>
+    <div class="stat ok"><b>${brl(t.total)}</b><span>arrecadado até agora${t.analise>0?" (inclui "+brl(t.analise)+" em conferência)":""}</span></div>
     <div class="stat"><b>${S.ap.length}</b><span>colegas que vamos presentear</span></div></div>
     ${meta>0?`<div class="bar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div><p class="cnt">${pct}% da meta de ${brl(meta)}</p>`:""}
-    ${S.cfg.mostrarDoadores!==false&&(S.doadores||[]).length?`<h3 style="margin-top:22px">Quem já contribuiu</h3><div class="doadores">${S.doadores.map(d=>`<div class="doador">${av(d,"md")}<span>${esc(d.nome)}</span></div>`).join("")}</div><p class="cnt">Obrigado a cada um de vocês!</p>`:""}
+    ${S.cfg.mostrarDoadores!==false&&lista.length?`<h3 style="margin-top:22px">Quem já contribuiu</h3><div class="doadores">${lista.map(d=>`<div class="doador">${av(d,"md")}<span>${esc(d.nome)}</span><b>${brl(d.valor)}</b>${d.pend?'<small class="pend">em conferência</small>':""}</div>`).join("")}</div><p class="cnt">Obrigado a cada um de vocês! Os valores em conferência já entram na soma e podem ser ajustados pela coordenação.</p>`:""}
     ${cap.length?`<p class="msg-info">Com o valor arrecadado até agora já dá para comprar ${cap.map(c=>`<b>${c.q}</b> ${esc(c.nome)}`).join(" ou ")}. Precisamos de ${S.ap.length} para presentear todos os colegas.</p>`:""}`;
 }
 function prestacaoHtml(){
   if(!S.prest?.publicada)return "";
-  const G=[...(S.gastos||[])].sort((a,b)=>(a.data||"").localeCompare(b.data||"")),tot=G.reduce((a,g)=>a+(+g.valor||0),0),arr=+S.resumo.arrecadado||0,por=t=>G.filter(g=>g.tipo===t).reduce((a,g)=>a+(+g.valor||0),0);
+  const G=[...(S.gastos||[])].sort((a,b)=>(a.data||"").localeCompare(b.data||"")),tot=G.reduce((a,g)=>a+(+g.valor||0),0),arr=totaisPub().conf,por=t=>G.filter(g=>g.tipo===t).reduce((a,g)=>a+(+g.valor||0),0);
   return `<section class="s"><div class="wrap"><h2>Prestação de contas</h2>${S.prest.observacao?`<p class="prose">${esc(S.prest.observacao)}</p>`:""}
   <div class="dash"><div class="stat ok"><b>${brl(arr)}</b><span>arrecadado</span></div><div class="stat"><b>${brl(por(TIPOS[0]))}</b><span>${TIPOS[0]}</span></div><div class="stat"><b>${brl(por(TIPOS[1]))}</b><span>${TIPOS[1]}</span></div>${tot-por(TIPOS[0])-por(TIPOS[1])>0.005?`<div class="stat"><b>${brl(tot-por(TIPOS[0])-por(TIPOS[1]))}</b><span>Outras despesas</span></div>`:""}<div class="stat"><b>${brl(tot)}</b><span>total gasto</span></div><div class="stat ${arr-tot>=0?"ok":"falta"}"><b>${brl(arr-tot)}</b><span>saldo</span></div></div>
   <div class="tw"><table><thead><tr><th>Data</th><th>Descrição</th><th>Qtd.</th><th>Valor</th><th>Comprovante</th></tr></thead><tbody>${G.map(g=>`<tr><td>${fmt(g.data)}</td><td>${esc(g.descricao)}<br><small>${esc(g.tipo)}</small></td><td>${g.quantidade||""}</td><td>${brl(g.valor)}</td><td>${g.comprovanteNome?`<button class="btn sm ghost" onclick="W.verGasto('${g.id}')">Ver</button>`:"-"}</td></tr>`).join("")||'<tr><td colspan="5">Nenhum gasto registrado.</td></tr>'}</tbody></table></div></div></section>`;
@@ -1208,8 +1212,7 @@ async function loadPublic(){
   if(!c.exists()||c.data().itensVersao!==2||!Array.isArray(S.cfg.itens)||!S.cfg.itens.length)S.cfg.itens=DEFAULT_ITENS;
   try{const p=await getDoc(doc(db,"config","prestacao"));S.prest=p.exists()?p.data():{}}catch{S.prest={}}
   S.gastos=[];if(S.prest.publicada){try{S.gastos=(await getDocs(query(collection(db,"gastos"),where("ano","==",S.cfg.ano)))).docs.map(d=>({id:d.id,...d.data()}))}catch{}}
-  try{const r=await getDoc(doc(db,"config","resumo"));S.resumo=r.exists()?{arrecadado:0,confirmados:0,...r.data()}:{arrecadado:0,confirmados:0}}catch{}
-  S.doadores=Array.isArray(S.resumo.doadores)?S.resumo.doadores:[];
+  S.doadores=[];try{S.doadores=(await getDocs(query(collection(db,"doadores"),where("ano","==",S.cfg.ano)))).docs.map(d=>({id:d.id,...d.data()}))}catch{}
   const q=await getDocs(query(collection(db,"apadrinhados"),where("ano","==",S.cfg.ano)));
   S.ap=q.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR",{sensitivity:"base"}));
   S.pubTs=Date.now();S.pubOk=true;
@@ -1237,7 +1240,7 @@ const diasRestantes=()=>Math.ceil((new Date(S.cfg.dataEntrega+"T23:59:59")-new D
 /* ---------- navegação ---------- */
 function renderNav(){
   const n=$("#nav");
-  n.innerHTML=`<a href="#/">Campanha</a><a href="#/contribuir">${S.perfil?"Minha contribuição":"Contribuir"}</a>`+(S.admin||S.admPend?`<a href="#/admin">Painel</a>`:"")+`<a href="#/instalar">${emApp()?"Compartilhar":"Instalar app"}</a>`+(S.user?`<a href="#/perfil">Meu perfil</a><a href="#/atividades">Minha atividade</a><button onclick="W.sair()">Sair</button>`:`<a href="#/entrar">Entrar</a>`);
+  n.innerHTML=`<a href="#/">Campanha</a><a href="#/contribuir">${S.perfil?"Minha contribuição":"Contribuir"}</a>`+(S.admin||S.admPend?`<a href="#/admin">Painel${S.perms.contribuicoes&&(S.doadores||[]).some(d=>d.status==="em_analise")?` <span class="badge">${S.doadores.filter(d=>d.status==="em_analise").length}</span>`:""}</a>`:"")+`<a href="#/instalar">${emApp()?"Compartilhar":"Instalar app"}</a>`+(S.user?`<a href="#/perfil">Meu perfil</a><a href="#/atividades">Minha atividade</a><button onclick="W.sair()">Sair</button>`:`<a href="#/entrar">Entrar</a>`);
 }
 const comTempo=(p,ms)=>Promise.race([p,new Promise((_,no)=>setTimeout(()=>no(Object.assign(new Error("O carregamento demorou mais que o esperado."),{code:"timeout"})),ms))]);
 let renderSeq=0;
@@ -1249,10 +1252,10 @@ async function render(keep){
   if(!keep){$("#app").innerHTML='<p class="load">Carregando…</p>';lento=setTimeout(()=>{if(seq===renderSeq){const l=document.querySelector("#app .load");if(l)l.innerHTML='Ainda carregando… sua conexão pode estar lenta.<br><small>Se demorar, <a href="javascript:location.reload()">toque aqui para recarregar</a>.</small>'}},7000)}
   try{
     await comTempo(loadPublic(),tmo);
-    const views={home,entrar,cadastro,acesso,contribuir,perfil,atividades,instalar,admin};
+    const views={home,entrar,cadastro,acesso,contribuir,perfil,atividades,instalar,"primeiro-acesso":primeiroAcesso,admin};
     const html=await comTempo((views[p[0]||"home"]||home)(p,q),tmo+5000);
     if(seq!==renderSeq)return;
-    $("#app").innerHTML=html;ajustarStats();
+    $("#app").innerHTML=html;ajustarStats();renderNav();
     if(p[0]==="#presentear")document.getElementById("presentear")?.scrollIntoView();else if(!keep)window.scrollTo(0,0);
   }catch(e){
     if(seq!==renderSeq)return;
@@ -1335,7 +1338,7 @@ async function entrar(p,q){
   <label for="ls">Senha</label><input id="ls" type="password" required autocomplete="current-password">
   <div class="row"><button class="btn">Entrar</button><button type="button" class="btn ghost" onclick="W.reset()">Esqueci a senha</button></div></form>
   <p style="margin-top:22px">Ainda não tem cadastro? O cadastro de servidores é feito pelo link de convite enviado pela coordenação. Não recebeu o convite ou seu e-mail não está na lista? <a href="#/acesso">Peça acesso ao administrador</a>.</p>
-  <hr style="border:0;border-top:1px solid var(--line);margin:22px 0"><button class="btn ghost" onclick="W.google()">Sou administrador: entrar com Google</button>${emApp()&&ehIOS?`<p class="msg-info" style="margin-top:14px">Você está usando o app instalado no iPhone. Para entrar como administrador com o Google, abra este site no <b>Safari</b>: o login com Google não funciona dentro do app instalado.</p>`:""}</div>`;
+  <hr style="border:0;border-top:1px solid var(--line);margin:22px 0"><button class="btn ghost" onclick="W.google()">Sou administrador: entrar com Google</button><p class="nota" style="margin-top:12px">Administrador sem conta Google? <a href="#/primeiro-acesso">Primeiro acesso com e-mail e senha</a>.</p>${emApp()&&ehIOS?`<p class="msg-info" style="margin-top:14px">Você está usando o app instalado no iPhone. Para entrar como administrador com o Google, abra este site no <b>Safari</b>: o login com Google não funciona dentro do app instalado.</p>`:""}</div>`;
 }
 
 async function cadastro(p,q){
@@ -1385,6 +1388,7 @@ async function contribuir(){
   }
   let minhas=[];
   try{minhas=(await getDocs(query(collection(db,"contribuicoes"),where("servidorId","==",S.user.uid)))).docs.map(d=>({id:d.id,...d.data()})).filter(x=>x.ano===S.cfg.ano).sort((a,b)=>(b.enviadoEm?.seconds||b.criadoEm?.seconds||0)-(a.enviadoEm?.seconds||a.criadoEm?.seconds||0))}catch{}
+  S.minhas=minhas;
   const cf=S.cfg,v0=cf.valorContribuicao,pay=pixPayload(cf.tipoChave,cf.chavePix,v0,cf.nomeRecebedor,cf.cidadeRecebedor);S.pay=pay;
   const R='<span class="req" aria-hidden="true">*</span>',conf=minhas.filter(x=>x.status==="confirmado").reduce((a,x)=>a+(+x.valor||0),0);
   const linhas=minhas.map(x=>{const [lb,cl]=ST[x.status]||[x.status,"an"];return `<tr><td>${esc(dh(x.enviadoEm||x.criadoEm))}</td><td>${brl(x.valor)}</td><td><span class="pill ${cl}">${lb}</span>${x.status==="recusada"&&x.obsAdmin?`<br><small>${esc(x.obsAdmin)}</small>`:""}</td><td>${x.comprovanteNome?`<button class="btn sm ghost" onclick="W.verComp('${x.id}')">Ver</button>`:"-"}${x.status==="recusada"?`<button class="btn sm" onclick="W.reenviar('${x.id}')">Reenviar</button>`:""}</td></tr>`}).join("");
@@ -1412,6 +1416,14 @@ const emApp=()=>matchMedia("(display-mode: standalone)").matches||navigator.stan
 const siteUrl=()=>location.origin+location.pathname;
 const msgZap=url=>`🎄 *Natal Solidário Datacenter 1º andar* 🎁\n\nVamos presentear os colegas terceirizados que cuidam de nós o ano inteiro com um Chocottone ou uma Cesta Bauducco (Chocottone, Panettone e pão de mel), com entrega no dia ${fmt(S.cfg.dataEntrega)}.\n\nContribua com ${brl(S.cfg.valorContribuicao)} ou com o valor que o seu coração mandar:\n${url}`;
 const linkZap=url=>"https://wa.me/?text="+encodeURIComponent(msgZap(url));
+const linkAdm=a=>"https://wa.me/?text="+encodeURIComponent(`Olá${a.nome?", "+a.nome.split(" ")[0]:""}! Você foi adicionado como administrador do Natal Solidário Datacenter 1º andar.\n\nAcesse ${siteUrl()}#/entrar\n• Se o seu e-mail (${a.email}) for Gmail: toque em "Sou administrador: entrar com Google".\n• Se preferir e-mail e senha: ${siteUrl()}#/primeiro-acesso (você receberá um e-mail para confirmar).\n\nNo iPhone, abra pelo Safari, não pelo app instalado.`);
+async function primeiroAcesso(){
+  const R='<span class="req" aria-hidden="true">*</span>';
+  return `<div class="box"><h2>Primeiro acesso do administrador</h2><p>Use este formulário se o administrador principal já cadastrou o seu e-mail em Administradores e você prefere entrar com e-mail e senha, em vez do Google. Você vai receber um e-mail para confirmar o endereço.</p>
+  <form onsubmit="W.primeiroAcesso(event)"><label for="pe">E-mail ${R}</label><input id="pe" type="email" required autocomplete="username">
+  <label for="ps">Crie uma senha (mínimo 6 caracteres) ${R}</label><input id="ps" type="password" required minlength="6" autocomplete="new-password">
+  <p class="nota">${R} Campos obrigatórios</p><div class="row"><button class="btn">Criar acesso</button><a class="btn ghost" href="#/entrar">Voltar</a></div></form></div>`;
+}
 async function instalar(){
   document.getElementById("inst")?.remove();
   const url=siteUrl();
@@ -1471,8 +1483,8 @@ async function admin(p){
   const stSrv=id=>{const l=por[id]||[];return l.some(x=>x.status==="confirmado")?"confirmado":l.some(x=>x.status==="em_analise")?"em_analise":l.length?"recusada":"sem"};
   const totSrv=id=>(por[id]||[]).filter(x=>x.status==="confirmado").reduce((a,x)=>a+(+x.valor||0),0);
   const nContrib=new Set(C.filter(x=>x.status==="confirmado").map(x=>x.servidorId)).size;
-  if(S.perms.contribuicoes&&!S.autoSync){S.autoSync=true;const ids=new Set(C.filter(x=>x.status==="confirmado").map(x=>x.servidorId)),cur=new Set((S.resumo.doadores||[]).map(d=>d.id));
-    if(ids.size!==cur.size||[...ids].some(i=>!cur.has(i))){(async()=>{try{const b=writeBatch(db);await resumoDe(b,C);await b.commit();S.pubTs=0;await loadPublic()}catch(e){console.warn("sync doadores",e)}})();}}
+  if(S.perms.contribuicoes&&!S.autoSync){S.autoSync=true;const chave=a=>a.map(x=>x.id+"|"+x.status+"|"+(+x.valor||0)).sort().join(),ativos=C.filter(x=>x.status==="confirmado"||x.status==="em_analise");
+    if(chave(ativos)!==chave(S.doadores||[])){(async()=>{try{await sincPublico();S.pubTs=0;await loadPublic()}catch(e){console.warn("sync doadores",e)}})()}}
   const soma=st=>C.filter(x=>x.status===st).reduce((a,x)=>a+(+x.valor||0),0),nConf=C.filter(x=>x.status==="confirmado").length,nAn=C.filter(x=>x.status==="em_analise").length;
   const semC=A.serv.filter(x=>!por[x.id]);
   const pend=A.conv.filter(c=>!c.multi&&!c.usado),solP=(A.sol||[]).filter(x=>x.status==="pendente");
@@ -1491,9 +1503,9 @@ async function admin(p){
   const rowServ=x=>{const st=stSrv(x.id),[lb,cl]=SRVPILL[st],n=(por[x.id]||[]).length;return `<tr><td>${av(x,"sm")}</td><td>${esc(x.nome)}</td><td>${esc(x.area||"")}</td><td>${esc(x.email||"")}</td><td><span class="pill ${cl}">${lb}</span>${n?`<br><small>${brl(totSrv(x.id))} confirmados em ${n} ${n===1?"contribuição":"contribuições"}</small>`:""}</td><td><button class="btn sm ghost" onclick="W.editServ('${x.id}')">Editar</button><button class="btn sm danger" onclick="W.delServ('${x.id}')">Excluir</button></td></tr>`};
   const listServ=()=>{const f=S.fs,l=A.serv.filter(x=>has(x.nome,f.q)&&has(x.area,f.area)&&(!f.sit||stSrv(x.id)===f.sit)).sort(cmp);
     return {txt:`${l.length} de ${A.serv.length} servidores`,h:l.map(rowServ).join("")||'<tr><td colspan="6">Nenhum servidor encontrado.</td></tr>'}};
-  const rowC=x=>`<tr><td>${esc(x.servidorNome)}<br><small>${esc(x.area||"")}</small></td><td>${brl(x.valor)}${x.manual?"<br><small>registrado pelo adm</small>":""}</td><td>${pill(x)}${x.status==="recusada"&&x.obsAdmin?`<br><small>${esc(x.obsAdmin)}</small>`:""}</td><td>${esc(dh(x.enviadoEm||x.criadoEm))}</td><td>${x.comprovanteNome?`<button class="btn sm ghost" onclick="W.verComp('${x.id}')">Ver</button>`:""}<button class="btn sm ghost" onclick="W.anexar('${x.id}')">${x.comprovanteNome?"Trocar":"Anexar"}</button></td>
-    <td>${x.status!=="confirmado"?`<button class="btn sm" onclick="W.confirmar('${x.id}')">Confirmar</button>`:`<button class="btn sm ghost" onclick="W.desfazerConf('${x.id}')">Desfazer</button>`}${x.status!=="recusada"?`<button class="btn sm danger" onclick="W.recusar('${x.id}')">Recusar</button>`:""}<button class="btn sm danger" aria-label="Excluir contribuição" onclick="W.delContrib('${x.id}')">×</button></td></tr>`;
-  const listC=()=>{const f=S.fc,l=C.filter(x=>has(x.servidorNome,f.q)&&(!f.st||x.status===f.st)&&has(x.area,f.lot)).sort((a,b)=>a.servidorNome.localeCompare(b.servidorNome,"pt-BR",{sensitivity:"base"}));
+  const rowC=x=>`<tr${x.status==="em_analise"?' class="pendente"':""}><td>${esc(x.servidorNome)}<br><small>${esc(x.area||"")}</small></td><td>${brl(x.valor)}${x.manual?"<br><small>registrado pelo adm</small>":""}</td><td>${pill(x)}${x.status==="recusada"&&x.obsAdmin?`<br><small>${esc(x.obsAdmin)}</small>`:""}</td><td>${esc(dh(x.enviadoEm||x.criadoEm))}</td><td>${x.comprovanteNome?`<button class="btn sm ghost" onclick="W.verComp('${x.id}')">Ver</button>`:""}<button class="btn sm ghost" onclick="W.anexar('${x.id}')">${x.comprovanteNome?"Trocar":"Anexar"}</button></td>
+    <td><button class="btn sm ghost" onclick="W.editContrib('${x.id}')">Editar</button>${x.status!=="confirmado"?`<button class="btn sm" onclick="W.confirmar('${x.id}')">Confirmar</button>`:`<button class="btn sm ghost" onclick="W.desfazerConf('${x.id}')">Desfazer</button>`}${x.status!=="recusada"?`<button class="btn sm danger" onclick="W.recusar('${x.id}')">Recusar</button>`:""}<button class="btn sm danger" aria-label="Excluir contribuição" onclick="W.delContrib('${x.id}')">×</button></td></tr>`;
+  const listC=()=>{const f=S.fc,l=C.filter(x=>has(x.servidorNome,f.q)&&(!f.st||x.status===f.st)&&has(x.area,f.lot)).sort((a,b)=>((b.status==="em_analise")-(a.status==="em_analise"))||a.servidorNome.localeCompare(b.servidorNome,"pt-BR",{sensitivity:"base"}));
     const n=semC.filter(x=>has(x.nome,f.q)&&has(x.area,f.lot)).sort(cmp);
     return {txt:`${l.length} de ${C.length} contribuições`,h:l.map(rowC).join("")||'<tr><td colspan="6">Nenhuma contribuição encontrada.</td></tr>',
       txt2:`${n.length} de ${semC.length} servidores`,h2:n.map(x=>`<tr><td>${esc(x.nome)}</td><td>${esc(x.area||"")}</td><td>${esc(x.email||"")}</td><td><button class="btn sm ghost" onclick="W.regManual('${x.id}')">Registrar pagamento</button></td></tr>`).join("")||'<tr><td colspan="4">Todos os servidores filtrados já contribuíram.</td></tr>'}};
@@ -1509,7 +1521,8 @@ async function admin(p){
     <div><h3>Ainda não contribuíram (${semC.length})</h3>${semC.slice(0,40).map(x=>`<div>${esc(x.nome)} <small>${esc(x.area||"")}</small></div>`).join("")||"<p>Todos os cadastrados já contribuíram.</p>"}${semC.length>40?`<p>e mais ${semC.length-40}…</p>`:""}</div></div>
     <h3 style="margin-top:20px">Convidados sem cadastro (${pend.length})</h3>${pend.map(c=>`<div>${esc(c.nome)} <small>${esc(c.email||"")}</small></div>`).join("")||"<p>Nenhum pendente.</p>"}`;
   if(tab==="contribuicoes"){const r=listC(),f=S.fc;body=`<div class="dash"><div class="stat ok"><b>${brl(soma("confirmado"))}</b><span>confirmado (${nConf})</span></div><div class="stat"><b>${brl(soma("em_analise"))}</b><span>em análise (${nAn})</span></div><div class="stat falta"><b>${semC.length}</b><span>servidores sem contribuição</span></div></div>
-    <div class="${(S.doadores||[]).length===nContrib?"msg-ok":"msg-info"}">Na página da campanha aparecem ${(S.doadores||[]).length} de ${nContrib} servidores com contribuição confirmada. <button class="btn sm ghost" onclick="W.sincDoadores()">Atualizar lista</button></div>
+    ${nAn?`<div class="msg-info pend-aviso"><b>${nAn} ${nAn===1?"contribuição aguardando conferência":"contribuições aguardando conferência"}</b> (${brl(soma("em_analise"))}). Elas já aparecem em "Como está a campanha" e em "Quem já contribuiu". Confirme, recuse, edite ou exclua abaixo: a página pública se ajusta na hora.</div>`:""}
+    <div class="${(S.doadores||[]).length===C.filter(x=>x.status==="confirmado"||x.status==="em_analise").length?"msg-ok":"msg-info"}">Na página da campanha aparecem ${(S.doadores||[]).length} de ${C.filter(x=>x.status==="confirmado"||x.status==="em_analise").length} contribuições (confirmadas e em conferência). <button class="btn sm ghost" onclick="W.sincDoadores()">Atualizar lista</button></div>
     <div class="row"><button class="btn" onclick="W.regManual()">+ Registrar contribuição</button><button class="btn ghost" onclick="W.csvContrib()">Baixar lista (CSV)</button></div>
     <div class="filtros"><input type="search" placeholder="Buscar por nome" aria-label="Buscar por nome" value="${esc(f.q)}" oninput="W.filtrar('fc','q',this.value)">
     <select aria-label="Status" onchange="W.filtrar('fc','st',this.value)"><option value="">Todos os status</option>${Object.entries(ST).map(([k,[l]])=>`<option value="${k}" ${f.st===k?"selected":""}>${l}</option>`).join("")}</select>
@@ -1571,10 +1584,10 @@ async function admin(p){
     <div class="row"><button class="btn">Salvar</button></div></form></div>
     <div class="box" style="margin:0;max-width:none"><h3>Itens da compra</h3><p>Aparecem na página inicial e no comparativo de compra.</p>${S.cfg.itens.map((it,i)=>`<div class="row" style="justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:10px"><div><b>${esc(it.nome)}</b><br><small>${esc(it.detalhe||"")}</small><br>${+it.preco>0?brl(it.preco):"preço não informado"}</div><button class="btn sm ghost" onclick="W.editItem(${i})">Editar</button></div>`).join("")}
     <p class="msg-info">Para uma nova campanha, altere o ano: as contribuições e a lista de terceirizados recomeçam vazias e os dados antigos ficam guardados.</p></div></div>`;
-  if(tab==="admins")body=`<div class="two"><div class="box" style="margin:0;max-width:none"><h3>Novo administrador</h3><p>Informe o e-mail da conta Google da pessoa. Ela entra pelo botão "Sou administrador: entrar com Google".</p>
-    <form onsubmit="W.addAdmin(event)"><label>Nome</label><input name="nome" required><label>E-mail Google</label><input name="email" type="email" required><label>Permissões</label>${Object.entries(PERMS).map(([k,l])=>`<label style="font-weight:400"><input type="checkbox" name="p_${k}" style="width:auto" checked> ${l}</label>`).join("")}<div class="row"><button class="btn">Adicionar administrador</button></div></form></div>
+  if(tab==="admins")body=`<div class="two"><div class="box" style="margin:0;max-width:none"><h3>Novo administrador</h3><p>Informe o e-mail da pessoa. Se for Gmail, ela entra por "Sou administrador: entrar com Google"; se preferir e-mail e senha, cria o acesso em Entrar &gt; "Primeiro acesso". Depois de cadastrar, use "Enviar instruções" na lista para mandar o passo a passo pelo WhatsApp.</p>
+    <form onsubmit="W.addAdmin(event)"><label>Nome</label><input name="nome" required><label>E-mail</label><input name="email" type="email" required><label>Permissões</label>${Object.entries(PERMS).map(([k,l])=>`<label style="font-weight:400"><input type="checkbox" name="p_${k}" style="width:auto" checked> ${l}</label>`).join("")}<div class="row"><button class="btn">Adicionar administrador</button></div></form></div>
     <div class="msg-info" style="align-self:start">O administrador principal (${ADMIN_EMAIL}) tem todas as permissões e é o único que gerencia administradores. Todo administrador vê o Resumo.</div></div>
-    <h3 style="margin-top:30px">Administradores (${A.admins.length})</h3><div class="tw"><table><tr><th>Nome / e-mail</th>${Object.keys(PERMS).map(k=>`<th>${PERMS_SHORT[k]}</th>`).join("")}<th></th></tr>${A.admins.map(a=>`<tr><td>${esc(a.nome)}<br><small>${esc(a.email)}</small></td>${Object.keys(PERMS).map(k=>`<td><input type="checkbox" style="width:auto" aria-label="${PERMS_SHORT[k]}" ${a.perms?.[k]?"checked":""} onchange="W.perm('${a.id}','${k}',this.checked)"></td>`).join("")}<td><button class="btn sm danger" onclick="W.delAdmin('${a.id}')">Remover</button></td></tr>`).join("")||'<tr><td colspan="8">Nenhum administrador adicional.</td></tr>'}</table></div>`;
+    <h3 style="margin-top:30px">Administradores (${A.admins.length})</h3><div class="tw"><table><tr><th>Nome / e-mail</th>${Object.keys(PERMS).map(k=>`<th>${PERMS_SHORT[k]}</th>`).join("")}<th></th></tr>${A.admins.map(a=>`<tr><td>${esc(a.nome)}<br><small>${esc(a.email)}</small></td>${Object.keys(PERMS).map(k=>`<td><input type="checkbox" style="width:auto" aria-label="${PERMS_SHORT[k]}" ${a.perms?.[k]?"checked":""} onchange="W.perm('${a.id}','${k}',this.checked)"></td>`).join("")}<td><a class="btn sm ghost" target="_blank" rel="noopener" href="${linkAdm(a)}">Enviar instruções</a><button class="btn sm danger" onclick="W.delAdmin('${a.id}')">Remover</button></td></tr>`).join("")||'<tr><td colspan="8">Nenhum administrador adicional.</td></tr>'}</table></div>`;
   return `<div class="wrap" style="padding:30px 20px 60px"><h2>Painel da campanha ${S.cfg.ano}</h2><div class="tabs">${tabs.map(([k,l])=>`<a href="#/admin/${k}" class="${k===tab?"on":""}">${l}</a>`).join("")}</div>${body}</div>`;
 }
 
@@ -1595,11 +1608,9 @@ h1{margin:1mm 0 0;font-size:11.5mm;line-height:1.05;color:#b3202f}h1 span{displa
 .rod{position:absolute;bottom:3mm;left:0;right:0;font-size:2.8mm;letter-spacing:.3mm;color:#9a8672}</style>`;
 const qrSvg=t=>{try{const q=window.QRLib.make(t),n=q.getModuleCount(),m=4;let d="";for(let r=0;r<n;r++)for(let c=0;c<n;c++)if(q.isDark(r,c))d+=`M${c+m},${r+m}h1v1h-1z`;return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${n+2*m} ${n+2*m}" shape-rendering="crispEdges"><rect width="100%" height="100%" fill="#fff"/><path d="${d}" fill="#123628"/></svg>`}catch(e){return `<p>Não foi possível gerar o QR Code.</p>`}};
 const svgPng=(svg,px)=>new Promise((ok,no)=>{const i=new Image();i.onload=()=>{const c=document.createElement("canvas");c.width=c.height=px;const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,px,px);x.imageSmoothingEnabled=false;x.drawImage(i,0,0,px,px);c.toBlob(ok,"image/png")};i.onerror=no;i.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svg)});
-async function resumoDe(b,list){const conf=list.filter(z=>z.status==="confirmado"),ids=[...new Set(conf.map(z=>z.servidorId))],doadores=[];
-  for(const sid of ids){const s=S.adm.serv.find(x=>x.id===sid)||{};doadores.push({id:sid,nome:String(s.nome||conf.find(z=>z.servidorId===sid)?.servidorNome||"").slice(0,120),foto:await thumb(s.foto,72)})}
-  doadores.sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR",{sensitivity:"base"}));
-  if(JSON.stringify(doadores).length>800000)doadores.forEach(d=>d.foto="");
-  b.set(doc(db,"config","resumo"),{arrecadado:conf.reduce((a,z)=>a+(+z.valor||0),0),confirmados:conf.length,contribuintes:ids.length,doadores,atualizadoEm:serverTimestamp()})}
+async function pubSet(b,x,status){const sv=(S.adm?.serv||[]).find(z=>z.id===x.servidorId)||{};b.set(doc(db,"doadores",x.id),{servidorId:x.servidorId,nome:String(sv.nome||x.servidorNome||"").slice(0,120),foto:await thumb(sv.foto,72),valor:+x.valor||0,status,ano:S.cfg.ano,atualizadoEm:serverTimestamp()})}
+const pubDel=(b,id)=>b.delete(doc(db,"doadores",id));
+async function sincPublico(){const C=S.adm.contrib,b=writeBatch(db),ativos=C.filter(x=>x.status==="confirmado"||x.status==="em_analise");for(const x of ativos)await pubSet(b,x,x.status);for(const d of S.doadores||[])if(!ativos.some(x=>x.id===d.id))pubDel(b,d.id);await b.commit()}
 function posterQR(k,url){
   const T=k==="site"?["Natal Solidário Datacenter 1º andar","Escaneie o QR Code com a câmera do celular e saiba como participar. Sugestão de "+brl(S.cfg.valorContribuicao)+" ou o valor que o seu coração mandar."]:["Servidor, participe!","Escaneie o QR Code para se cadastrar (nome, área, e-mail, senha e foto), fazer o PIX e enviar o comprovante. Juntos vamos presentear quem cuida de nós."];
   const w=window.open("","_blank");if(!w)return toast("O navegador bloqueou a janela. Libere pop-ups para este site.");
@@ -1642,12 +1653,14 @@ const W={
       const cp=await lerComprovante(file),ref=doc(collection(db,"contribuicoes")),bt=writeBatch(db);
       bt.set(ref,{servidorId:S.user.uid,servidorNome:S.perfil.nome,area:S.perfil.area||"",ano:S.cfg.ano,valor,status:"em_analise",comprovanteNome:cp.nome.slice(0,120),enviadoEm:serverTimestamp(),obsAdmin:"",criadoEm:serverTimestamp()});
       bt.set(doc(db,"comprovantes",ref.id),{servidorId:S.user.uid,ano:S.cfg.ano,dados:cp.dados,tipo:cp.tipo,nome:cp.nome.slice(0,120),enviadoEm:serverTimestamp()});
+      bt.set(doc(db,"doadores",ref.id),{servidorId:S.user.uid,nome:S.perfil.nome,foto:await thumb(S.perfil.foto,72),valor,status:"em_analise",ano:S.cfg.ano,atualizadoEm:serverTimestamp()});
       lg(bt,"contribuicao_enviada",`Enviou o comprovante do PIX de ${brl(valor)}`,"");
       await bt.commit();await render(true);agradecer(valor)}
     catch(x){toast(x.code==="permission-denied"?"O Firebase negou o envio. Avise o administrador para republicar as regras do Firestore.":(x.message||"Não foi possível enviar."))}b.disabled=false},
   async reenviar(id){const f=await pedirArquivo("Reenviar comprovante","Anexe o novo comprovante do PIX.");if(!f)return;
     try{const cp=await lerComprovante(f),b=writeBatch(db);b.update(doc(db,"contribuicoes",id),{status:"em_analise",comprovanteNome:cp.nome.slice(0,120),enviadoEm:serverTimestamp(),obsAdmin:""});
       b.set(doc(db,"comprovantes",id),{servidorId:S.user.uid,ano:S.cfg.ano,dados:cp.dados,tipo:cp.tipo,nome:cp.nome.slice(0,120),enviadoEm:serverTimestamp()});
+      {const x0=(S.minhas||[]).find(z=>z.id===id);if(x0)b.set(doc(db,"doadores",id),{servidorId:S.user.uid,nome:S.perfil.nome,foto:await thumb(S.perfil.foto,72),valor:+x0.valor,status:"em_analise",ano:S.cfg.ano,atualizadoEm:serverTimestamp()})}
       lg(b,"contribuicao_reenviada","Reenviou o comprovante do PIX","");await b.commit();toast("Comprovante reenviado. Obrigado!");render(true)}catch(x){toast(x.message||"Erro ao reenviar.")}},
   async verComp(id){try{const d=await getDoc(doc(db,"comprovantes",id));if(!d.exists())return toast("Não há comprovante anexado.");W.abrirArq(d.data(),"Comprovante")}catch(x){toast("Erro: "+(x.code||x.message))}},
   async verGasto(id){try{const d=await getDoc(doc(db,"gastosArq",id));if(!d.exists())return toast("Não há comprovante anexado.");W.abrirArq(d.data(),"Comprovante do gasto")}catch(x){toast("Erro: "+(x.code||x.message))}},
@@ -1655,7 +1668,7 @@ const W={
     const dl=$("#dlg");dl.innerHTML=`<h2>${tit}</h2><p>${esc(c.nome||"")}</p><img src="${c.dados}" alt="${tit}" style="max-width:100%;border:1px solid var(--line);border-radius:8px"><div class="row"><button class="btn ghost" onclick="dlg.close()">Fechar</button></div>`;dl.showModal()},
   async mudarStatus(id,status,motivo,acao,det){const x=S.adm.contrib.find(z=>z.id===id),b=writeBatch(db);
     b.update(doc(db,"contribuicoes",id),{status,obsAdmin:motivo||"",confirmadoPor:S.user.email,confirmadoEm:serverTimestamp()});
-    await resumoDe(b,S.adm.contrib.map(z=>z.id===id?{...z,status}:z));
+    if(status==="recusada")pubDel(b,id);else await pubSet(b,x,status);
     lg(b,acao,`${det} de ${x.servidorNome} (${brl(x.valor)})${motivo?". Motivo: "+motivo:""}`,x.servidorNome);await b.commit()},
   async confirmar(id){if(!confirm("Confirmar o recebimento desta contribuição?"))return;try{await W.mudarStatus(id,"confirmado","","contribuicao_confirmada","Confirmou a contribuição");toast("Contribuição confirmada.");render(true)}catch(x){toast("Erro: "+(x.code||x.message))}},
   async recusar(id){const x=S.adm.contrib.find(z=>z.id===id);const m=await pedirMotivo("Recusar comprovante",`Informe por que o comprovante de <b>${esc(x.servidorNome)}</b> não pode ser aceito. O servidor verá o motivo e poderá reenviar.`,"Recusar");if(m===null)return;
@@ -1663,14 +1676,17 @@ const W={
   async desfazerConf(id){const x=S.adm.contrib.find(z=>z.id===id);const m=await pedirMotivo("Desfazer confirmação",`A contribuição de <b>${esc(x.servidorNome)}</b> voltará para "Em análise".`,"Desfazer confirmação");if(m===null)return;
     try{await W.mudarStatus(id,"em_analise",m,"contribuicao_desfeita","Desfez a confirmação");toast("Confirmação desfeita.");render(true)}catch(e){toast("Erro: "+(e.code||e.message))}},
   async delContrib(id){const x=S.adm.contrib.find(z=>z.id===id);const m=await pedirMotivo("Excluir contribuição",`Você vai excluir a contribuição de <b>${esc(x.servidorNome)}</b> (${brl(x.valor)}) e o comprovante enviado.`,"Excluir");if(m===null)return;
-    try{const b=writeBatch(db);b.delete(doc(db,"contribuicoes",id));b.delete(doc(db,"comprovantes",id));await resumoDe(b,S.adm.contrib.filter(z=>z.id!==id));lg(b,"contribuicao_excluida",`Excluiu a contribuição de ${x.servidorNome} (${brl(x.valor)}). Motivo: ${m}`,x.servidorNome);await b.commit();toast("Contribuição excluída.");render(true)}catch(e){toast("Erro: "+(e.code||e.message))}},
+    try{const b=writeBatch(db);b.delete(doc(db,"contribuicoes",id));b.delete(doc(db,"comprovantes",id));pubDel(b,id);lg(b,"contribuicao_excluida",`Excluiu a contribuição de ${x.servidorNome} (${brl(x.valor)}). Motivo: ${m}`,x.servidorNome);await b.commit();toast("Contribuição excluída.");render(true)}catch(e){toast("Erro: "+(e.code||e.message))}},
+  editContrib(id){const x=S.adm.contrib.find(z=>z.id===id);modal("Editar contribuição",[{k:"valor",l:"Valor (R$)",t:"number",req:1},{k:"obs",l:"Observação"}],{valor:x.valor,obs:x.obsAdmin||""},async v=>{if(!(v.valor>0))throw new Error("Informe o valor.");const b=writeBatch(db);
+      b.update(doc(db,"contribuicoes",id),{valor:v.valor,obsAdmin:v.obs||"",editadoPor:S.user.email,editadoEm:serverTimestamp()});if(x.status!=="recusada")await pubSet(b,{...x,valor:v.valor},x.status);
+      lg(b,"contribuicao_editada",`Alterou o valor da contribuição de ${x.servidorNome} de ${brl(x.valor)} para ${brl(v.valor)}`,x.servidorNome);await b.commit()})},
   regManual(sid){const lab=s=>s.nome+" ("+(s.area||"sem área")+")",s0=sid?S.adm.serv.find(x=>x.id===sid):null;
     const FC=[{k:"servidor",l:"Servidor",t:"select",o:S.adm.serv.map(lab),req:1},{k:"valor",l:"Valor recebido (R$)",t:"number",req:1},{k:"obs",l:"Observação (ex.: pago em dinheiro)"},{k:"comprovante",l:"Comprovante de pagamento (foto, print ou PDF)",t:"arquivo"}];
     modal("Registrar contribuição",FC,{servidor:s0?lab(s0):"",valor:S.cfg.valorContribuicao,obs:""},async v=>{const s=S.adm.serv.find(x=>lab(x)===v.servidor);if(!s)throw new Error("Escolha o servidor.");if(!(v.valor>0))throw new Error("Informe o valor.");
       const cp=v.comprovante?await lerComprovante(v.comprovante):null,ref=doc(collection(db,"contribuicoes")),b=writeBatch(db),dados={servidorId:s.id,servidorNome:s.nome,area:s.area||"",ano:S.cfg.ano,valor:v.valor,status:"confirmado",obsAdmin:v.obs||"",comprovanteNome:cp?cp.nome.slice(0,120):"",manual:true,confirmadoPor:S.user.email};
       b.set(ref,{...dados,criadoEm:serverTimestamp(),confirmadoEm:serverTimestamp()});
       if(cp)b.set(doc(db,"comprovantes",ref.id),{servidorId:s.id,ano:S.cfg.ano,dados:cp.dados,tipo:cp.tipo,nome:cp.nome.slice(0,120),enviadoEm:serverTimestamp()});
-      await resumoDe(b,[...S.adm.contrib,{id:ref.id,...dados}]);
+      await pubSet(b,{id:ref.id,...dados},"confirmado");
       lg(b,"contribuicao_manual",`Registrou contribuição de ${brl(v.valor)} de ${s.nome}${v.obs?". Obs.: "+v.obs:""}`,s.nome);await b.commit()})},
   editGasto(id){const g=id?S.adm.gastos.find(x=>x.id===id):null;
     const FG=[{k:"tipo",l:"Tipo",t:"select",o:TIPOS,req:1},{k:"descricao",l:"Descrição (ex.: 7 Chocottones Bauducco)",req:1},{k:"quantidade",l:"Quantidade",t:"number"},{k:"valor",l:"Valor total (R$)",t:"number",req:1},{k:"data",l:"Data",t:"date",req:1},{k:"foto",l:"Comprovante (foto ou print da nota)",t:"foto",max:1400}];
@@ -1687,7 +1703,7 @@ const W={
     try{const cp=await lerComprovante(f),b=writeBatch(db);b.update(doc(db,"contribuicoes",id),{comprovanteNome:cp.nome.slice(0,120)});
       b.set(doc(db,"comprovantes",id),{servidorId:x.servidorId,ano:S.cfg.ano,dados:cp.dados,tipo:cp.tipo,nome:cp.nome.slice(0,120),enviadoEm:serverTimestamp()});
       lg(b,"contribuicao_comprovante",`Anexou o comprovante da contribuição de ${x.servidorNome} (${brl(x.valor)})`,x.servidorNome);await b.commit();toast("Comprovante anexado.");render(true)}catch(e){toast(e.message||"Erro ao anexar.")}},
-  async sincDoadores(){try{const b=writeBatch(db);await resumoDe(b,S.adm.contrib);await b.commit();S.pubTs=0;await loadPublic();toast("Lista de quem contribuiu atualizada.");render(true)}catch(x){toast("Erro: "+(x.code||x.message))}},
+  async sincDoadores(){try{await sincPublico();S.pubTs=0;await loadPublic();toast("Lista de quem contribuiu atualizada.");render(true)}catch(x){toast("Erro: "+(x.code||x.message))}},
   csvContrib(){csv([["Servidor","Área","Valor","Status","Enviado em","Observação"],...[...S.adm.contrib].sort((a,b)=>a.servidorNome.localeCompare(b.servidorNome,"pt-BR",{sensitivity:"base"})).map(x=>[x.servidorNome,x.area,x.valor,(ST[x.status]||[x.status])[0],dh(x.enviadoEm||x.criadoEm),x.obsAdmin||""])],"contribuicoes.csv")},
   csvAp(){csv([["Nome","Profissão","Lotação","Idade","E-mail"],...[...S.ap].sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR",{sensitivity:"base"})).map(a=>[a.nome,a.profissao,a.lotacao,a.idade,(S.adm.priv[a.id]||{}).email||""])],"terceirizados.csv")},
   csvServ(){csv([["Nome","Área","E-mail","Contribuições","Total confirmado"],...S.adm.serv.map(x=>{const l=S.adm.contrib.filter(z=>z.servidorId===x.id);return [x.nome,x.area,x.email,l.length,l.filter(z=>z.status==="confirmado").reduce((a,z)=>a+(+z.valor||0),0)]})],"servidores.csv")},
@@ -1695,6 +1711,10 @@ const W={
   editItem(i){const it=S.cfg.itens[i]||{};modal("Editar item",FI,it,async v=>{const itens=S.cfg.itens.map((x,j)=>j===i?{...x,...v,preco:+v.preco||0}:x);await setDoc(doc(db,"config","campanha"),{itens,itensVersao:2},{merge:true})})},
   async salvarCfg(e){e.preventDefault();const f=e.target,n=k=>+f[k].value||0;
     try{await setDoc(doc(db,"config","campanha"),{ano:+f.ano.value,dataEntrega:f.dataEntrega.value,valorContribuicao:n("valorContribuicao"),meta:n("meta"),tipoChave:f.tipoChave.value,chavePix:f.chavePix.value.trim(),nomeRecebedor:f.nomeRecebedor.value.trim(),cidadeRecebedor:f.cidadeRecebedor.value.trim(),itens:S.cfg.itens,itensVersao:2,mostrarDoadores:f.mostrarDoadores.checked},{merge:true});toast("Campanha atualizada.");render(true)}catch(x){toast("Erro: "+(x.code||x.message))}},
+  async primeiroAcesso(e){e.preventDefault();const b=e.submitter;b.disabled=true;S.busy=true;
+    try{const c=await createUserWithEmailAndPassword(auth,$("#pe").value.trim(),$("#ps").value);try{await sendEmailVerification(c.user)}catch{}
+      S.busy=false;await refreshProfile();toast("Conta criada. Enviamos um e-mail de confirmação: abra o link e depois toque em Já confirmei.");location.hash=S.admPend?"#/admin":"#/contribuir";render()}
+    catch(x){S.busy=false;toast(x.code==="auth/email-already-in-use"?"Este e-mail já tem cadastro. Entre com a senha ou use \"Esqueci a senha\".":erroAuth(x))}b.disabled=false},
   async instalar(){if(!S.deferred){location.hash="#/instalar";return}S.deferred.prompt();const r=await S.deferred.userChoice.catch(()=>({}));S.deferred=null;document.getElementById("inst")?.remove();renderNav();if(r.outcome==="accepted")toast("Instalando o app…")},
   instalarBanner(){if(S.deferred)return W.instalar();document.getElementById("inst")?.remove();location.hash="#/instalar"},
   fecharBanner(){try{localStorage.instDispensado=Date.now()}catch{}document.getElementById("inst")?.remove()},

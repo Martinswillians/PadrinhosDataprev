@@ -71,6 +71,23 @@ service cloud.firestore {
       allow delete: if can('contribuicoes');
     }
 
+    // Quem já contribuiu (nome, miniatura da foto e valor), exibido na página da campanha. O id é o mesmo da contribuição.
+    // O servidor cria a própria entrada ao enviar o comprovante (em conferência); os administradores confirmam, ajustam ou removem.
+    match /doadores/{id} {
+      allow read: if true;
+      allow create, update: if can('contribuicoes') || (isServidor()
+        && request.resource.data.servidorId == request.auth.uid
+        && request.resource.data.status == 'em_analise'
+        && request.resource.data.keys().hasOnly(['servidorId','nome','foto','valor','status','ano','atualizadoEm'])
+        && request.resource.data.nome is string && request.resource.data.nome.size() <= 120
+        && request.resource.data.foto is string && request.resource.data.foto.size() <= 20000
+        && existsAfter(/databases/$(database)/documents/contribuicoes/$(id))
+        && getAfter(/databases/$(database)/documents/contribuicoes/$(id)).data.servidorId == request.auth.uid
+        && getAfter(/databases/$(database)/documents/contribuicoes/$(id)).data.valor == request.resource.data.valor
+        && (resource == null || resource.data.status != 'confirmado'));
+      allow delete: if can('contribuicoes');
+    }
+
     // Arquivo do comprovante (imagem reduzida ou PDF pequeno, guardado como texto)
     match /comprovantes/{id} {
       allow read: if can('contribuicoes') || (signed() && resource.data.servidorId == request.auth.uid);

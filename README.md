@@ -30,9 +30,18 @@ Site estático (GitHub Pages) + Firebase (Auth e Firestore). Os servidores contr
 - **E-mail e senha:** quem tem conta por e-mail e senha (por exemplo, criada pelo QR Code) e foi adicionado como administrador precisa **confirmar o e-mail uma vez**. Ao entrar, o menu mostra **Painel**; a tela pede para tocar em **Enviar e-mail de confirmação**, abrir o link recebido e voltar para tocar em **Já confirmei**.
 - **Carregamento:** os dados são guardados por 1 minuto ao navegar entre telas (a lista só é buscada de novo depois de alterações), a conexão com o Firebase usa o modo automático para redes móveis instáveis, e, se algo passar de 7 segundos, aparece um aviso. Se passar de 25 segundos, a tela mostra **Tentar novamente** e **Limpar dados do app e recarregar**.
 
+## Contribuições em conferência e lista pública
+- Ao enviar o comprovante, a contribuição **já aparece** em "Quem já contribuiu" (nome, foto em miniatura e valor), marcada como **em conferência**, e **entra na soma** de "Como está a campanha" (voto de confiança). A lista pública é a coleção `doadores`, uma entrada por contribuição.
+- Em **Painel > Contribuições** os administradores veem um aviso das pendentes (e um contador no menu, ao lado de Painel), com as linhas pendentes em destaque e no topo. As ações são **Confirmar**, **Desfazer**, **Recusar** (some da lista pública), **Editar** (ajusta o valor) e **X** (exclui). Cada ação atualiza na hora a página pública.
+- Se a lista pública estiver diferente das contribuições (por exemplo, nas já confirmadas antes desta versão), ela é corrigida sozinha na primeira abertura do painel; o botão **Atualizar lista** força a correção.
+- Republique o `firestore.rules`: há regra nova para `doadores`.
+
+## Primeiro acesso de administrador
+Quem foi adicionado em Painel > Administradores e prefere e-mail e senha usa **Entrar > Primeiro acesso com e-mail e senha**: cria a senha pelo próprio site (não é preciso cadastrar o e-mail no console do Firebase) e confirma o e-mail pelo link recebido. Quem tem Gmail pode usar **Sou administrador: entrar com Google**. Na lista de administradores, o botão **Enviar instruções** manda o passo a passo pelo WhatsApp.
+
 ## Publicação
 1. **Firebase > Firestore > Regras:** cole o `firestore.rules` e publique (obrigatório: há regras novas para contribuições, comprovantes e prestação de contas).
-2. **GitHub:** envie **todos os arquivos desta pasta** (o `index.html` e os de ícone, manifesto, imagem de compartilhamento e `sw.js`) e atualize o site com Ctrl+F5. O rodapé mostra a versão (2026.10.22-p).
+2. **GitHub:** envie **todos os arquivos desta pasta** (o `index.html` e os de ícone, manifesto, imagem de compartilhamento e `sw.js`) e atualize o site com Ctrl+F5. O rodapé mostra a versão (2026.10.23-q).
 3. **Authentication:** E-mail/senha e Google ativados, com `martinswillians.github.io` em Authorized domains.
 4. Em **Painel > Campanha**, confira a chave PIX e a data de entrega e, se quiser, defina a meta. Os itens já vêm com as fotos e os preços do Chocottone (R$ 54,99) e da Cesta (R$ 73,49); ajuste se mudarem.
 
