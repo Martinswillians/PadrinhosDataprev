@@ -144,7 +144,8 @@ footer{background:var(--pine);color:#a9c2b5;padding:28px 0;text-align:center;fon
 .prod .ph{aspect-ratio:4/3;display:grid;place-items:center;background:var(--frost);border-radius:10px;font-size:3.4rem}
 .prod h3{margin:6px 0 0;font-size:1.25rem}.prod p{margin:0;color:var(--mute);flex:1}.prod .preco{font:700 1.5rem var(--serif);color:var(--berry)}
 .itens.mini{grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}.itens.mini .prod{padding:10px}.itens.mini .prod img{max-height:130px}.itens.mini .prod h3{font-size:1rem}
-.doadores{display:flex;flex-wrap:wrap;gap:16px;margin:14px 0}.doador{display:flex;flex-direction:column;align-items:center;width:108px;text-align:center;font-size:.85rem;gap:6px;line-height:1.2}.doador b{font-size:.85rem;color:var(--pine2)}.doador .pend{color:#7a5800;background:#fbf0c9;border-radius:99px;padding:0 8px;font-size:.72rem}.badge{background:#c62839;color:#fff;border-radius:99px;padding:0 7px;font-size:.78rem;font-weight:700}tr.pendente td{background:#fff8e1}.pend-aviso{border-left:5px solid var(--gold)}
+.doadores{display:flex;flex-wrap:wrap;gap:16px;margin:14px 0}.doador{display:flex;flex-direction:column;align-items:center;width:108px;text-align:center;font-size:.85rem;gap:6px;line-height:1.2}.doador b{font-size:.85rem;color:var(--pine2)}.doador .pend{color:#7a5800;background:#fbf0c9;border-radius:99px;padding:0 8px;font-size:.72rem}.msgnatal{padding:28px 0 6px}.natalbox{background:#fff;border:2px solid var(--gold);border-radius:18px;padding:26px 28px;text-align:center;font-family:var(--serif);font-size:1.2rem;line-height:1.6;box-shadow:0 8px 24px rgba(0,0,0,.08)}.natalico{font-size:2.2rem;line-height:1;margin-bottom:8px}
+.badge{background:#c62839;color:#fff;border-radius:99px;padding:0 7px;font-size:.78rem;font-weight:700}tr.pendente td{background:#fff8e1}.pend-aviso{border-left:5px solid var(--gold)}
 .av.md{width:64px;height:64px;font-size:1.3rem}
 .instbar{position:fixed;left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:40;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.28);padding:10px 12px;display:flex;gap:10px;align-items:center;max-width:560px;margin:0 auto}
 .instbar img{border-radius:10px}.instbar div{flex:1;line-height:1.25;font-size:.92rem}.instbar .x{background:none;border:0;font-size:1.7rem;cursor:pointer;color:var(--mute);padding:0 4px;line-height:1}
@@ -166,7 +167,7 @@ footer{background:var(--pine);color:#a9c2b5;padding:28px 0;text-align:center;fon
   <nav class="n" id="nav"></nav>
 </div></header>
 <main id="app"><p class="load">Carregando…</p></main>
-<footer><div class="wrap">Natal Solidário Datacenter 1º andar<br><small id="ver">versão 2026.10.23-q</small></div></footer>
+<footer><div class="wrap">Natal Solidário Datacenter 1º andar<br><small id="ver">versão 2026.10.24-r</small></div></footer>
 <dialog id="dlg"></dialog>
 <div id="toast" role="status"></div>
 
@@ -1114,7 +1115,7 @@ const erroAuth=x=>{const c=x?.code||"";const M={
 const toast=m=>{const t=$("#toast");t.textContent=m;t.style.display="block";clearTimeout(toast.h);toast.h=setTimeout(()=>t.style.display="none",8000)};
 const av=(a,c="")=>a?.foto?`<img class="av ${c}" src="${a.foto}" alt="Foto de ${esc(a.nome)}">`:`<div class="av ${c}" aria-hidden="true">${esc(ini(a?.nome))}</div>`;
 const g=async n=>(await getDocs(collection(db,n))).docs.map(d=>({id:d.id,...d.data()}));
-const ACOES={contribuicao_editada:"Contribuição editada (adm)",contribuicao_comprovante:"Comprovante anexado (adm)",gasto_registrado:"Gasto registrado",gasto_alterado:"Gasto alterado",gasto_excluido:"Gasto excluído",prestacao_publicada:"Prestação de contas disponibilizada",prestacao_ocultada:"Prestação de contas ocultada",contribuicao_enviada:"Comprovante enviado",contribuicao_reenviada:"Comprovante reenviado",contribuicao_confirmada:"Contribuição confirmada",contribuicao_recusada:"Contribuição recusada",contribuicao_desfeita:"Confirmação desfeita",contribuicao_manual:"Contribuição registrada (adm)",contribuicao_excluida:"Contribuição excluída",cadastro:"Cadastro de servidor",perfil_alterado:"Perfil alterado",terceirizado_cadastrado:"Terceirizado cadastrado",terceirizado_alterado:"Terceirizado alterado",terceirizado_excluido:"Terceirizado excluído",servidor_cadastrado:"Servidor cadastrado (adm)",servidor_alterado:"Servidor alterado (adm)",servidor_excluido:"Servidor excluído (adm)",apadrinhar:"Apadrinhamento (versão anterior)",desfazer_apadrinhamento:"Apadrinhamento desfeito (versão anterior)",entrega_registrada:"Entrega registrada (versão anterior)",entrega_desfeita:"Entrega desfeita (versão anterior)"};
+const ACOES={mensagem_publicada:"Mensagem de Natal publicada",mensagem_ocultada:"Mensagem de Natal ocultada",contribuicao_editada:"Contribuição editada (adm)",contribuicao_comprovante:"Comprovante anexado (adm)",gasto_registrado:"Gasto registrado",gasto_alterado:"Gasto alterado",gasto_excluido:"Gasto excluído",prestacao_publicada:"Prestação de contas disponibilizada",prestacao_ocultada:"Prestação de contas ocultada",contribuicao_enviada:"Comprovante enviado",contribuicao_reenviada:"Comprovante reenviado",contribuicao_confirmada:"Contribuição confirmada",contribuicao_recusada:"Contribuição recusada",contribuicao_desfeita:"Confirmação desfeita",contribuicao_manual:"Contribuição registrada (adm)",contribuicao_excluida:"Contribuição excluída",cadastro:"Cadastro de servidor",perfil_alterado:"Perfil alterado",terceirizado_cadastrado:"Terceirizado cadastrado",terceirizado_alterado:"Terceirizado alterado",terceirizado_excluido:"Terceirizado excluído",servidor_cadastrado:"Servidor cadastrado (adm)",servidor_alterado:"Servidor alterado (adm)",servidor_excluido:"Servidor excluído (adm)",apadrinhar:"Apadrinhamento (versão anterior)",desfazer_apadrinhamento:"Apadrinhamento desfeito (versão anterior)",entrega_registrada:"Entrega registrada (versão anterior)",entrega_desfeita:"Entrega desfeita (versão anterior)"};
 function lg(b,acao,detalhe,alvo="",u=auth.currentUser,nome=null){
   b.set(doc(collection(db,"logs")),{acao,detalhe:String(detalhe).slice(0,380),usuarioId:u.uid,usuarioNome:String(nome||S.perfil?.nome||u.displayName||u.email||"").slice(0,150),usuarioEmail:u.email||"",alvoNome:String(alvo||"").slice(0,150),criadoEm:serverTimestamp()});
 }
@@ -1180,9 +1181,8 @@ function pedirArquivo(titulo,msg){return new Promise(res=>{const d=$("#dlg");let
   d.innerHTML=`<form id="mm"><h2>${titulo}</h2><p>${msg}</p><label for="mf">Comprovante (foto, print ou PDF) <span class="req" aria-hidden="true">*</span></label><input id="mf" type="file" accept="image/*,application/pdf" required><p class="nota"><span class="req">*</span> Campo obrigatório</p><div class="row"><button type="button" class="btn ghost" id="mc">Cancelar</button><button class="btn">Enviar</button></div></form>`;
   $("#mm").onsubmit=e=>{e.preventDefault();ok=true;const f=$("#mf").files[0];d.close();res(f)};$("#mc").onclick=()=>d.close();d.onclose=()=>{d.onclose=null;if(!ok)res(null)};d.showModal()})}
 function totaisPub(){const D=S.doadores||[],soma=st=>D.filter(d=>!st||d.status===st).reduce((a,d)=>a+(+d.valor||0),0);return {total:soma(),conf:soma("confirmado"),analise:soma("em_analise"),n:new Set(D.map(d=>d.servidorId)).size,nAn:D.filter(d=>d.status==="em_analise").length}}
-function capacidade(){const disp=Math.max(0,totaisPub().total);return S.cfg.itens.filter(it=>+it.preco>0).map(it=>({nome:it.nome,q:Math.floor(disp/it.preco)}))}
 function painelCampanha(){
-  const t=totaisPub(),meta=+S.cfg.meta||0,pct=meta>0?Math.min(100,Math.round(t.total/meta*100)):0,cap=capacidade(),por={};
+  const t=totaisPub(),meta=+S.cfg.meta||0,pct=meta>0?Math.min(100,Math.round(t.total/meta*100)):0,por={};
   (S.doadores||[]).forEach(d=>{const x=por[d.servidorId]||(por[d.servidorId]={nome:d.nome,foto:d.foto,valor:0,pend:false});x.valor+=+d.valor||0;if(d.status==="em_analise")x.pend=true});
   const lista=Object.values(por).sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR",{sensitivity:"base"}));
   return `<div class="dash">
@@ -1191,8 +1191,7 @@ function painelCampanha(){
     <div class="stat ok"><b>${brl(t.total)}</b><span>arrecadado até agora${t.analise>0?" (inclui "+brl(t.analise)+" em conferência)":""}</span></div>
     <div class="stat"><b>${S.ap.length}</b><span>colegas que vamos presentear</span></div></div>
     ${meta>0?`<div class="bar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div><p class="cnt">${pct}% da meta de ${brl(meta)}</p>`:""}
-    ${S.cfg.mostrarDoadores!==false&&lista.length?`<h3 style="margin-top:22px">Quem já contribuiu</h3><div class="doadores">${lista.map(d=>`<div class="doador">${av(d,"md")}<span>${esc(d.nome)}</span><b>${brl(d.valor)}</b>${d.pend?'<small class="pend">em conferência</small>':""}</div>`).join("")}</div><p class="cnt">Obrigado a cada um de vocês! Os valores em conferência já entram na soma e podem ser ajustados pela coordenação.</p>`:""}
-    ${cap.length?`<p class="msg-info">Com o valor arrecadado até agora já dá para comprar ${cap.map(c=>`<b>${c.q}</b> ${esc(c.nome)}`).join(" ou ")}. Precisamos de ${S.ap.length} para presentear todos os colegas.</p>`:""}`;
+    ${S.cfg.mostrarDoadores!==false&&lista.length?`<h3 style="margin-top:22px">Quem já contribuiu</h3><div class="doadores">${lista.map(d=>`<div class="doador">${av(d,"md")}<span>${esc(d.nome)}</span><b>${brl(d.valor)}</b>${d.pend?'<small class="pend">em conferência</small>':""}</div>`).join("")}</div><p class="cnt">Obrigado a cada um de vocês! Os valores em conferência já entram na soma e podem ser ajustados pela coordenação.</p>`:""}`;
 }
 function prestacaoHtml(){
   if(!S.prest?.publicada)return "";
@@ -1211,6 +1210,7 @@ async function loadPublic(){
   if(c.exists())S.cfg={...S.cfg,...c.data()};
   if(!c.exists()||c.data().itensVersao!==2||!Array.isArray(S.cfg.itens)||!S.cfg.itens.length)S.cfg.itens=DEFAULT_ITENS;
   try{const p=await getDoc(doc(db,"config","prestacao"));S.prest=p.exists()?p.data():{}}catch{S.prest={}}
+  try{const mm=await getDoc(doc(db,"config","mensagem"));S.msgNatal=mm.exists()?mm.data():{}}catch{S.msgNatal={}}
   S.gastos=[];if(S.prest.publicada){try{S.gastos=(await getDocs(query(collection(db,"gastos"),where("ano","==",S.cfg.ano)))).docs.map(d=>({id:d.id,...d.data()}))}catch{}}
   S.doadores=[];try{S.doadores=(await getDocs(query(collection(db,"doadores"),where("ano","==",S.cfg.ano)))).docs.map(d=>({id:d.id,...d.data()}))}catch{}
   const q=await getDocs(query(collection(db,"apadrinhados"),where("ano","==",S.cfg.ano)));
@@ -1292,6 +1292,8 @@ async function home(){
   <span class="prazo">${prazo}</span></div>
   <div class="bigtag"><small>Para:</small><div class="para">quem cuida de você</div><small>De:</small><div class="para" style="font-size:1.3rem">um colega do Datacenter</div><div class="msg">Obrigado por estar aqui todos os dias.</div></div>
 </div></section>
+
+${S.msgNatal?.publicada&&S.msgNatal.texto?`<section class="s msgnatal"><div class="wrap"><div class="natalbox"><div class="natalico" aria-hidden="true">🎄</div>${esc(fillNome(S.msgNatal.texto,"")).replace(/\n/g,"<br>")}</div></div></section>`:""}
 
 <section class="s deco branch"><div class="wrap">
   <h2>Hora de retribuir</h2>
@@ -1488,7 +1490,7 @@ async function admin(p){
   const soma=st=>C.filter(x=>x.status===st).reduce((a,x)=>a+(+x.valor||0),0),nConf=C.filter(x=>x.status==="confirmado").length,nAn=C.filter(x=>x.status==="em_analise").length;
   const semC=A.serv.filter(x=>!por[x.id]);
   const pend=A.conv.filter(c=>!c.multi&&!c.usado),solP=(A.sol||[]).filter(x=>x.status==="pendente");
-  const tabs=[["resumo","Resumo",1],["contribuicoes","Contribuições"+(nAn?" ("+nAn+")":""),S.perms.contribuicoes],["compras","Comparativo de compra",S.perms.contribuicoes],["prestacao","Prestação de contas",S.perms.contribuicoes],["terceirizados","Terceirizados",S.perms.terceirizados],["servidores","Servidores",S.perms.servidores],["convites","Convites"+(solP.length?" ("+solP.length+")":""),S.perms.convites],["qr","QR Code",S.perms.convites],["campanha","Campanha",S.perms.campanha],["logs","Registro de atividades",S.perms.logs],["admins","Administradores",S.super]].filter(t=>t[2]);
+  const tabs=[["resumo","Resumo",1],["contribuicoes","Contribuições"+(nAn?" ("+nAn+")":""),S.perms.contribuicoes],["compras","Comparativo de compra",S.perms.contribuicoes],["prestacao","Prestação de contas",S.perms.contribuicoes],["terceirizados","Terceirizados",S.perms.terceirizados],["servidores","Servidores",S.perms.servidores],["convites","Convites"+(solP.length?" ("+solP.length+")":""),S.perms.convites],["qr","QR Code",S.perms.convites],["campanha","Campanha",S.perms.campanha],["mensagem","Mensagem de Natal",S.perms.campanha],["logs","Registro de atividades",S.perms.logs],["admins","Administradores",S.super]].filter(t=>t[2]);
   const tab=tabs.some(t=>t[0]===(p[1]||"resumo"))?(p[1]||"resumo"):"resumo";
   if(tab==="logs"){try{S.logErr="";S.logs=(await getDocs(query(collection(db,"logs"),orderBy("criadoEm","desc"),limit(1000)))).docs.map(d=>({id:d.id,...d.data()}))}catch(e){S.logs=[];S.logErr=e.code||e.message}}
   const solHtml=`<h3>Solicitações de acesso (${solP.length})</h3><div class="tw"><table><tr><th>Nome</th><th>E-mail / Telefone</th><th>Área / Lotação</th><th>Mensagem</th><th>Ações</th></tr>${solP.map(x=>`<tr><td>${esc(x.nome)}</td><td>${esc(x.email)}<br><small>${esc(x.fone||"sem telefone")}</small></td><td>${esc(x.area)}<br><small>${esc(x.lotacao||"")}</small></td><td>${esc(x.mensagem||"")}</td><td><button class="btn sm" onclick="W.atender('${x.id}')">Gerar convite</button>${x.fone?`<a class="btn sm ghost" target="_blank" rel="noopener" href="https://wa.me/${waNum(x.fone)}">WhatsApp</a>`:""}<button class="btn sm danger" onclick="W.descartarSol('${x.id}')">Descartar</button></td></tr>`).join("")||'<tr><td colspan="5">Nenhuma solicitação pendente.</td></tr>'}</table></div>`;
@@ -1538,6 +1540,27 @@ async function admin(p){
     <p>Compare quantas unidades cada opção permite comprar. As colunas usam o valor confirmado e, na segunda, também as contribuições ainda em análise (${brl(arrAn)}).</p>
     <div class="tw"><table><thead><tr><th>Opção</th><th>Preço unitário</th><th>Unidades (confirmado)</th><th>Unidades (com em análise)</th><th>Custo para os ${n} colegas</th><th>Resultado</th></tr></thead><tbody>${lin}</tbody></table></div>
     <p class="msg-info">Os preços dos itens são informados em <a href="#/admin/campanha">Campanha</a>${S.perms.campanha?"":" (peça a um administrador com essa permissão)"}.</p>`}
+  const destinos=()=>{const o=S.msgSel||{serv:"todos",terc:true},mapa=new Map();
+    if(o.serv!=="nenhum")A.serv.forEach(x=>{if(o.serv==="contrib"&&!["confirmado","em_analise"].includes(stSrv(x.id)))return;mapa.set((x.email||"sem:"+x.id).toLowerCase(),{nome:x.nome,email:x.email||"",tipo:"Servidor"})});
+    if(o.terc)S.ap.forEach(a=>{const em=(A.priv[a.id]||{}).email||"";mapa.set((em||"sem:"+a.id).toLowerCase(),{nome:a.nome,email:em,tipo:"Terceirizado"})});
+    return [...mapa.values()].sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR",{sensitivity:"base"}))};
+  if(tab==="mensagem"){const o=S.msgSel||{serv:"todos",terc:true},D=destinos(),E=D.filter(d=>d.email),nLotes=Math.ceil(E.length/20),pb=!!S.msgNatal?.publicada;S.msgDestinos=D;
+    body=`<p>Escreva a mensagem, escolha quem vai receber e envie pelo seu e-mail ou WhatsApp, ou imprima os cartões. O site não dispara e-mails sozinho: ele prepara tudo e abre o seu programa de e-mail, com os destinatários em cópia oculta.</p>
+    <div class="two"><div class="box" style="margin:0;max-width:none"><h3>1. Quem vai receber</h3>
+      <label for="msv">Servidores</label><select id="msv" onchange="W.msgSel('serv',this.value)"><option value="todos" ${o.serv==="todos"?"selected":""}>Todos os cadastrados</option><option value="contrib" ${o.serv==="contrib"?"selected":""}>Só quem contribuiu</option><option value="nenhum" ${o.serv==="nenhum"?"selected":""}>Nenhum</option></select>
+      <label style="font-weight:500"><input type="checkbox" style="width:auto" ${o.terc?"checked":""} onchange="W.msgSel('terc',this.checked)"> Colegas terceirizados</label>
+      <p class="msg-info"><b>${D.length}</b> pessoas, das quais <b>${E.length}</b> têm e-mail. ${D.length-E.length>0?`As ${D.length-E.length} sem e-mail podem receber o cartão impresso ou o WhatsApp do grupo.`:""}</p></div>
+    <div class="box" style="margin:0;max-width:none"><h3>2. Mensagem</h3>
+      <label for="mas">Assunto do e-mail</label><input id="mas" value="${esc(assAtual())}" oninput="W.msgAss(this.value)">
+      <label for="mtx">Texto (use {nome} para o primeiro nome, nos envios individuais e cartões)</label><textarea id="mtx" style="min-height:230px" oninput="W.msgTxt(this.value)">${esc(msgAtual())}</textarea>
+      <div class="row"><button class="btn sm ghost" onclick="W.msgSalvar()">Salvar mensagem</button><button class="btn sm ghost" onclick="W.msgPadrao()">Restaurar texto padrão</button></div></div></div>
+    <h3 style="margin-top:26px">3. Enviar</h3>
+    <div class="row">${Array.from({length:nLotes},(_,i)=>`<button class="btn" onclick="W.msgEmail(${i})">Abrir e-mail${nLotes>1?" (lote "+(i+1)+" de "+nLotes+")":""}</button>`).join("")||'<span class="nota">Nenhum destinatário com e-mail.</span>'}</div>
+    <div class="row"><button class="btn ghost" onclick="W.msgCopiar('emails',';')">Copiar e-mails (Outlook)</button><button class="btn ghost" onclick="W.msgCopiar('emails',',')">Copiar e-mails (Gmail)</button><button class="btn ghost" onclick="W.msgCopiar('texto')">Copiar mensagem</button><button class="btn ghost" style="background:#e7f6ec" onclick="W.msgZap()">WhatsApp (grupo)</button><button class="btn ghost" onclick="W.msgImprimir()">Imprimir ${D.length} cartões</button></div>
+    <p class="nota">Cada lote abre uma mensagem com até 20 destinatários em cópia oculta (CCO). Se o seu programa de e-mail não abrir, use "Copiar e-mails" e cole no campo CCO.</p>
+    <div class="${pb?"msg-ok":"msg-info"}" style="margin-top:18px">${pb?"A mensagem está publicada na página inicial, para todos que abrirem o site ou o app.":"Também dá para mostrar a mensagem na página inicial, para todos que abrirem o site ou o app."} <button class="btn sm ${pb?"ghost":""}" onclick="W.msgPublicar(${!pb})">${pb?"Ocultar da página inicial":"Publicar na página inicial"}</button></div>
+    <h3 style="margin-top:26px">Envio individual (com o primeiro nome)</h3>
+    <div class="tw"><table><thead><tr><th>Nome</th><th>Tipo</th><th>E-mail</th><th>Ação</th></tr></thead><tbody>${D.map((d,i)=>`<tr><td>${esc(d.nome)}</td><td>${d.tipo}</td><td>${esc(d.email)||"-"}</td><td>${d.email?`<button class="btn sm ghost" onclick="W.msgUm(${i})">Enviar e-mail</button>`:""}<button class="btn sm ghost" onclick="W.msgImprimir(${i})">Cartão</button></td></tr>`).join("")||'<tr><td colspan="4">Nenhum destinatário.</td></tr>'}</tbody></table></div>`}
   if(tab==="prestacao"){const G=[...(A.gastos||[])].sort((a,b)=>(b.data||"").localeCompare(a.data||"")),tg=G.reduce((a,g)=>a+(+g.valor||0),0),arr=soma("confirmado"),pb=!!S.prest?.publicada,pt=t=>G.filter(g=>g.tipo===t).reduce((a,g)=>a+(+g.valor||0),0);
     body=`<p>Registre as compras dos Chocottones e cestas (e outras despesas, se houver), com os comprovantes. A prestação de contas <b>só aparece para os servidores quando você clicar em Disponibilizar</b>.</p>
     <div class="${pb?"msg-ok":"msg-info"}">${pb?`Disponível para todos${S.prest.publicadaEm?" desde "+dt(S.prest.publicadaEm):""}.`:"Ainda oculta: os servidores não veem estes dados."} <button class="btn sm ${pb?"ghost":""}" onclick="W.publicarPrestacao(${!pb})">${pb?"Ocultar":"Disponibilizar para todos"}</button></div>
@@ -1611,6 +1634,13 @@ const svgPng=(svg,px)=>new Promise((ok,no)=>{const i=new Image();i.onload=()=>{c
 async function pubSet(b,x,status){const sv=(S.adm?.serv||[]).find(z=>z.id===x.servidorId)||{};b.set(doc(db,"doadores",x.id),{servidorId:x.servidorId,nome:String(sv.nome||x.servidorNome||"").slice(0,120),foto:await thumb(sv.foto,72),valor:+x.valor||0,status,ano:S.cfg.ano,atualizadoEm:serverTimestamp()})}
 const pubDel=(b,id)=>b.delete(doc(db,"doadores",id));
 async function sincPublico(){const C=S.adm.contrib,b=writeBatch(db),ativos=C.filter(x=>x.status==="confirmado"||x.status==="em_analise");for(const x of ativos)await pubSet(b,x,x.status);for(const d of S.doadores||[])if(!ativos.some(x=>x.id===d.id))pubDel(b,d.id);await b.commit()}
+const abrirLink=u=>{const a=document.createElement("a");a.href=u;a.rel="noopener";document.body.appendChild(a);a.click();a.remove()};
+const ASSUNTO_NATAL="Feliz Natal e um Próspero Ano Novo!";
+const MSG_NATAL="Feliz Natal e um Próspero Ano Novo!\n\nQue a paz, a saúde e a alegria do Natal estejam com você e com a sua família, e que o novo ano venha cheio de bênçãos e conquistas.\n\nObrigado por fazer parte do Natal Solidário Datacenter 1º andar e por ajudar a levar carinho a quem cuida de nós o ano inteiro.\n\nCom carinho,\nNatal Solidário Datacenter 1º andar";
+const fillNome=(t,n)=>n?String(t||"").replace(/\{nome\}/g,n):String(t||"").replace(/,?\s*\{nome\}/g,"");
+const msgAtual=()=>S.msgTxt??(S.msgNatal?.texto||MSG_NATAL),assAtual=()=>S.msgAss??(S.msgNatal?.assunto||ASSUNTO_NATAL);
+const cartaoNatal=(nome,msg)=>{const m=fillNome(msg,String(nome||"").split(" ")[0]).replace(/^\s*feliz natal e um pr[oó]spero ano novo[!.]*\s*/i,"").trim(),tam=m.length<=180?4.8:m.length<=320?4.1:3.5;
+  return `<div class="c"><div class="f">${luzes(210)}<div class="r1">${RAMO}</div><div class="r2">${RAMO}</div><div class="st">★</div><h1>Feliz Natal<span>e um Próspero Ano Novo!</span></h1>${nome?`<div class="fita">Para <b>${esc(nome)}</b></div>`:""}<p class="m" style="font-size:${tam}mm">${esc(m)}</p><div class="rod">Natal Solidário Datacenter 1º andar ${S.cfg.ano}</div></div></div>`};
 function posterQR(k,url){
   const T=k==="site"?["Natal Solidário Datacenter 1º andar","Escaneie o QR Code com a câmera do celular e saiba como participar. Sugestão de "+brl(S.cfg.valorContribuicao)+" ou o valor que o seu coração mandar."]:["Servidor, participe!","Escaneie o QR Code para se cadastrar (nome, área, e-mail, senha e foto), fazer o PIX e enviar o comprovante. Juntos vamos presentear quem cuida de nós."];
   const w=window.open("","_blank");if(!w)return toast("O navegador bloqueou a janela. Libere pop-ups para este site.");
@@ -1711,6 +1741,17 @@ const W={
   editItem(i){const it=S.cfg.itens[i]||{};modal("Editar item",FI,it,async v=>{const itens=S.cfg.itens.map((x,j)=>j===i?{...x,...v,preco:+v.preco||0}:x);await setDoc(doc(db,"config","campanha"),{itens,itensVersao:2},{merge:true})})},
   async salvarCfg(e){e.preventDefault();const f=e.target,n=k=>+f[k].value||0;
     try{await setDoc(doc(db,"config","campanha"),{ano:+f.ano.value,dataEntrega:f.dataEntrega.value,valorContribuicao:n("valorContribuicao"),meta:n("meta"),tipoChave:f.tipoChave.value,chavePix:f.chavePix.value.trim(),nomeRecebedor:f.nomeRecebedor.value.trim(),cidadeRecebedor:f.cidadeRecebedor.value.trim(),itens:S.cfg.itens,itensVersao:2,mostrarDoadores:f.mostrarDoadores.checked},{merge:true});toast("Campanha atualizada.");render(true)}catch(x){toast("Erro: "+(x.code||x.message))}},
+  msgSel(k,v){S.msgSel={...(S.msgSel||{serv:"todos",terc:true}),[k]:v};render("c")},
+  msgTxt(v){S.msgTxt=v},msgAss(v){S.msgAss=v},
+  msgPadrao(){S.msgTxt=MSG_NATAL;S.msgAss=ASSUNTO_NATAL;render("c")},
+  msgEmail(i){const E=(S.msgDestinos||[]).filter(d=>d.email).slice(i*20,i*20+20);abrirLink("mailto:?bcc="+E.map(d=>encodeURIComponent(d.email)).join(",")+"&subject="+encodeURIComponent(assAtual())+"&body="+encodeURIComponent(fillNome(msgAtual(),"pessoal")))},
+  msgUm(i){const d=(S.msgDestinos||[])[i];if(!d||!d.email)return;abrirLink("mailto:"+encodeURIComponent(d.email)+"?subject="+encodeURIComponent(assAtual())+"&body="+encodeURIComponent(fillNome(msgAtual(),d.nome.split(" ")[0])))},
+  async msgCopiar(k,sep){const t=k==="emails"?(S.msgDestinos||[]).filter(d=>d.email).map(d=>d.email).join(sep+" "):fillNome(msgAtual(),"pessoal");try{await navigator.clipboard.writeText(t);toast(k==="emails"?"E-mails copiados. Cole no campo CCO.":"Mensagem copiada.")}catch{prompt("Copie:",t)}},
+  msgZap(){window.open("https://wa.me/?text="+encodeURIComponent(fillNome(msgAtual(),"pessoal")),"_blank")},
+  msgImprimir(i){const D=i===undefined?(S.msgDestinos||[]):[(S.msgDestinos||[])[i]].filter(Boolean);if(!D.length)return toast("Escolha quem vai receber.");const w=window.open("","_blank");if(!w)return toast("O navegador bloqueou a janela. Libere pop-ups para este site.");
+    w.document.write(`<!DOCTYPE html><meta charset="utf-8"><title>Cartões de Natal</title>${cardCssPrint}${D.map(d=>cartaoNatal(d.nome,msgAtual())).join("")}`);w.document.close();w.focus();setTimeout(()=>w.print(),500)},
+  async msgSalvar(){try{await setDoc(doc(db,"config","mensagem"),{texto:msgAtual(),assunto:assAtual()},{merge:true});S.msgNatal={...(S.msgNatal||{}),texto:msgAtual(),assunto:assAtual()};S.pubTs=0;toast("Mensagem salva.")}catch(x){toast("Erro: "+(x.code||x.message))}},
+  async msgPublicar(pub){if(pub&&!confirm("Mostrar esta mensagem na página inicial para todos?"))return;try{const b=writeBatch(db);b.set(doc(db,"config","mensagem"),{texto:msgAtual(),assunto:assAtual(),publicada:pub,...(pub?{publicadaEm:serverTimestamp()}:{})},{merge:true});lg(b,pub?"mensagem_publicada":"mensagem_ocultada",pub?"Publicou a mensagem de Natal na página inicial":"Ocultou a mensagem de Natal da página inicial","");await b.commit();S.msgTxt=undefined;S.msgAss=undefined;toast(pub?"Mensagem publicada na página inicial.":"Mensagem ocultada.");render(true)}catch(x){toast("Erro: "+(x.code||x.message))}},
   async primeiroAcesso(e){e.preventDefault();const b=e.submitter;b.disabled=true;S.busy=true;
     try{const c=await createUserWithEmailAndPassword(auth,$("#pe").value.trim(),$("#ps").value);try{await sendEmailVerification(c.user)}catch{}
       S.busy=false;await refreshProfile();toast("Conta criada. Enviamos um e-mail de confirmação: abra o link e depois toque em Já confirmei.");location.hash=S.admPend?"#/admin":"#/contribuir";render()}

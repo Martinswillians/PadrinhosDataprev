@@ -36,12 +36,20 @@ Site estático (GitHub Pages) + Firebase (Auth e Firestore). Os servidores contr
 - Se a lista pública estiver diferente das contribuições (por exemplo, nas já confirmadas antes desta versão), ela é corrigida sozinha na primeira abertura do painel; o botão **Atualizar lista** força a correção.
 - Republique o `firestore.rules`: há regra nova para `doadores`.
 
+## Mensagem de Feliz Natal e Próspero Ano Novo
+**Painel > Mensagem de Natal** (permissão Campanha):
+1. **Quem vai receber:** servidores (todos ou só quem contribuiu) e/ou colegas terceirizados. O painel mostra quantos têm e-mail.
+2. **Mensagem:** assunto e texto editáveis (já vem um texto de Feliz Natal e Próspero Ano Novo). `{nome}` vira o primeiro nome nos envios individuais e nos cartões.
+3. **Enviar:** **Abrir e-mail** abre o seu programa de e-mail com os destinatários em cópia oculta, em lotes de 20 (se o programa não abrir, use **Copiar e-mails** para Outlook ou Gmail). Há também **Copiar mensagem**, **WhatsApp (grupo)**, **Enviar e-mail** individual (com o primeiro nome) e **Imprimir cartões** (um cartão colorido A5 por pessoa, ideal para quem não tem e-mail).
+4. **Publicar na página inicial:** mostra a mensagem em destaque para todos que abrirem o site ou o app; dá para ocultar depois.
+O site não dispara e-mails sozinho (isso exigiria um serviço de envio pago); ele prepara tudo e usa o seu e-mail. Não há mudança nas regras do Firestore.
+
 ## Primeiro acesso de administrador
 Quem foi adicionado em Painel > Administradores e prefere e-mail e senha usa **Entrar > Primeiro acesso com e-mail e senha**: cria a senha pelo próprio site (não é preciso cadastrar o e-mail no console do Firebase) e confirma o e-mail pelo link recebido. Quem tem Gmail pode usar **Sou administrador: entrar com Google**. Na lista de administradores, o botão **Enviar instruções** manda o passo a passo pelo WhatsApp.
 
 ## Publicação
 1. **Firebase > Firestore > Regras:** cole o `firestore.rules` e publique (obrigatório: há regras novas para contribuições, comprovantes e prestação de contas).
-2. **GitHub:** envie **todos os arquivos desta pasta** (o `index.html` e os de ícone, manifesto, imagem de compartilhamento e `sw.js`) e atualize o site com Ctrl+F5. O rodapé mostra a versão (2026.10.23-q).
+2. **GitHub:** envie **todos os arquivos desta pasta** (o `index.html` e os de ícone, manifesto, imagem de compartilhamento e `sw.js`) e atualize o site com Ctrl+F5. O rodapé mostra a versão (2026.10.24-r).
 3. **Authentication:** E-mail/senha e Google ativados, com `martinswillians.github.io` em Authorized domains.
 4. Em **Painel > Campanha**, confira a chave PIX e a data de entrega e, se quiser, defina a meta. Os itens já vêm com as fotos e os preços do Chocottone (R$ 54,99) e da Cesta (R$ 73,49); ajuste se mudarem.
 
