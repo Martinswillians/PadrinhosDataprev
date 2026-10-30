@@ -1180,10 +1180,12 @@ function agradecer(valor){const d=$("#dlg");d.innerHTML=`<h2 style="color:var(--
 function pedirArquivo(titulo,msg){return new Promise(res=>{const d=$("#dlg");let ok=false;
   d.innerHTML=`<form id="mm"><h2>${titulo}</h2><p>${msg}</p><label for="mf">Comprovante (foto, print ou PDF) <span class="req" aria-hidden="true">*</span></label><input id="mf" type="file" accept="image/*,application/pdf" required><p class="nota"><span class="req">*</span> Campo obrigatório</p><div class="row"><button type="button" class="btn ghost" id="mc">Cancelar</button><button class="btn">Enviar</button></div></form>`;
   $("#mm").onsubmit=e=>{e.preventDefault();ok=true;const f=$("#mf").files[0];d.close();res(f)};$("#mc").onclick=()=>d.close();d.onclose=()=>{d.onclose=null;if(!ok)res(null)};d.showModal()})}
-function totaisPub(){const D=S.doadores||[],soma=st=>D.filter(d=>!st||d.status===st).reduce((a,d)=>a+(+d.valor||0),0);return {total:soma(),conf:soma("confirmado"),analise:soma("em_analise"),n:new Set(D.map(d=>d.servidorId)).size,nAn:D.filter(d=>d.status==="em_analise").length}}
+function totaisPub(){const D=S.doadores||[],r=S.resumo||{};return {total:+r.total||0,conf:+r.conf||0,analise:+r.analise||0,n:new Set(D.map(d=>d.servidorId)).size,nAn:D.filter(d=>d.status==="em_analise").length}}
 function painelCampanha(){
   const t=totaisPub(),meta=+S.cfg.meta||0,pct=meta>0?Math.min(100,Math.round(t.total/meta*100)):0,por={};
-  (S.doadores||[]).forEach(d=>{const x=por[d.servidorId]||(por[d.servidorId]={nome:d.nome,foto:d.foto,valor:0,pend:false});x.valor+=+d.valor||0;if(d.status==="em_analise")x.pend=true});
+  (S.doadores||[]).forEach(d=>{const x=por[d.servidorId]||(por[d.servidorId]={id:d.servidorId,nome:d.nome,foto:d.foto,pend:false});if(d.status==="em_analise")x.pend=true});
+  // valores individuais: somente administradores (vêm de "contribuicoes", que as regras já restringem)
+  const vals={};if(S.admin&&S.adm?.contrib)S.adm.contrib.forEach(c=>{if(c.status==="confirmado"||c.status==="em_analise")vals[c.servidorId]=(vals[c.servidorId]||0)+(+c.valor||0)});
   const lista=Object.values(por).sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR",{sensitivity:"base"}));
   return `<div class="dash">
     <div class="stat"><b>${brl(S.cfg.valorContribuicao)}</b><span>valor sugerido (pode ser mais)</span></div>
@@ -1191,7 +1193,7 @@ function painelCampanha(){
     <div class="stat ok"><b>${brl(t.total)}</b><span>arrecadado até agora${t.analise>0?" (inclui "+brl(t.analise)+" em conferência)":""}</span></div>
     <div class="stat"><b>${S.ap.length}</b><span>colegas que vamos presentear</span></div></div>
     ${meta>0?`<div class="bar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div><p class="cnt">${pct}% da meta de ${brl(meta)}</p>`:""}
-    ${S.cfg.mostrarDoadores!==false&&lista.length?`<h3 style="margin-top:22px">Quem já contribuiu</h3><div class="doadores">${lista.map(d=>`<div class="doador">${av(d,"md")}<span>${esc(d.nome)}</span><b>${brl(d.valor)}</b>${d.pend?'<small class="pend">em conferência</small>':""}</div>`).join("")}</div><p class="cnt">Obrigado a cada um de vocês! Os valores em conferência já entram na soma e podem ser ajustados pela coordenação.</p>`:""}`;
+    ${S.cfg.mostrarDoadores!==false&&lista.length?`<h3 style="margin-top:22px">Quem já contribuiu</h3><div class="doadores">${lista.map(d=>`<div class="doador">${av(d,"md")}<span>${esc(d.nome)}</span>${S.admin&&vals[d.id]!=null?`<b>${brl(vals[d.id])}</b>`:""}${d.pend?'<small class="pend">em conferência</small>':""}</div>`).join("")}</div><p class="cnt">Obrigado a cada um de vocês! As contribuições em conferência já entram na soma geral e podem ser ajustadas pela coordenação.${S.admin?" Os valores individuais aparecem somente para administradores.":""}</p>`:""}`;
 }
 function prestacaoHtml(){
   if(!S.prest?.publicada)return "";
@@ -1212,6 +1214,7 @@ async function loadPublic(){
   try{const p=await getDoc(doc(db,"config","prestacao"));S.prest=p.exists()?p.data():{}}catch{S.prest={}}
   try{const mm=await getDoc(doc(db,"config","mensagem"));S.msgNatal=mm.exists()?mm.data():{}}catch{S.msgNatal={}}
   S.gastos=[];if(S.prest.publicada){try{S.gastos=(await getDocs(query(collection(db,"gastos"),where("ano","==",S.cfg.ano)))).docs.map(d=>({id:d.id,...d.data()}))}catch{}}
+  try{const r=await getDoc(doc(db,"config","resumo"));S.resumo=r.exists()?r.data():{}}catch{S.resumo={}}
   S.doadores=[];try{S.doadores=(await getDocs(query(collection(db,"doadores"),where("ano","==",S.cfg.ano)))).docs.map(d=>({id:d.id,...d.data()}))}catch{}
   const q=await getDocs(query(collection(db,"apadrinhados"),where("ano","==",S.cfg.ano)));
   S.ap=q.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR",{sensitivity:"base"}));
@@ -1282,6 +1285,7 @@ function itemCard(it,i,btn=true){
   return `<article class="prod">${it.foto?`<img src="${it.foto}" alt="${esc(it.nome)}">`:`<div class="ph" aria-hidden="true">${i?"🎁":"🎄"}</div>`}<h3>${esc(it.nome)}</h3><p>${esc(it.detalhe||"")}</p>${+it.preco>0?`<div class="preco">${brl(it.preco)}</div>`:""}${btn?`<a class="btn gold" href="#/contribuir">Quero contribuir</a>`:""}</article>`;
 }
 async function home(){
+  if(S.admin){try{await loadAdmin()}catch{}}
   const dias=diasRestantes(),v=S.cfg.valorContribuicao,data=fmt(S.cfg.dataEntrega);
   const prazo=dias>0?`Faltam ${dias} ${dias===1?"dia":"dias"} para a entrega dos presentes, em ${data}.`:dias===0?"A entrega dos presentes é hoje!":`Os presentes foram entregues em ${data}.`;
   return `
@@ -1485,8 +1489,9 @@ async function admin(p){
   const stSrv=id=>{const l=por[id]||[];return l.some(x=>x.status==="confirmado")?"confirmado":l.some(x=>x.status==="em_analise")?"em_analise":l.length?"recusada":"sem"};
   const totSrv=id=>(por[id]||[]).filter(x=>x.status==="confirmado").reduce((a,x)=>a+(+x.valor||0),0);
   const nContrib=new Set(C.filter(x=>x.status==="confirmado").map(x=>x.servidorId)).size;
-  if(S.perms.contribuicoes&&!S.autoSync){S.autoSync=true;const chave=a=>a.map(x=>x.id+"|"+x.status+"|"+(+x.valor||0)).sort().join(),ativos=C.filter(x=>x.status==="confirmado"||x.status==="em_analise");
-    if(chave(ativos)!==chave(S.doadores||[])){(async()=>{try{await sincPublico();S.pubTs=0;await loadPublic()}catch(e){console.warn("sync doadores",e)}})()}}
+  if(S.perms.contribuicoes&&!S.autoSync){S.autoSync=true;const chave=a=>a.map(x=>x.id+"|"+x.status).sort().join(),ativos=C.filter(x=>x.status==="confirmado"||x.status==="em_analise");
+    if(chave(ativos)!==chave(S.doadores||[])||(S.doadores||[]).some(d=>d.valor!==undefined)){(async()=>{try{await sincPublico();S.pubTs=0;await loadPublic()}catch(e){console.warn("sync doadores",e)}})()}}
+  if(S.perms.contribuicoes)syncResumo(C);
   const soma=st=>C.filter(x=>x.status===st).reduce((a,x)=>a+(+x.valor||0),0),nConf=C.filter(x=>x.status==="confirmado").length,nAn=C.filter(x=>x.status==="em_analise").length;
   const semC=A.serv.filter(x=>!por[x.id]);
   const pend=A.conv.filter(c=>!c.multi&&!c.usado),solP=(A.sol||[]).filter(x=>x.status==="pendente");
@@ -1540,27 +1545,26 @@ async function admin(p){
     <p>Compare quantas unidades cada opção permite comprar. As colunas usam o valor confirmado e, na segunda, também as contribuições ainda em análise (${brl(arrAn)}).</p>
     <div class="tw"><table><thead><tr><th>Opção</th><th>Preço unitário</th><th>Unidades (confirmado)</th><th>Unidades (com em análise)</th><th>Custo para os ${n} colegas</th><th>Resultado</th></tr></thead><tbody>${lin}</tbody></table></div>
     <p class="msg-info">Os preços dos itens são informados em <a href="#/admin/campanha">Campanha</a>${S.perms.campanha?"":" (peça a um administrador com essa permissão)"}.</p>`}
-  const destinos=()=>{const o=S.msgSel||{serv:"todos",terc:true},mapa=new Map();
-    if(o.serv!=="nenhum")A.serv.forEach(x=>{if(o.serv==="contrib"&&!["confirmado","em_analise"].includes(stSrv(x.id)))return;mapa.set((x.email||"sem:"+x.id).toLowerCase(),{nome:x.nome,email:x.email||"",tipo:"Servidor"})});
-    if(o.terc)S.ap.forEach(a=>{const em=(A.priv[a.id]||{}).email||"";mapa.set((em||"sem:"+a.id).toLowerCase(),{nome:a.nome,email:em,tipo:"Terceirizado"})});
+  const destinos=g=>{const mapa=new Map();
+    if(g==="serv"){const ok=S.msgSel?.analise?["confirmado","em_analise"]:["confirmado"];A.serv.forEach(x=>{if(!ok.includes(stSrv(x.id)))return;mapa.set((x.email||"sem:"+x.id).toLowerCase(),{nome:x.nome,email:x.email||"",tipo:"Servidor"})})}
+    else S.ap.forEach(a=>{const em=(A.priv[a.id]||{}).email||"";mapa.set((em||"sem:"+a.id).toLowerCase(),{nome:a.nome,email:em,tipo:"Terceirizado"})});
     return [...mapa.values()].sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR",{sensitivity:"base"}))};
-  if(tab==="mensagem"){const o=S.msgSel||{serv:"todos",terc:true},D=destinos(),E=D.filter(d=>d.email),nLotes=Math.ceil(E.length/20),pb=!!S.msgNatal?.publicada;S.msgDestinos=D;
-    body=`<p>Escreva a mensagem, escolha quem vai receber e envie pelo seu e-mail ou WhatsApp, ou imprima os cartões. O site não dispara e-mails sozinho: ele prepara tudo e abre o seu programa de e-mail, com os destinatários em cópia oculta.</p>
-    <div class="two"><div class="box" style="margin:0;max-width:none"><h3>1. Quem vai receber</h3>
-      <label for="msv">Servidores</label><select id="msv" onchange="W.msgSel('serv',this.value)"><option value="todos" ${o.serv==="todos"?"selected":""}>Todos os cadastrados</option><option value="contrib" ${o.serv==="contrib"?"selected":""}>Só quem contribuiu</option><option value="nenhum" ${o.serv==="nenhum"?"selected":""}>Nenhum</option></select>
-      <label style="font-weight:500"><input type="checkbox" style="width:auto" ${o.terc?"checked":""} onchange="W.msgSel('terc',this.checked)"> Colegas terceirizados</label>
-      <p class="msg-info"><b>${D.length}</b> pessoas, das quais <b>${E.length}</b> têm e-mail. ${D.length-E.length>0?`As ${D.length-E.length} sem e-mail podem receber o cartão impresso ou o WhatsApp do grupo.`:""}</p></div>
-    <div class="box" style="margin:0;max-width:none"><h3>2. Mensagem</h3>
-      <label for="mas">Assunto do e-mail</label><input id="mas" value="${esc(assAtual())}" oninput="W.msgAss(this.value)">
-      <label for="mtx">Texto (use {nome} para o primeiro nome, nos envios individuais e cartões)</label><textarea id="mtx" style="min-height:230px" oninput="W.msgTxt(this.value)">${esc(msgAtual())}</textarea>
-      <div class="row"><button class="btn sm ghost" onclick="W.msgSalvar()">Salvar mensagem</button><button class="btn sm ghost" onclick="W.msgPadrao()">Restaurar texto padrão</button></div></div></div>
-    <h3 style="margin-top:26px">3. Enviar</h3>
-    <div class="row">${Array.from({length:nLotes},(_,i)=>`<button class="btn" onclick="W.msgEmail(${i})">Abrir e-mail${nLotes>1?" (lote "+(i+1)+" de "+nLotes+")":""}</button>`).join("")||'<span class="nota">Nenhum destinatário com e-mail.</span>'}</div>
-    <div class="row"><button class="btn ghost" onclick="W.msgCopiar('emails',';')">Copiar e-mails (Outlook)</button><button class="btn ghost" onclick="W.msgCopiar('emails',',')">Copiar e-mails (Gmail)</button><button class="btn ghost" onclick="W.msgCopiar('texto')">Copiar mensagem</button><button class="btn ghost" style="background:#e7f6ec" onclick="W.msgZap()">WhatsApp (grupo)</button><button class="btn ghost" onclick="W.msgImprimir()">Imprimir ${D.length} cartões</button></div>
-    <p class="nota">Cada lote abre uma mensagem com até 20 destinatários em cópia oculta (CCO). Se o seu programa de e-mail não abrir, use "Copiar e-mails" e cole no campo CCO.</p>
-    <div class="${pb?"msg-ok":"msg-info"}" style="margin-top:18px">${pb?"A mensagem está publicada na página inicial, para todos que abrirem o site ou o app.":"Também dá para mostrar a mensagem na página inicial, para todos que abrirem o site ou o app."} <button class="btn sm ${pb?"ghost":""}" onclick="W.msgPublicar(${!pb})">${pb?"Ocultar da página inicial":"Publicar na página inicial"}</button></div>
-    <h3 style="margin-top:26px">Envio individual (com o primeiro nome)</h3>
-    <div class="tw"><table><thead><tr><th>Nome</th><th>Tipo</th><th>E-mail</th><th>Ação</th></tr></thead><tbody>${D.map((d,i)=>`<tr><td>${esc(d.nome)}</td><td>${d.tipo}</td><td>${esc(d.email)||"-"}</td><td>${d.email?`<button class="btn sm ghost" onclick="W.msgUm(${i})">Enviar e-mail</button>`:""}<button class="btn sm ghost" onclick="W.msgImprimir(${i})">Cartão</button></td></tr>`).join("")||'<tr><td colspan="4">Nenhum destinatário.</td></tr>'}</tbody></table></div>`}
+  if(tab==="mensagem"){S.msgDestinos={serv:destinos("serv"),terc:destinos("terc")};const pb=!!S.msgNatal?.publicada,o=S.msgSel||{};
+    const bloco=(g,tit,intro,opts)=>{const D=S.msgDestinos[g],E=D.filter(d=>d.email),nL=Math.ceil(E.length/20);
+      return `<div class="box" style="margin:0 0 24px;max-width:none"><h3>${tit}</h3>
+      <p class="msg-info">${intro}<br><b>${D.length}</b> ${D.length===1?"pessoa":"pessoas"}, das quais <b>${E.length}</b> ${E.length===1?"tem":"têm"} e-mail.${D.length-E.length>0?` As ${D.length-E.length} sem e-mail podem receber o cartão impresso ou o WhatsApp do grupo.`:""}</p>${opts||""}
+      <label for="mas-${g}">Assunto do e-mail</label><input id="mas-${g}" value="${esc(assAtual(g))}" oninput="W.msgAss('${g}',this.value)">
+      <label for="mtx-${g}">Texto (use {nome} para o primeiro nome${g==="terc"?" e {entrega} para a data da entrega":""}; vale nos envios individuais e cartões)</label><textarea id="mtx-${g}" style="min-height:230px" oninput="W.msgTxt('${g}',this.value)">${esc(msgAtual(g))}</textarea>
+      <div class="row"><button class="btn sm ghost" onclick="W.msgSalvar('${g}')">Salvar mensagem</button><button class="btn sm ghost" onclick="W.msgPadrao('${g}')">Restaurar texto padrão</button></div>
+      <h4 style="margin:18px 0 8px">Enviar</h4>
+      <div class="row">${Array.from({length:nL},(_,i)=>`<button class="btn" onclick="W.msgEmail('${g}',${i})">Abrir e-mail${nL>1?" (lote "+(i+1)+" de "+nL+")":""}</button>`).join("")||'<span class="nota">Nenhum destinatário com e-mail.</span>'}</div>
+      <div class="row"><button class="btn ghost" onclick="W.msgCopiar('${g}','emails',';')">Copiar e-mails (Outlook)</button><button class="btn ghost" onclick="W.msgCopiar('${g}','emails',',')">Copiar e-mails (Gmail)</button><button class="btn ghost" onclick="W.msgCopiar('${g}','texto')">Copiar mensagem</button><button class="btn ghost" style="background:#e7f6ec" onclick="W.msgZap('${g}')">WhatsApp (grupo)</button><button class="btn ghost" onclick="W.msgImprimir('${g}')">Imprimir ${D.length} ${D.length===1?"cartão":"cartões"}</button></div>
+      <div class="tw"><table><thead><tr><th>Nome</th><th>E-mail</th><th>Ação</th></tr></thead><tbody>${D.map((d,i)=>`<tr><td>${esc(d.nome)}</td><td>${esc(d.email)||"-"}</td><td>${d.email?`<button class="btn sm ghost" onclick="W.msgUm('${g}',${i})">Enviar e-mail</button>`:""}<button class="btn sm ghost" onclick="W.msgImprimir('${g}',${i})">Cartão</button></td></tr>`).join("")||'<tr><td colspan="3">Nenhum destinatário.</td></tr>'}</tbody></table></div></div>`};
+    body=`<p>Há duas mensagens de Natal: uma de agradecimento para os <b>servidores que contribuíram</b> e outra para os <b>colegas terceirizados que serão presenteados</b>. Escreva cada uma, envie pelo seu e-mail ou WhatsApp, ou imprima os cartões. O site não dispara e-mails sozinho: ele prepara tudo e abre o seu programa de e-mail, com os destinatários em cópia oculta (CCO).</p>
+    ${bloco("serv","1. Servidores que contribuíram","Vai para quem tem contribuição confirmada.",`<label style="font-weight:500"><input type="checkbox" style="width:auto" ${o.analise?"checked":""} onchange="W.msgSel('analise',this.checked)"> Incluir também quem está com a contribuição em conferência</label>`)}
+    ${bloco("terc","2. Colegas terceirizados que serão presenteados","Vai para todos os colegas terceirizados cadastrados na campanha.","")}
+    <p class="nota">Cada lote abre uma mensagem com até 20 destinatários em CCO. Se o seu programa de e-mail não abrir, use "Copiar e-mails" e cole no campo CCO.</p>
+    <div class="${pb?"msg-ok":"msg-info"}" style="margin-top:18px">${pb?"A mensagem aos servidores está publicada na página inicial, para todos que abrirem o site ou o app.":"Também dá para mostrar a mensagem aos servidores na página inicial, para todos que abrirem o site ou o app."} <button class="btn sm ${pb?"ghost":""}" onclick="W.msgPublicar(${!pb})">${pb?"Ocultar da página inicial":"Publicar na página inicial"}</button></div>`}
   if(tab==="prestacao"){const G=[...(A.gastos||[])].sort((a,b)=>(b.data||"").localeCompare(a.data||"")),tg=G.reduce((a,g)=>a+(+g.valor||0),0),arr=soma("confirmado"),pb=!!S.prest?.publicada,pt=t=>G.filter(g=>g.tipo===t).reduce((a,g)=>a+(+g.valor||0),0);
     body=`<p>Registre as compras dos Chocottones e cestas (e outras despesas, se houver), com os comprovantes. A prestação de contas <b>só aparece para os servidores quando você clicar em Disponibilizar</b>.</p>
     <div class="${pb?"msg-ok":"msg-info"}">${pb?`Disponível para todos${S.prest.publicadaEm?" desde "+dt(S.prest.publicadaEm):""}.`:"Ainda oculta: os servidores não veem estes dados."} <button class="btn sm ${pb?"ghost":""}" onclick="W.publicarPrestacao(${!pb})">${pb?"Ocultar":"Disponibilizar para todos"}</button></div>
@@ -1631,14 +1635,21 @@ h1{margin:1mm 0 0;font-size:11.5mm;line-height:1.05;color:#b3202f}h1 span{displa
 .rod{position:absolute;bottom:3mm;left:0;right:0;font-size:2.8mm;letter-spacing:.3mm;color:#9a8672}</style>`;
 const qrSvg=t=>{try{const q=window.QRLib.make(t),n=q.getModuleCount(),m=4;let d="";for(let r=0;r<n;r++)for(let c=0;c<n;c++)if(q.isDark(r,c))d+=`M${c+m},${r+m}h1v1h-1z`;return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${n+2*m} ${n+2*m}" shape-rendering="crispEdges"><rect width="100%" height="100%" fill="#fff"/><path d="${d}" fill="#123628"/></svg>`}catch(e){return `<p>Não foi possível gerar o QR Code.</p>`}};
 const svgPng=(svg,px)=>new Promise((ok,no)=>{const i=new Image();i.onload=()=>{const c=document.createElement("canvas");c.width=c.height=px;const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,px,px);x.imageSmoothingEnabled=false;x.drawImage(i,0,0,px,px);c.toBlob(ok,"image/png")};i.onerror=no;i.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svg)});
-async function pubSet(b,x,status){const sv=(S.adm?.serv||[]).find(z=>z.id===x.servidorId)||{};b.set(doc(db,"doadores",x.id),{servidorId:x.servidorId,nome:String(sv.nome||x.servidorNome||"").slice(0,120),foto:await thumb(sv.foto,72),valor:+x.valor||0,status,ano:S.cfg.ano,atualizadoEm:serverTimestamp()})}
+async function pubSet(b,x,status){const sv=(S.adm?.serv||[]).find(z=>z.id===x.servidorId)||{};b.set(doc(db,"doadores",x.id),{servidorId:x.servidorId,nome:String(sv.nome||x.servidorNome||"").slice(0,120),foto:await thumb(sv.foto,72),status,ano:S.cfg.ano,atualizadoEm:serverTimestamp()})}
 const pubDel=(b,id)=>b.delete(doc(db,"doadores",id));
+// Totais gerais da campanha (sem valores individuais), publicados em config/resumo
+async function syncResumo(C){const sm=st=>C.filter(x=>x.status===st).reduce((s,x)=>s+(+x.valor||0),0),conf=sm("confirmado"),analise=sm("em_analise"),r={ano:S.cfg.ano,conf,analise,total:conf+analise},o=S.resumo||{};
+  if(S.resumoBusy||(o.ano===r.ano&&o.conf===r.conf&&o.analise===r.analise&&o.total===r.total))return;
+  S.resumoBusy=true;try{await setDoc(doc(db,"config","resumo"),{...r,atualizadoEm:serverTimestamp()});S.resumo=r;S.pubTs=0}catch(e){console.warn("resumo",e)}S.resumoBusy=false}
 async function sincPublico(){const C=S.adm.contrib,b=writeBatch(db),ativos=C.filter(x=>x.status==="confirmado"||x.status==="em_analise");for(const x of ativos)await pubSet(b,x,x.status);for(const d of S.doadores||[])if(!ativos.some(x=>x.id===d.id))pubDel(b,d.id);await b.commit()}
 const abrirLink=u=>{const a=document.createElement("a");a.href=u;a.rel="noopener";document.body.appendChild(a);a.click();a.remove()};
-const ASSUNTO_NATAL="Feliz Natal e um Próspero Ano Novo!";
-const MSG_NATAL="Feliz Natal e um Próspero Ano Novo!\n\nQue a paz, a saúde e a alegria do Natal estejam com você e com a sua família, e que o novo ano venha cheio de bênçãos e conquistas.\n\nObrigado por fazer parte do Natal Solidário Datacenter 1º andar e por ajudar a levar carinho a quem cuida de nós o ano inteiro.\n\nCom carinho,\nNatal Solidário Datacenter 1º andar";
-const fillNome=(t,n)=>n?String(t||"").replace(/\{nome\}/g,n):String(t||"").replace(/,?\s*\{nome\}/g,"");
-const msgAtual=()=>S.msgTxt??(S.msgNatal?.texto||MSG_NATAL),assAtual=()=>S.msgAss??(S.msgNatal?.assunto||ASSUNTO_NATAL);
+const MSGS={
+ serv:{assunto:"Obrigado por fazer parte do nosso Natal Solidário!",texto:"Feliz Natal e um Próspero Ano Novo!\n\nMuito obrigado por contribuir com o Natal Solidário Datacenter 1º andar, {nome}! Graças à sua generosidade, vamos presentear os colegas terceirizados que cuidam de nós o ano inteiro.\n\nQue a paz, a saúde e a alegria do Natal estejam com você e com a sua família, e que o novo ano venha cheio de bênçãos e conquistas.\n\nCom gratidão,\nNatal Solidário Datacenter 1º andar"},
+ terc:{assunto:"Feliz Natal! Um presente para você",texto:"Feliz Natal e um Próspero Ano Novo!\n\nOs servidores do Datacenter 1º andar prepararam um presente de Natal para você, {nome}, em agradecimento pelo cuidado e pelo trabalho de todos os dias.\n\nA entrega será no dia {entrega}. Esperamos que ele leve um pouco de carinho e alegria à sua mesa.\n\nQue a paz, a saúde e a alegria do Natal estejam com você e com a sua família, e que o novo ano venha cheio de bênçãos e conquistas.\n\nCom carinho,\nNatal Solidário Datacenter 1º andar"}};
+// campos no Firestore (config/mensagem): servidores = texto/assunto (como antes); terceirizados = textoTerc/assuntoTerc
+const GK={serv:["texto","assunto"],terc:["textoTerc","assuntoTerc"]};
+const fillNome=(t,n)=>{const s=String(t||"").replace(/\{entrega\}/g,fmt(S.cfg.dataEntrega));return n?s.replace(/\{nome\}/g,n):s.replace(/,?\s*\{nome\}/g,"")};
+const msgAtual=g=>(S.msgTxt||{})[g]??(S.msgNatal?.[GK[g][0]]||MSGS[g].texto),assAtual=g=>(S.msgAss||{})[g]??(S.msgNatal?.[GK[g][1]]||MSGS[g].assunto);
 const cartaoNatal=(nome,msg)=>{const m=fillNome(msg,String(nome||"").split(" ")[0]).replace(/^\s*feliz natal e um pr[oó]spero ano novo[!.]*\s*/i,"").trim(),tam=m.length<=180?4.8:m.length<=320?4.1:3.5;
   return `<div class="c"><div class="f">${luzes(210)}<div class="r1">${RAMO}</div><div class="r2">${RAMO}</div><div class="st">★</div><h1>Feliz Natal<span>e um Próspero Ano Novo!</span></h1>${nome?`<div class="fita">Para <b>${esc(nome)}</b></div>`:""}<p class="m" style="font-size:${tam}mm">${esc(m)}</p><div class="rod">Natal Solidário Datacenter 1º andar ${S.cfg.ano}</div></div></div>`};
 function posterQR(k,url){
@@ -1683,14 +1694,14 @@ const W={
       const cp=await lerComprovante(file),ref=doc(collection(db,"contribuicoes")),bt=writeBatch(db);
       bt.set(ref,{servidorId:S.user.uid,servidorNome:S.perfil.nome,area:S.perfil.area||"",ano:S.cfg.ano,valor,status:"em_analise",comprovanteNome:cp.nome.slice(0,120),enviadoEm:serverTimestamp(),obsAdmin:"",criadoEm:serverTimestamp()});
       bt.set(doc(db,"comprovantes",ref.id),{servidorId:S.user.uid,ano:S.cfg.ano,dados:cp.dados,tipo:cp.tipo,nome:cp.nome.slice(0,120),enviadoEm:serverTimestamp()});
-      bt.set(doc(db,"doadores",ref.id),{servidorId:S.user.uid,nome:S.perfil.nome,foto:await thumb(S.perfil.foto,72),valor,status:"em_analise",ano:S.cfg.ano,atualizadoEm:serverTimestamp()});
+      bt.set(doc(db,"doadores",ref.id),{servidorId:S.user.uid,nome:S.perfil.nome,foto:await thumb(S.perfil.foto,72),status:"em_analise",ano:S.cfg.ano,atualizadoEm:serverTimestamp()});
       lg(bt,"contribuicao_enviada",`Enviou o comprovante do PIX de ${brl(valor)}`,"");
       await bt.commit();await render(true);agradecer(valor)}
     catch(x){toast(x.code==="permission-denied"?"O Firebase negou o envio. Avise o administrador para republicar as regras do Firestore.":(x.message||"Não foi possível enviar."))}b.disabled=false},
   async reenviar(id){const f=await pedirArquivo("Reenviar comprovante","Anexe o novo comprovante do PIX.");if(!f)return;
     try{const cp=await lerComprovante(f),b=writeBatch(db);b.update(doc(db,"contribuicoes",id),{status:"em_analise",comprovanteNome:cp.nome.slice(0,120),enviadoEm:serverTimestamp(),obsAdmin:""});
       b.set(doc(db,"comprovantes",id),{servidorId:S.user.uid,ano:S.cfg.ano,dados:cp.dados,tipo:cp.tipo,nome:cp.nome.slice(0,120),enviadoEm:serverTimestamp()});
-      {const x0=(S.minhas||[]).find(z=>z.id===id);if(x0)b.set(doc(db,"doadores",id),{servidorId:S.user.uid,nome:S.perfil.nome,foto:await thumb(S.perfil.foto,72),valor:+x0.valor,status:"em_analise",ano:S.cfg.ano,atualizadoEm:serverTimestamp()})}
+      {const x0=(S.minhas||[]).find(z=>z.id===id);if(x0)b.set(doc(db,"doadores",id),{servidorId:S.user.uid,nome:S.perfil.nome,foto:await thumb(S.perfil.foto,72),status:"em_analise",ano:S.cfg.ano,atualizadoEm:serverTimestamp()})}
       lg(b,"contribuicao_reenviada","Reenviou o comprovante do PIX","");await b.commit();toast("Comprovante reenviado. Obrigado!");render(true)}catch(x){toast(x.message||"Erro ao reenviar.")}},
   async verComp(id){try{const d=await getDoc(doc(db,"comprovantes",id));if(!d.exists())return toast("Não há comprovante anexado.");W.abrirArq(d.data(),"Comprovante")}catch(x){toast("Erro: "+(x.code||x.message))}},
   async verGasto(id){try{const d=await getDoc(doc(db,"gastosArq",id));if(!d.exists())return toast("Não há comprovante anexado.");W.abrirArq(d.data(),"Comprovante do gasto")}catch(x){toast("Erro: "+(x.code||x.message))}},
@@ -1741,17 +1752,17 @@ const W={
   editItem(i){const it=S.cfg.itens[i]||{};modal("Editar item",FI,it,async v=>{const itens=S.cfg.itens.map((x,j)=>j===i?{...x,...v,preco:+v.preco||0}:x);await setDoc(doc(db,"config","campanha"),{itens,itensVersao:2},{merge:true})})},
   async salvarCfg(e){e.preventDefault();const f=e.target,n=k=>+f[k].value||0;
     try{await setDoc(doc(db,"config","campanha"),{ano:+f.ano.value,dataEntrega:f.dataEntrega.value,valorContribuicao:n("valorContribuicao"),meta:n("meta"),tipoChave:f.tipoChave.value,chavePix:f.chavePix.value.trim(),nomeRecebedor:f.nomeRecebedor.value.trim(),cidadeRecebedor:f.cidadeRecebedor.value.trim(),itens:S.cfg.itens,itensVersao:2,mostrarDoadores:f.mostrarDoadores.checked},{merge:true});toast("Campanha atualizada.");render(true)}catch(x){toast("Erro: "+(x.code||x.message))}},
-  msgSel(k,v){S.msgSel={...(S.msgSel||{serv:"todos",terc:true}),[k]:v};render("c")},
-  msgTxt(v){S.msgTxt=v},msgAss(v){S.msgAss=v},
-  msgPadrao(){S.msgTxt=MSG_NATAL;S.msgAss=ASSUNTO_NATAL;render("c")},
-  msgEmail(i){const E=(S.msgDestinos||[]).filter(d=>d.email).slice(i*20,i*20+20);abrirLink("mailto:?bcc="+E.map(d=>encodeURIComponent(d.email)).join(",")+"&subject="+encodeURIComponent(assAtual())+"&body="+encodeURIComponent(fillNome(msgAtual(),"pessoal")))},
-  msgUm(i){const d=(S.msgDestinos||[])[i];if(!d||!d.email)return;abrirLink("mailto:"+encodeURIComponent(d.email)+"?subject="+encodeURIComponent(assAtual())+"&body="+encodeURIComponent(fillNome(msgAtual(),d.nome.split(" ")[0])))},
-  async msgCopiar(k,sep){const t=k==="emails"?(S.msgDestinos||[]).filter(d=>d.email).map(d=>d.email).join(sep+" "):fillNome(msgAtual(),"pessoal");try{await navigator.clipboard.writeText(t);toast(k==="emails"?"E-mails copiados. Cole no campo CCO.":"Mensagem copiada.")}catch{prompt("Copie:",t)}},
-  msgZap(){window.open("https://wa.me/?text="+encodeURIComponent(fillNome(msgAtual(),"pessoal")),"_blank")},
-  msgImprimir(i){const D=i===undefined?(S.msgDestinos||[]):[(S.msgDestinos||[])[i]].filter(Boolean);if(!D.length)return toast("Escolha quem vai receber.");const w=window.open("","_blank");if(!w)return toast("O navegador bloqueou a janela. Libere pop-ups para este site.");
-    w.document.write(`<!DOCTYPE html><meta charset="utf-8"><title>Cartões de Natal</title>${cardCssPrint}${D.map(d=>cartaoNatal(d.nome,msgAtual())).join("")}`);w.document.close();w.focus();setTimeout(()=>w.print(),500)},
-  async msgSalvar(){try{await setDoc(doc(db,"config","mensagem"),{texto:msgAtual(),assunto:assAtual()},{merge:true});S.msgNatal={...(S.msgNatal||{}),texto:msgAtual(),assunto:assAtual()};S.pubTs=0;toast("Mensagem salva.")}catch(x){toast("Erro: "+(x.code||x.message))}},
-  async msgPublicar(pub){if(pub&&!confirm("Mostrar esta mensagem na página inicial para todos?"))return;try{const b=writeBatch(db);b.set(doc(db,"config","mensagem"),{texto:msgAtual(),assunto:assAtual(),publicada:pub,...(pub?{publicadaEm:serverTimestamp()}:{})},{merge:true});lg(b,pub?"mensagem_publicada":"mensagem_ocultada",pub?"Publicou a mensagem de Natal na página inicial":"Ocultou a mensagem de Natal da página inicial","");await b.commit();S.msgTxt=undefined;S.msgAss=undefined;toast(pub?"Mensagem publicada na página inicial.":"Mensagem ocultada.");render(true)}catch(x){toast("Erro: "+(x.code||x.message))}},
+  msgSel(k,v){S.msgSel={...(S.msgSel||{}),[k]:v};render("c")},
+  msgTxt(g,v){S.msgTxt={...(S.msgTxt||{}),[g]:v}},msgAss(g,v){S.msgAss={...(S.msgAss||{}),[g]:v}},
+  msgPadrao(g){S.msgTxt={...(S.msgTxt||{}),[g]:MSGS[g].texto};S.msgAss={...(S.msgAss||{}),[g]:MSGS[g].assunto};render("c")},
+  msgEmail(g,i){const E=((S.msgDestinos||{})[g]||[]).filter(d=>d.email).slice(i*20,i*20+20);abrirLink("mailto:?bcc="+E.map(d=>encodeURIComponent(d.email)).join(",")+"&subject="+encodeURIComponent(assAtual(g))+"&body="+encodeURIComponent(fillNome(msgAtual(g),"pessoal")))},
+  msgUm(g,i){const d=((S.msgDestinos||{})[g]||[])[i];if(!d||!d.email)return;abrirLink("mailto:"+encodeURIComponent(d.email)+"?subject="+encodeURIComponent(assAtual(g))+"&body="+encodeURIComponent(fillNome(msgAtual(g),d.nome.split(" ")[0])))},
+  async msgCopiar(g,k,sep){const t=k==="emails"?((S.msgDestinos||{})[g]||[]).filter(d=>d.email).map(d=>d.email).join(sep+" "):fillNome(msgAtual(g),"pessoal");try{await navigator.clipboard.writeText(t);toast(k==="emails"?"E-mails copiados. Cole no campo CCO.":"Mensagem copiada.")}catch{prompt("Copie:",t)}},
+  msgZap(g){window.open("https://wa.me/?text="+encodeURIComponent(fillNome(msgAtual(g),"pessoal")),"_blank")},
+  msgImprimir(g,i){const L0=(S.msgDestinos||{})[g]||[],D=i===undefined?L0:[L0[i]].filter(Boolean);if(!D.length)return toast("Não há destinatários nesta lista.");const w=window.open("","_blank");if(!w)return toast("O navegador bloqueou a janela. Libere pop-ups para este site.");
+    w.document.write(`<!DOCTYPE html><meta charset="utf-8"><title>Cartões de Natal</title>${cardCssPrint}${D.map(d=>cartaoNatal(d.nome,msgAtual(g))).join("")}`);w.document.close();w.focus();setTimeout(()=>w.print(),500)},
+  async msgSalvar(g){try{const [kt,ka]=GK[g];await setDoc(doc(db,"config","mensagem"),{[kt]:msgAtual(g),[ka]:assAtual(g)},{merge:true});S.msgNatal={...(S.msgNatal||{}),[kt]:msgAtual(g),[ka]:assAtual(g)};S.pubTs=0;toast("Mensagem salva.")}catch(x){toast("Erro: "+(x.code||x.message))}},
+  async msgPublicar(pub){if(pub&&!confirm("Mostrar a mensagem aos servidores na página inicial para todos?"))return;try{const b=writeBatch(db);b.set(doc(db,"config","mensagem"),{texto:msgAtual("serv"),assunto:assAtual("serv"),publicada:pub,...(pub?{publicadaEm:serverTimestamp()}:{})},{merge:true});lg(b,pub?"mensagem_publicada":"mensagem_ocultada",pub?"Publicou a mensagem de Natal na página inicial":"Ocultou a mensagem de Natal da página inicial","");await b.commit();S.msgTxt={...(S.msgTxt||{}),serv:undefined};S.msgAss={...(S.msgAss||{}),serv:undefined};toast(pub?"Mensagem publicada na página inicial.":"Mensagem ocultada.");render(true)}catch(x){toast("Erro: "+(x.code||x.message))}},
   async primeiroAcesso(e){e.preventDefault();const b=e.submitter;b.disabled=true;S.busy=true;
     try{const c=await createUserWithEmailAndPassword(auth,$("#pe").value.trim(),$("#ps").value);try{await sendEmailVerification(c.user)}catch{}
       S.busy=false;await refreshProfile();toast("Conta criada. Enviamos um e-mail de confirmação: abra o link e depois toque em Já confirmei.");location.hash=S.admPend?"#/admin":"#/contribuir";render()}
