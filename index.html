@@ -1180,7 +1180,7 @@ function agradecer(valor){const d=$("#dlg");d.innerHTML=`<h2 style="color:var(--
 function pedirArquivo(titulo,msg){return new Promise(res=>{const d=$("#dlg");let ok=false;
   d.innerHTML=`<form id="mm"><h2>${titulo}</h2><p>${msg}</p><label for="mf">Comprovante (foto, print ou PDF) <span class="req" aria-hidden="true">*</span></label><input id="mf" type="file" accept="image/*,application/pdf" required><p class="nota"><span class="req">*</span> Campo obrigatório</p><div class="row"><button type="button" class="btn ghost" id="mc">Cancelar</button><button class="btn">Enviar</button></div></form>`;
   $("#mm").onsubmit=e=>{e.preventDefault();ok=true;const f=$("#mf").files[0];d.close();res(f)};$("#mc").onclick=()=>d.close();d.onclose=()=>{d.onclose=null;if(!ok)res(null)};d.showModal()})}
-function totaisPub(){const D=S.doadores||[],r=S.resumo||{};return {total:+r.total||0,conf:+r.conf||0,analise:+r.analise||0,n:new Set(D.map(d=>d.servidorId)).size,nAn:D.filter(d=>d.status==="em_analise").length}}
+function totaisPub(){const D=S.doadores||[],r=S.resumo||{};return {total:+r.conf||0,conf:+r.conf||0,analise:0,n:new Set(D.map(d=>d.servidorId)).size,nAn:D.filter(d=>d.status==="em_analise").length}}
 function painelCampanha(){
   const t=totaisPub(),meta=+S.cfg.meta||0,pct=meta>0?Math.min(100,Math.round(t.total/meta*100)):0,por={};
   (S.doadores||[]).forEach(d=>{const x=por[d.servidorId]||(por[d.servidorId]={id:d.servidorId,nome:d.nome,foto:d.foto,pend:false});if(d.status==="em_analise")x.pend=true});
@@ -1190,10 +1190,10 @@ function painelCampanha(){
   return `<div class="dash">
     <div class="stat"><b>${brl(S.cfg.valorContribuicao)}</b><span>valor sugerido (pode ser mais)</span></div>
     <div class="stat ok"><b>${t.n}</b><span>servidores que já contribuíram</span></div>
-    <div class="stat ok"><b>${brl(t.total)}</b><span>arrecadado até agora${t.analise>0?" (inclui "+brl(t.analise)+" em conferência)":""}</span></div>
+    <div class="stat ok"><b>${brl(t.total)}</b><span>arrecadado e confirmado</span></div>
     <div class="stat"><b>${S.ap.length}</b><span>colegas que vamos presentear</span></div></div>
     ${meta>0?`<div class="bar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div><p class="cnt">${pct}% da meta de ${brl(meta)}</p>`:""}
-    ${S.cfg.mostrarDoadores!==false&&lista.length?`<h3 style="margin-top:22px">Quem já contribuiu</h3><div class="doadores">${lista.map(d=>`<div class="doador">${av(d,"md")}<span>${esc(d.nome)}</span>${S.admin&&vals[d.id]!=null?`<b>${brl(vals[d.id])}</b>`:""}${d.pend?'<small class="pend">em conferência</small>':""}</div>`).join("")}</div><p class="cnt">Obrigado a cada um de vocês! As contribuições em conferência já entram na soma geral e podem ser ajustadas pela coordenação.${S.admin?" Os valores individuais aparecem somente para administradores.":""}</p>`:""}`;
+    ${S.cfg.mostrarDoadores!==false&&lista.length?`<h3 style="margin-top:22px">Quem já contribuiu</h3><div class="doadores">${lista.map(d=>`<div class="doador">${av(d,"md")}<span>${esc(d.nome)}</span>${S.admin&&vals[d.id]!=null?`<b>${brl(vals[d.id])}</b>`:""}${S.admin&&d.pend?'<small class="pend">em conferência</small>':""}</div>`).join("")}</div><p class="cnt">Obrigado a cada um de vocês!${S.admin?" (Administrador: o status \"em conferência\" e os valores individuais aparecem só para você e demais administradores; o valor só entra no total depois que você confirmar.)":""}</p>`:""}`;
 }
 function prestacaoHtml(){
   if(!S.prest?.publicada)return "";
@@ -1285,7 +1285,7 @@ function itemCard(it,i,btn=true){
   return `<article class="prod">${it.foto?`<img src="${it.foto}" alt="${esc(it.nome)}">`:`<div class="ph" aria-hidden="true">${i?"🎁":"🎄"}</div>`}<h3>${esc(it.nome)}</h3><p>${esc(it.detalhe||"")}</p>${+it.preco>0?`<div class="preco">${brl(it.preco)}</div>`:""}${btn?`<a class="btn gold" href="#/contribuir">Quero contribuir</a>`:""}</article>`;
 }
 async function home(){
-  if(S.admin){try{await loadAdmin()}catch{}}
+  if(S.admin){try{await loadAdmin();if(S.perms.contribuicoes)await syncResumo(S.adm.contrib)}catch{}}
   const dias=diasRestantes(),v=S.cfg.valorContribuicao,data=fmt(S.cfg.dataEntrega);
   const prazo=dias>0?`Faltam ${dias} ${dias===1?"dia":"dias"} para a entrega dos presentes, em ${data}.`:dias===0?"A entrega dos presentes é hoje!":`Os presentes foram entregues em ${data}.`;
   return `
@@ -1528,7 +1528,7 @@ async function admin(p){
     <div><h3>Ainda não contribuíram (${semC.length})</h3>${semC.slice(0,40).map(x=>`<div>${esc(x.nome)} <small>${esc(x.area||"")}</small></div>`).join("")||"<p>Todos os cadastrados já contribuíram.</p>"}${semC.length>40?`<p>e mais ${semC.length-40}…</p>`:""}</div></div>
     <h3 style="margin-top:20px">Convidados sem cadastro (${pend.length})</h3>${pend.map(c=>`<div>${esc(c.nome)} <small>${esc(c.email||"")}</small></div>`).join("")||"<p>Nenhum pendente.</p>"}`;
   if(tab==="contribuicoes"){const r=listC(),f=S.fc;body=`<div class="dash"><div class="stat ok"><b>${brl(soma("confirmado"))}</b><span>confirmado (${nConf})</span></div><div class="stat"><b>${brl(soma("em_analise"))}</b><span>em análise (${nAn})</span></div><div class="stat falta"><b>${semC.length}</b><span>servidores sem contribuição</span></div></div>
-    ${nAn?`<div class="msg-info pend-aviso"><b>${nAn} ${nAn===1?"contribuição aguardando conferência":"contribuições aguardando conferência"}</b> (${brl(soma("em_analise"))}). Elas já aparecem em "Como está a campanha" e em "Quem já contribuiu". Confirme, recuse, edite ou exclua abaixo: a página pública se ajusta na hora.</div>`:""}
+    ${nAn?`<div class="msg-info pend-aviso"><b>${nAn} ${nAn===1?"contribuição aguardando conferência":"contribuições aguardando conferência"}</b> (${brl(soma("em_analise"))}). Os nomes já aparecem em "Quem já contribuiu", mas o valor só entra no total da campanha depois que você confirmar. Confirme, recuse, edite ou exclua abaixo.</div>`:""}
     <div class="${(S.doadores||[]).length===C.filter(x=>x.status==="confirmado"||x.status==="em_analise").length?"msg-ok":"msg-info"}">Na página da campanha aparecem ${(S.doadores||[]).length} de ${C.filter(x=>x.status==="confirmado"||x.status==="em_analise").length} contribuições (confirmadas e em conferência). <button class="btn sm ghost" onclick="W.sincDoadores()">Atualizar lista</button></div>
     <div class="row"><button class="btn" onclick="W.regManual()">+ Registrar contribuição</button><button class="btn ghost" onclick="W.csvContrib()">Baixar lista (CSV)</button></div>
     <div class="filtros"><input type="search" placeholder="Buscar por nome" aria-label="Buscar por nome" value="${esc(f.q)}" oninput="W.filtrar('fc','q',this.value)">
@@ -1638,8 +1638,8 @@ const svgPng=(svg,px)=>new Promise((ok,no)=>{const i=new Image();i.onload=()=>{c
 async function pubSet(b,x,status){const sv=(S.adm?.serv||[]).find(z=>z.id===x.servidorId)||{};b.set(doc(db,"doadores",x.id),{servidorId:x.servidorId,nome:String(sv.nome||x.servidorNome||"").slice(0,120),foto:await thumb(sv.foto,72),status,ano:S.cfg.ano,atualizadoEm:serverTimestamp()})}
 const pubDel=(b,id)=>b.delete(doc(db,"doadores",id));
 // Totais gerais da campanha (sem valores individuais), publicados em config/resumo
-async function syncResumo(C){const sm=st=>C.filter(x=>x.status===st).reduce((s,x)=>s+(+x.valor||0),0),conf=sm("confirmado"),analise=sm("em_analise"),r={ano:S.cfg.ano,conf,analise,total:conf+analise},o=S.resumo||{};
-  if(S.resumoBusy||(o.ano===r.ano&&o.conf===r.conf&&o.analise===r.analise&&o.total===r.total))return;
+async function syncResumo(C){const sm=st=>C.filter(x=>x.status===st).reduce((s,x)=>s+(+x.valor||0),0),conf=sm("confirmado"),r={ano:S.cfg.ano,conf,total:conf},o=S.resumo||{};
+  if(S.resumoBusy||(o.ano===r.ano&&o.conf===r.conf&&o.total===r.total&&o.analise===undefined))return;
   S.resumoBusy=true;try{await setDoc(doc(db,"config","resumo"),{...r,atualizadoEm:serverTimestamp()});S.resumo=r;S.pubTs=0}catch(e){console.warn("resumo",e)}S.resumoBusy=false}
 async function sincPublico(){const C=S.adm.contrib,b=writeBatch(db),ativos=C.filter(x=>x.status==="confirmado"||x.status==="em_analise");for(const x of ativos)await pubSet(b,x,x.status);for(const d of S.doadores||[])if(!ativos.some(x=>x.id===d.id))pubDel(b,d.id);await b.commit()}
 const abrirLink=u=>{const a=document.createElement("a");a.href=u;a.rel="noopener";document.body.appendChild(a);a.click();a.remove()};
