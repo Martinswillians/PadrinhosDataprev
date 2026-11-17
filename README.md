@@ -44,12 +44,17 @@ Site estático (GitHub Pages) + Firebase (Auth e Firestore). Os servidores contr
 4. **Publicar na página inicial:** mostra a mensagem em destaque para todos que abrirem o site ou o app; dá para ocultar depois.
 O site não dispara e-mails sozinho (isso exigiria um serviço de envio pago); ele prepara tudo e usa o seu e-mail. Não há mudança nas regras do Firestore.
 
+## Fotos na lista pública e nos cartões
+- As fotos de "Quem já contribuiu" e dos cartões de Natal vêm da lista pública (`doadores`), que guarda uma miniatura de cada servidor. Quando o **servidor troca a foto ou o nome em Meu perfil**, a própria lista é atualizada na hora. Quando o **administrador edita o servidor**, também.
+- Além disso, ao abrir o **Painel** (no máximo uma vez por minuto), o sistema compara a foto e o nome de cada servidor com os da lista pública e corrige o que estiver diferente. O botão **Atualizar lista** (Contribuições) força a correção.
+- Republique o `firestore.rules`: há regra nova para o servidor atualizar só o próprio nome e a miniatura na lista.
+
 ## Primeiro acesso de administrador
 Quem foi adicionado em Painel > Administradores e prefere e-mail e senha usa **Entrar > Primeiro acesso com e-mail e senha**: cria a senha pelo próprio site (não é preciso cadastrar o e-mail no console do Firebase) e confirma o e-mail pelo link recebido. Quem tem Gmail pode usar **Sou administrador: entrar com Google**. Na lista de administradores, o botão **Enviar instruções** manda o passo a passo pelo WhatsApp.
 
 ## Publicação
 1. **Firebase > Firestore > Regras:** cole o `firestore.rules` e publique (obrigatório: há regras novas para contribuições, comprovantes e prestação de contas).
-2. **GitHub:** envie **todos os arquivos desta pasta** (o `index.html` e os de ícone, manifesto, imagem de compartilhamento e `sw.js`) e atualize o site com Ctrl+F5. O rodapé mostra a versão (2026.10.24-r).
+2. **GitHub:** envie **todos os arquivos desta pasta** (o `index.html` e os de ícone, manifesto, imagem de compartilhamento e `sw.js`) e atualize o site com Ctrl+F5. O rodapé mostra a versão (2026.11.07-t).
 3. **Authentication:** E-mail/senha e Google ativados, com `martinswillians.github.io` em Authorized domains.
 4. Em **Painel > Campanha**, confira a chave PIX e a data de entrega e, se quiser, defina a meta. Os itens já vêm com as fotos e os preços do Chocottone (R$ 54,99) e da Cesta (R$ 73,49); ajuste se mudarem.
 
